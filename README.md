@@ -33,6 +33,11 @@ The dashboard handles things like starting/stopping applications, error handling
 ### Known Issues
 - If you are having random build failures, either turn of parallel build, or add a sudo-hierachy between the application instances. I think it's to do with multiple applications attempting to copy the same dlls into the target directory.
 
-## Noteworthy Applications
+## Applications
+
 ### Maze Solver
-![Maze Solver](Applications\MazeSolver\Sample.gif)
+![Maze Solver](Samples\MazeSolver.gif)
+
+### Driving Simulation / Self-Driving Neural Network
+
+![Simulation](Samples\DrivingSample.gif)
