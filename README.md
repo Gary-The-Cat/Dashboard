@@ -7,6 +7,8 @@ SFML.NET Application Dashboard
 - SFML (2D Graphics)
 - Dashboard for projects
 
+![Dashboard](Sample.PNG)
+
 ## Why I created this
 I have been programming for a long time. When I initially startred, I was at university, and I was not familiar with Git. I use to work on small little projects that I was excited about, get them to a state where they were decent (okay, not <strong>all</strong> of them), then zip the project folder, and chuck it on a hard drive and forget about it. Which was fine, until one day someone asked me what I do in my spare time, and the honest answer was nothing worth showing... 
 
