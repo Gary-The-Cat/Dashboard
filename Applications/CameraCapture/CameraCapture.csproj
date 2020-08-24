@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OpenCvSharp4" Version="4.4.0.20200725" />
+    <PackageReference Include="OpenCvSharp4.Windows" Version="4.4.0.20200725" />
+    <PackageReference Include="SFML.Net" Version="2.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Shared">
+      <HintPath>..\..\Shared\bin\Debug\netcoreapp3.1\Shared.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Resources\CameraCapture.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy /E /Y /I  &quot;$(TargetDir)*&quot; &quot;$(ProjectDir)..\..\Sandbox\$(OutDir)\Applications&quot;&#xD;&#xA;xcopy /E /Y /I &quot;$(TargetDir)Resources&quot; &quot;$(ProjectDir)..\..\Sandbox\$(OutDir)\Resources&quot;" />
+  </Target>
+
+</Project>
