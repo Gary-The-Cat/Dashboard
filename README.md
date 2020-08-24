@@ -1,6 +1,12 @@
 # Dashboard
 SFML.NET Application Dashboard
 
+### About Me
+I'm a software engineer, love writing code, love teaching people about code, and love chatting about code. Pull the repo, make changes, gut it and make it your own, I don't mind!
+
+Want to learn about Genetic Algorithms? Check out my [Series](https://www.youtube.com/channel/UCzvWh64GQm_OfkJXyYo7whQ?)!
+
+
 ## Details
 - C# Application
 - .NET Core
