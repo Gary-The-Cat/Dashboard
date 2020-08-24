@@ -82,7 +82,7 @@ namespace Shared.NeuralNetworks
         {
             // Using fixed number of training iterations is kind of a lazy approach, should really
             // implement some system that runs until we converge to an acceptable error value.
-            var iterations = 3;
+            var iterations = 1;
             var totalSteps = inputData.Count * iterations;
 
             for (int i = 0; i < iterations; i++)

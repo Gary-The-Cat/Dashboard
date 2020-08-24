@@ -41,3 +41,7 @@ The dashboard handles things like starting/stopping applications, error handling
 ### Driving Simulation / Self-Driving Neural Network
 
 ![Simulation](/Samples/DrivingSample.gif)
+
+### Number Prediction Neural Network
+
+![Number Prediction](/Samples/NumberPredictionSample.gif)
