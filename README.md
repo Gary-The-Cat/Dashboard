@@ -36,8 +36,8 @@ The dashboard handles things like starting/stopping applications, error handling
 ## Applications
 
 ### Maze Solver
-![Maze Solver](Samples\MazeSolver.gif)
+![Maze Solver](/Samples/MazeSolver.gif)
 
 ### Driving Simulation / Self-Driving Neural Network
 
-![Simulation](Samples\DrivingSample.gif)
+![Simulation](/Samples/DrivingSample.gif)
