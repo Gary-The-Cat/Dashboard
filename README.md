@@ -35,4 +35,4 @@ The dashboard handles things like starting/stopping applications, error handling
 
 ## Noteworthy Applications
 ### Maze Solver
-![Maze Solver](\Applications\MazeSolver\Sample.gif)
+![Maze Solver](Sample.gif)
