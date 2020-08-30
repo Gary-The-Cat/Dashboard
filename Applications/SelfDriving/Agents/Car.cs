@@ -23,6 +23,7 @@ namespace SelfDriving.Agents
 
         // Car physical attributes
         public Vector2f Position;
+
         public float Heading { get; private set; }
 
         private float initialHeading;
@@ -39,8 +40,6 @@ namespace SelfDriving.Agents
 
         // Collision
         private List<LineSegment> map;
-        internal List<LineSegment> raycasts;
-        internal Vector2f?[] collisions;
         private RectangleShape body;
 
         // Controller fitness tracking
@@ -49,6 +48,10 @@ namespace SelfDriving.Agents
         public float TimeAlive { get; set; }
 
         public int CheckpointsPassed => checkpointManager.CheckpointsPassed;
+
+        public Vector2f?[] Collisions { get; private set; }
+
+        public List<LineSegment> Raycasts { get; private set; }
 
         public Car(ICarAI controller)
         {
@@ -64,10 +67,10 @@ namespace SelfDriving.Agents
             this.cullMetrics = new List<Func<Car, bool>>();
 
             // Create the containers to hold the raycast visuals that will be updated each frame
-            raycasts = new List<LineSegment>();
+            Raycasts = new List<LineSegment>();
             for (int i = 0; i < this.Configuration.NumberOfRays; i++)
             {
-                raycasts.Add(new LineSegment(0, 0, 0, 0));
+                Raycasts.Add(new LineSegment(0, 0, 0, 0));
             }
 
             this.checkpointManager = new CheckpointManager();
@@ -86,10 +89,10 @@ namespace SelfDriving.Agents
             }
 
             // Update our raycasts to account for the movement in the last frame
-            raycasts = GetRaycasts();
-            var (rayDistances, collisions) = CollisionHelper.GetRaycastCollisions(raycasts, map);
+            Raycasts = GetRaycasts();
+            var (rayDistances, collisions) = CollisionHelper.GetRaycastCollisions(Raycasts, map);
 
-            this.collisions = collisions;
+            this.Collisions = collisions;
 
             // Get the next action to take
             var output = Controller.GetOutput(rayDistances, Position, Heading, checkpointManager.CurrentWaypoint);
@@ -140,7 +143,7 @@ namespace SelfDriving.Agents
             this.TotalDistance += previousPosition.Magnitude(Position);
         }
 
-        public bool CheckMapCollision()
+        private bool CheckMapCollision()
         {
             foreach (var segment in map)
             {
@@ -178,6 +181,16 @@ namespace SelfDriving.Agents
             Heading = initialHeading;
 
             Controller.Reset();
+        }
+
+        public void AddFitnessMetric(Func<Car, float> fitnessMetric)
+        {
+            this.fitnessMetrics.Add(fitnessMetric);
+        }
+
+        public void AddCullMetric(Func<Car, bool> cullMetric)
+        {
+            this.cullMetrics.Add(cullMetric);
         }
 
         public void SetCarStartState(Track track)
@@ -227,16 +240,6 @@ namespace SelfDriving.Agents
             }
 
             return casts;
-        }
-
-        public void AddFitnessMetric(Func<Car, float> fitnessMetric)
-        {
-            this.fitnessMetrics.Add(fitnessMetric);
-        }
-
-        public void AddCullMetric(Func<Car, bool> cullMetric)
-        {
-            this.cullMetrics.Add(cullMetric);
         }
 
         private void UpdateFitness(float deltaT, Vector2f previousPosition, Vector2f currentPosition)

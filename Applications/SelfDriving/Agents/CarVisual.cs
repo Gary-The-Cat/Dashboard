@@ -51,18 +51,18 @@ namespace SelfDriving.Agents
             for (int i = 0; i < car.Configuration.NumberOfRays; i++)
             {
                 var ray = raycasts[i];
-                var collision = car.collisions[i];
+                var collision = car.Collisions[i];
 
                 if (collision.HasValue)
                 {
-                    ray[0].Position = car.raycasts[i].Start;
+                    ray[0].Position = car.Raycasts[i].Start;
                     ray[1].Position = collision.Value;
                     ray[1].Color = Color.Red;
                 }
                 else
                 {
-                    ray[0].Position = car.raycasts[i].Start;
-                    ray[1].Position = car.raycasts[i].End;
+                    ray[0].Position = car.Raycasts[i].Start;
+                    ray[1].Position = car.Raycasts[i].End;
                     ray[1].Color = Color.Blue;
                 }
             }

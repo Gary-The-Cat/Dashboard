@@ -39,6 +39,18 @@ namespace Shared.ExtensionMethods
             target.Draw(sprite);
         }
 
+        public static void DrawString(this RenderTarget target, Text sprite, bool centre = true)
+        {
+            var bounds = sprite.GetLocalBounds();
+
+            if (centre)
+            {
+                sprite.Origin = new Vector2f(bounds.Width / 2, bounds.Height / 2);
+            }
+
+            target.Draw(sprite);
+        }
+
         public static void Draw(this RenderTarget target, CartesianGraph graph)
         {
             graph.Draw(target);

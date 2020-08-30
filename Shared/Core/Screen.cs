@@ -4,8 +4,11 @@ namespace Shared.Core
 {
     public class Screen
     {
+        public bool IsActive { get; set; }
+
         public virtual void OnEnter()
         {
+            IsActive = true;
         }
 
         public virtual void OnUpdate(float dt)
@@ -18,6 +21,7 @@ namespace Shared.Core
 
         public virtual void OnExit()
         {
+            IsActive = false;
         }
     }
 }

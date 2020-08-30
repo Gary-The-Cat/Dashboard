@@ -1,11 +1,12 @@
 ﻿using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
+using Shared.Core;
 using System;
 
 namespace Shared.Menus
 {
-    public class GridVisual
+    public class GridVisual : Screen
     {
         private const int MinPixelBuffer = 50;
 
@@ -17,8 +18,6 @@ namespace Shared.Menus
 
         // Do we want to let the user set a fixed size?
         public bool AutoScale { get; }
-
-        public bool IsActive { get; set; }
 
         public GridVisual(Vector2u gridSize, Vector2f position)
         {
@@ -53,6 +52,11 @@ namespace Shared.Menus
                 var menuItem = grid[gridPosition.Value.x, gridPosition.Value.y];
                 menuItem.OnClick?.Invoke();
             }
+        }
+
+        public void Clear()
+        {
+            this.grid = new IMenuItem[1, 1];
         }
 
         private (int, int)? GetGridPosition(Vector2f mousePosition)
@@ -137,7 +141,7 @@ namespace Shared.Menus
 
         public int NumRows => grid.GetLength(1);
 
-        public void OnRender(RenderTarget target)
+        public override void OnRender(RenderTarget target)
         {
             if (!IsActive)
             {

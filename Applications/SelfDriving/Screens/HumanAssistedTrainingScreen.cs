@@ -5,7 +5,6 @@ using SelfDriving.Shared;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
-using Shared.CameraTools;
 using Shared.Core;
 using Shared.Interfaces;
 using System.Collections.Generic;
@@ -32,7 +31,7 @@ namespace SelfDriving.Screens
 
             trackSelection = new TrackSelectionVisual(
                 application,
-                new SFML.System.Vector2f(0, 0),
+                new Vector2f(0, 0),
                 "Resources/Tracks");
 
             application.Window.KeyPressed += OnKeyPress;
