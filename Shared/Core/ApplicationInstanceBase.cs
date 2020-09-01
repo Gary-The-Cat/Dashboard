@@ -9,14 +9,12 @@ namespace Shared.Core
         {
             Debug.WriteLine($"Stop: {GetType().Name}");
             this.IsActive = false;
-            this.Screen?.OnExit();
         }
 
         public virtual void Start()
         {
             Debug.WriteLine($"Start: {GetType().Name}");
             this.IsActive = true;
-            this.Screen?.OnEnter();
         }
 
         public virtual void Initialize()
@@ -29,7 +27,6 @@ namespace Shared.Core
         {
             Debug.WriteLine($"Suspend: {GetType().Name}");
             this.IsActive = false;
-            this.Screen?.OnExit();
         }
 
         public virtual bool OnException()

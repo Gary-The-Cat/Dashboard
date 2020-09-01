@@ -151,7 +151,7 @@ namespace Dashboard.Core
 
         public View GetDefaultView()
         {
-            return new Camera(Configuration.SinglePlayer, Configuration).GetView();
+            return new Camera(Configuration).GetView();
         }
     }
 }

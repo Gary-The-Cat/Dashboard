@@ -27,7 +27,7 @@ namespace Dashboard.Screens
         public HomeScreen(
             IApplication application,
             Action<IApplicationInstance> setActiveApplication,
-            List<ApplicationInstanceVisual> applicationInstances)
+            List<ApplicationInstanceVisual> applicationInstances) : base(application)
         {
             this.application = application;
             this.setActiveApplication = setActiveApplication;
@@ -57,17 +57,13 @@ namespace Dashboard.Screens
             this.applicationDashboard.Draw(target);
         }
 
-        public override void OnExit()
+        public void OnExit()
         {
-            base.OnExit();
-
             this.applicationDashboard.IsActive = false;
         }
 
-        public override void OnEnter()
+        public void OnEnter()
         {
-            base.OnEnter();
-
             this.applicationDashboard.IsActive = true;
         }
     }

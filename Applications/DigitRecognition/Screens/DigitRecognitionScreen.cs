@@ -29,7 +29,7 @@ namespace DigitRecognition.Screens
 
         private IApplication application;
 
-        public DigitRecognitionScreen(IApplication application) : base()
+        public DigitRecognitionScreen(IApplication application) : base(application)
         {
             this.application = application;
 

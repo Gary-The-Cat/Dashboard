@@ -17,7 +17,7 @@ namespace SelfDriving.Screens
         private RaceScreen raceScreen;
         private IApplication application;
 
-        public SelfDrivingHomeScreen(IApplication application)
+        public SelfDrivingHomeScreen(IApplication application) : base(application)
         {
             this.application = application;
             grid = new GridVisual(application.Window.Size, new Vector2f(0, 0));
@@ -130,15 +130,13 @@ namespace SelfDriving.Screens
             activeScreen?.OnRender(target);
         }
 
-        public override void OnExit()
+        public void OnExit()
         {
-            base.OnExit();
             grid.IsActive = false;
         }
 
-        public override void OnEnter()
+        public void OnEnter()
         {
-            base.OnEnter();
             if (grid != null)
             {
                 grid.IsActive = true;

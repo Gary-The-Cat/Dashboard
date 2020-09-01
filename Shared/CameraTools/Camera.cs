@@ -19,7 +19,7 @@ namespace Shared.CameraTools
 
         private ScreenConfiguration configuration;
 
-        public Camera(FloatRect viewPort, ScreenConfiguration configuration)
+        public Camera(ScreenConfiguration configuration)
         {
             Position = new Vector2f(0, 0);
 
@@ -27,7 +27,7 @@ namespace Shared.CameraTools
                 new Vector2f(0, 0),
                 new Vector2f(configuration.Width, configuration.Height)));
 
-            this.ViewPort = viewPort;
+            this.ViewPort = configuration.SinglePlayer;
             this.configuration = configuration;
         }
 

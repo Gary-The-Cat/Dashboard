@@ -6,7 +6,7 @@ using System;
 
 namespace Shared.Menus
 {
-    public class GridVisual : Screen
+    public class GridVisual
     {
         private const int MinPixelBuffer = 50;
 
@@ -15,6 +15,8 @@ namespace Shared.Menus
         private IMenuItem[,] grid;
 
         private Vector2f position;
+
+        public bool IsActive { get; set; }
 
         // Do we want to let the user set a fixed size?
         public bool AutoScale { get; }
@@ -141,7 +143,7 @@ namespace Shared.Menus
 
         public int NumRows => grid.GetLength(1);
 
-        public override void OnRender(RenderTarget target)
+        public void OnRender(RenderTarget target)
         {
             if (!IsActive)
             {

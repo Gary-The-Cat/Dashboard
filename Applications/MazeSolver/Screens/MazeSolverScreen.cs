@@ -38,7 +38,7 @@ namespace MazeSolver.Screens
         private List<Vector2f> solutionPath;
         private int solutionPathCount;
 
-        public MazeSolverScreen(IApplication application) : base()
+        public MazeSolverScreen(IApplication application) :  base(application)
         {
             var size = new Vector2f(application.Window.Size.X, application.Window.Size.Y);
             isSolvingMaze = false;

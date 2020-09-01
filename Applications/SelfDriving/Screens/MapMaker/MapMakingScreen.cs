@@ -11,11 +11,11 @@ namespace SelfDriving.Screens.MapMaker
     {
         private IApplication application;
         private MapMakerState state;
+        private Screen mapEditorScreen;
 
-        private StackedScreen mapEditorScreen;
         private TrackSelectionVisual trackSelection;
 
-        public MapMakingScreen(IApplication application)
+        public MapMakingScreen(IApplication application) : base(application)
         {
             this.application = application;
             this.state = MapMakerState.TrackSelection;
@@ -27,9 +27,7 @@ namespace SelfDriving.Screens.MapMaker
 
             trackSelection.OnTrackSelected = OnTrackSelected;
 
-            mapEditorScreen = new StackedScreen();
-
-            mapEditorScreen.AddScreen(new MapMakerHudScreen(application));
+            mapEditorScreen = new MapMakerHudScreen(application);
 
             trackSelection.InsertTrack(new Track(), 0);
         }

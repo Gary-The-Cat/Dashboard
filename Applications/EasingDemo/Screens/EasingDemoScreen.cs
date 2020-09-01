@@ -12,7 +12,7 @@ namespace EasingDemo.Screens
     {
         private RectangleShape sprite;
 
-        public EasingDemoScreen(IApplication application, Color color)
+        public EasingDemoScreen(IApplication application, Color color) : base(application)
         {
             var size = application.Window.Size;
 
@@ -35,7 +35,7 @@ namespace EasingDemo.Screens
                 2);
         }
 
-        public override void OnEnter()
+        public void OnEnter()
         {
             Debug.WriteLine("EasingDemoScreen: Enter");
         }
@@ -50,7 +50,7 @@ namespace EasingDemo.Screens
             target.Draw(sprite);
         }
 
-        public override void OnExit()
+        public void OnExit()
         {
             Console.WriteLine("EasingDemoScreen: Exit");
         }

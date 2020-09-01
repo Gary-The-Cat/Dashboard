@@ -1,6 +1,7 @@
 ﻿using SFML.Graphics;
 using SFML.System;
 using Shared.Graphing;
+using Shared.Menus;
 
 namespace Shared.ExtensionMethods
 {
@@ -39,16 +40,15 @@ namespace Shared.ExtensionMethods
             target.Draw(sprite);
         }
 
-        public static void DrawString(this RenderTarget target, Text sprite, bool centre = true)
+        public static void DrawString(this RenderTarget target, Text text, bool centred = true)
         {
-            var bounds = sprite.GetLocalBounds();
-
-            if (centre)
+            if (centred)
             {
-                sprite.Origin = new Vector2f(bounds.Width / 2, bounds.Height / 2);
+                var size = text.GetLocalBounds();
+                text.Origin = new Vector2f(size.Width / 2, size.Height / 2);
             }
 
-            target.Draw(sprite);
+            target.Draw(text);
         }
 
         public static void Draw(this RenderTarget target, CartesianGraph graph)

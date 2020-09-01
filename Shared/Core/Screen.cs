@@ -1,27 +1,73 @@
 using SFML.Graphics;
+using Shared.CameraTools;
+using Shared.Interfaces;
+using Shared.ScreenConfig;
 
 namespace Shared.Core
 {
     public class Screen
     {
-        public bool IsActive { get; set; }
+        public Camera Camera { get; set; }
 
-        public virtual void OnEnter()
+        public bool IsUpdate { get; set; }
+
+        public bool IsDraw { get; set; }
+
+        public Screen(IApplication application)
         {
-            IsActive = true;
+            Camera = new Camera(application.Configuration);
+
+            IsUpdate = true;
+            IsDraw = true;
         }
 
-        public virtual void OnUpdate(float dt)
+
+        public virtual void OnUpdate(float deltaT)
         {
+            Camera.Update(deltaT);
+
         }
 
         public virtual void OnRender(RenderTarget target)
         {
+
         }
 
-        public virtual void OnExit()
+        public virtual void InitializeScreen()
         {
-            IsActive = false;
+
+        }
+
+        public void SetInactive()
+        {
+            IsUpdate = false;
+            IsDraw = false;
+        }
+
+        public void SetActive()
+        {
+            IsUpdate = true;
+            IsDraw = true;
+        }
+
+        public void SetUpdateInactive()
+        {
+            IsUpdate = false;
+        }
+
+        public void SetDrawInactive()
+        {
+            IsDraw = false;
+        }
+
+        public void SetUpdateActive()
+        {
+            IsUpdate = true;
+        }
+
+        public void SetDrawActive()
+        {
+            IsDraw = true;
         }
     }
 }

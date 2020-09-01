@@ -22,12 +22,12 @@ namespace SelfDriving.Screens
 
         private IApplication application;
 
-        public HumanAssistedTrainingScreen(IApplication application)
+        public HumanAssistedTrainingScreen(IApplication application) : base(application)
         {
             this.application = application;
 
             racingSimulation = new RacingSimulation(application);
-            racingSimulationVisualization = new RacingSimulationVisualization(racingSimulation);
+            racingSimulationVisualization = new RacingSimulationVisualization(application, racingSimulation);
 
             trackSelection = new TrackSelectionVisual(
                 application,
