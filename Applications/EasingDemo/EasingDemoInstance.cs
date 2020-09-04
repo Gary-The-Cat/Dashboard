@@ -32,20 +32,18 @@ namespace SandboxApplication.DemoApplication
 
         public RenderWindow RenderWindow { get; set; }
 
+        public new void Initialize()
+        {
+            base.Initialize();
+
+            Screen = new EasingDemoScreen(Application, Color.Blue);
+            Application.ApplicationManager.AddScreen(Screen);
+        }
+
+
         public new void Start()
         {
             base.Start();
-            this.Screen = new EasingDemoScreen(Application, Color.Blue);
-        }
-
-        public void OnUpdate(float deltaT)
-        {
-            Screen.OnUpdate(deltaT);
-        }
-
-        public void OnRender(RenderTarget target)
-        {
-            Screen.OnRender(target);
         }
     }
 }

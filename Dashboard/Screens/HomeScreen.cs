@@ -24,10 +24,12 @@ namespace Dashboard.Screens
 
         private ApplicationDashboard applicationDashboard;
 
+        private IApplicationInstance selectedApplication => applicationDashboard.SelectedApplication.ApplicationInstance;
+
         public HomeScreen(
             IApplication application,
             Action<IApplicationInstance> setActiveApplication,
-            List<ApplicationInstanceVisual> applicationInstances) : base(application)
+            List<ApplicationInstanceVisual> applicationInstances) : base(application.Configuration)
         {
             this.application = application;
             this.setActiveApplication = setActiveApplication;
@@ -36,15 +38,10 @@ namespace Dashboard.Screens
                 applicationInstances, 
                 application);
 
-            this.application.Window.KeyPressed += OnKeyPress;
-        }
-
-        private void OnKeyPress(object sender, KeyEventArgs e)
-        {
-            if (e.Code == Keyboard.Key.Enter)
-            {
-                this.setActiveApplication(applicationDashboard.SelectedApplication.ApplicationInstance);
-            }
+            this.RegisterKeyboardCallback(
+                application.Window,
+                Keyboard.Key.Enter,
+                () => this.setActiveApplication(selectedApplication));
         }
 
         public override void OnUpdate(float dt)
@@ -57,12 +54,12 @@ namespace Dashboard.Screens
             this.applicationDashboard.Draw(target);
         }
 
-        public void OnExit()
+        public override void Suspend()
         {
             this.applicationDashboard.IsActive = false;
         }
 
-        public void OnEnter()
+        public override void Resume()
         {
             this.applicationDashboard.IsActive = true;
         }

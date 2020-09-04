@@ -78,6 +78,7 @@ namespace Dashboard.Core
         {
             base.Initialize();
             Screen = new HomeScreen(Application, this.setActiveApplication, applications);
+            Application.ApplicationManager.AddScreen(Screen);
         }
 
         public void OnUpdate(float deltaT)

@@ -32,20 +32,17 @@ namespace MazeSolver
 
         public RenderWindow RenderWindow { get; set; }
 
+        public new void Initialize()
+        {
+            base.Initialize();
+
+            Screen = new MazeSolverScreen(Application);
+            Application.ApplicationManager.AddScreen(Screen);
+        }
+
         public new void Start()
         {
             base.Start();
-            this.Screen = new MazeSolverScreen(Application);
-        }
-
-        public void OnUpdate(float deltaT)
-        {
-            Screen.OnUpdate(deltaT);
-        }
-
-        public void OnRender(RenderTarget target)
-        {
-            Screen.OnRender(target);
         }
     }
 }

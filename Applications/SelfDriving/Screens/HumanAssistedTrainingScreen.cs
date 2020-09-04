@@ -22,7 +22,7 @@ namespace SelfDriving.Screens
 
         private IApplication application;
 
-        public HumanAssistedTrainingScreen(IApplication application) : base(application)
+        public HumanAssistedTrainingScreen(IApplication application) : base(application.Configuration)
         {
             this.application = application;
 
@@ -34,8 +34,9 @@ namespace SelfDriving.Screens
                 new Vector2f(0, 0),
                 "Resources/Tracks");
 
-            application.Window.KeyPressed += OnKeyPress;
-            application.Window.JoystickButtonPressed += OnJoystickPress;
+            RegisterKeyboardCallback(application.Window, Keyboard.Key.R, ResetSimulation);
+            RegisterKeyboardCallback(application.Window, Keyboard.Key.M, SetTrackSelection);
+            RegisterJoystickCallback(application.Window, 7, ResetSimulation);
 
             trackSelection.OnTrackSelected = OnTrackSelected;
 
@@ -63,28 +64,11 @@ namespace SelfDriving.Screens
             currentTrack = track;
         }
 
-        private void OnJoystickPress(object sender, JoystickButtonEventArgs e)
+        private void SetTrackSelection()
         {
-            // Options/Menu button using the SFML controller mapping.
-            if (e.Button == 7)
-            {
-                this.ResetSimulation();
-            }
-        }
-
-        private void OnKeyPress(object sender, KeyEventArgs e)
-        {
-            if (e.Code == Keyboard.Key.R)
-            {
-                this.ResetSimulation();
-            }
-
-            if (e.Code == Keyboard.Key.M)
-            {
-                ((RenderWindow)application.Window).SetView(application.GetDefaultView());
-                this.trackSelection.SetActive(true);
-                this.gameState = GameState.TrackSelection;
-            }
+            ((RenderWindow)application.Window).SetView(application.GetDefaultView());
+            this.trackSelection.SetActive(true);
+            this.gameState = GameState.TrackSelection;
         }
 
         private void ResetSimulation()

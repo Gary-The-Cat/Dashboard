@@ -37,7 +37,7 @@ namespace SelfDriving.Screens
 
         private bool TrackEvaluationFinished => simulation.GetCars().All(c => !c.IsRunning);
 
-        public SelfTrainingScreen(IApplication application, bool enableVisualization = true) : base(application)
+        public SelfTrainingScreen(IApplication application, bool enableVisualization = true) : base(application.Configuration)
         {
             this.application = application;
             random = new Random();

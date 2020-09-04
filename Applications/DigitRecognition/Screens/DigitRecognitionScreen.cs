@@ -29,7 +29,7 @@ namespace DigitRecognition.Screens
 
         private IApplication application;
 
-        public DigitRecognitionScreen(IApplication application) : base(application)
+        public DigitRecognitionScreen(IApplication application) : base(application.Configuration)
         {
             this.application = application;
 
@@ -63,26 +63,34 @@ namespace DigitRecognition.Screens
                 feedbackText.DisplayedString = "Ready to go";
             });
 
-            this.application.Window.KeyPressed += OnKeyPress;
+            RegisterKeyboardCallback(
+                application.Window,
+                Keyboard.Key.Right,
+                NextImage);
+
+            RegisterKeyboardCallback(
+                application.Window,
+                Keyboard.Key.Left,
+                PreviousImage);
         }
 
-        private void OnKeyPress(object sender, KeyEventArgs e)
+        private void NextImage()
         {
-            if (Keyboard.IsKeyPressed(Keyboard.Key.Right))
+            selectedImage++;
+            if (selectedImage == imageExtraction.ImageCount)
             {
-                selectedImage++;
-                if (selectedImage == imageExtraction.ImageCount)
-                {
-                    selectedImage = 0;
-                }
+                selectedImage = 0;
             }
-            else if (Keyboard.IsKeyPressed(Keyboard.Key.Left))
+
+            isGuessRequired = true;
+        }
+
+        private void PreviousImage()
+        {
+            selectedImage--;
+            if (selectedImage < 0)
             {
-                selectedImage--;
-                if (selectedImage < 0)
-                {
-                    selectedImage = imageExtraction.ImageCount - 1;
-                }
+                selectedImage = imageExtraction.ImageCount - 1;
             }
 
             isGuessRequired = true;

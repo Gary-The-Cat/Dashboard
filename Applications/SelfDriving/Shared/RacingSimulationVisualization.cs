@@ -20,7 +20,7 @@ namespace SelfDriving.Shared
 
         private CarVisual TrackedCar => carVisuals.Where(c => c.IsRunning).OrderByDescending(c => c.TotalDistance).FirstOrDefault();
 
-        public RacingSimulationVisualization(IApplication application, RacingSimulation simulation) : base(application)
+        public RacingSimulationVisualization(IApplication application, RacingSimulation simulation) : base(application.Configuration)
         {
             this.camera = new Camera(simulation.application.Configuration);
 

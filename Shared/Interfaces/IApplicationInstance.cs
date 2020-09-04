@@ -1,10 +1,13 @@
 ﻿using SFML.Graphics;
 using Shared.Core;
+using System;
 
 namespace Shared.Interfaces
 {
     public interface IApplicationInstance
     {
+        public Guid Id { get; }
+
         public string DisplayName { get; }
 
         public RectangleShape Thumbnail { get; set; }
@@ -24,12 +27,6 @@ namespace Shared.Interfaces
 
         // The code that should run every time the application is set to running within a session
         public void Start();
-
-        // The update trigger from the parent program for this application to update
-        public void OnUpdate(float deltaT);
-
-        // The render trigger from the parent program for this application to render
-        public void OnRender(RenderTarget target);
 
         // Pause the application, keep it loaded but is no longer running
         public void Suspend();

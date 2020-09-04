@@ -11,14 +11,17 @@ namespace SelfDriving.Screens.MapMaker
     {
         private IApplication application;
         private MapMakerState state;
-        private Screen mapEditorScreen;
+        private MapMakerHudScreen mapEditorHudScreen;
+        private MapMakerWorldScreen mapEditorWorldScreen;
 
         private TrackSelectionVisual trackSelection;
 
-        public MapMakingScreen(IApplication application) : base(application)
+        public MapMakingScreen(IApplication application) : base(application.Configuration)
         {
             this.application = application;
             this.state = MapMakerState.TrackSelection;
+
+            var sharedContainer = new MapMakerDataContainer();
 
             trackSelection = new TrackSelectionVisual(
                 application,
@@ -27,39 +30,31 @@ namespace SelfDriving.Screens.MapMaker
 
             trackSelection.OnTrackSelected = OnTrackSelected;
 
-            mapEditorScreen = new MapMakerHudScreen(application);
+            mapEditorWorldScreen = new MapMakerWorldScreen(application, sharedContainer);
+            mapEditorWorldScreen.SetInactive();
+
+            mapEditorHudScreen = new MapMakerHudScreen(application, sharedContainer);
+            mapEditorHudScreen.SetInactive();
+
+            application.ApplicationManager.AddScreen(mapEditorHudScreen);
+            application.ApplicationManager.AddScreen(mapEditorWorldScreen);
 
             trackSelection.InsertTrack(new Track(), 0);
         }
 
-        public override void OnUpdate(float dt)
-        {
-            switch (state)
-            {
-                case MapMakerState.TrackEditor:
-                    mapEditorScreen.OnUpdate(dt);
-                    break;
-                case MapMakerState.TrackSelection:
-                    break;
-            }
-        }
-
         public override void OnRender(RenderTarget target)
         {
-            switch (state)
-            {
-                case MapMakerState.TrackEditor:
-                    mapEditorScreen.OnRender(target);
-                    break;
-                case MapMakerState.TrackSelection:
-                    trackSelection.OnRender(target);
-                    break;
-            }
+            trackSelection.OnRender(target);
         }
 
-        private void OnTrackSelected(Track obj)
+        private void OnTrackSelected(Track track)
         {
-            state = MapMakerState.TrackEditor;
+            SetInactive();
+
+            mapEditorWorldScreen.SetActive();
+            mapEditorHudScreen.SetActive();
+
+            mapEditorWorldScreen.Initialize(track);
         }
     }
 }

@@ -2,6 +2,7 @@
 using SFML.Graphics;
 using Shared.Core;
 using Shared.Interfaces;
+using System;
 
 namespace CameraCapture
 {
@@ -31,10 +32,17 @@ namespace CameraCapture
 
         public RenderWindow RenderWindow { get; set; }
 
+        public new void Initialize()
+        {
+            base.Initialize();
+
+            Screen = new CameraCaptreScreen(Application);
+            Application.ApplicationManager.AddScreen(Screen);
+        }
+
         public new void Start()
         {
             base.Start();
-            this.Screen = new CameraCaptreScreen(Application);
         }
 
         public void OnUpdate(float deltaT)

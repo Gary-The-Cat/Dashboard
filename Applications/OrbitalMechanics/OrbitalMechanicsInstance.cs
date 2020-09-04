@@ -31,23 +31,19 @@ namespace OrbitalMechanics
 
         public RenderWindow RenderWindow { get; set; }
 
+        public new void Initialize()
+        {
+            base.Initialize();
+
+            Screen = new OrbitalMechanicsScreen(Application);
+            Application.ApplicationManager.AddScreen(Screen);
+        }
+
         public new void Start()
         {
             base.Start();
 
             Application.Window.SetMouseCursorVisible(true);
-
-            this.Screen = new OrbitalMechanicsScreen(Application);
-        }
-
-        public void OnUpdate(float deltaT)
-        {
-            Screen.OnUpdate(deltaT);
-        }
-
-        public void OnRender(RenderTarget target)
-        {
-            Screen.OnRender(target);
         }
     }
 }

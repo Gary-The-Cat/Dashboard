@@ -10,16 +10,23 @@ namespace SelfDriving.Screens
     public class SelfDrivingHomeScreen : Screen
     {
         private GridVisual grid;
-        private Screen activeScreen = null;
         private SelfTrainingScreen selfTrainingScreen;
         private HumanAssistedTrainingScreen humanAssistedTrainingScreen;
         private MapMakingScreen mapMakingScreen;
         private RaceScreen raceScreen;
         private IApplication application;
 
-        public SelfDrivingHomeScreen(IApplication application) : base(application)
+        public SelfDrivingHomeScreen(IApplication application) : base(application.Configuration)
         {
             this.application = application;
+
+            ConfigureGrid();
+
+            CreateModeScreens();
+        }
+
+        private void ConfigureGrid()
+        {
             grid = new GridVisual(application.Window.Size, new Vector2f(0, 0));
 
             grid.AddColumn();
@@ -37,6 +44,25 @@ namespace SelfDriving.Screens
             grid.AddMenuItem(1, 1, mapMakingMenuItem);
         }
 
+        private void CreateModeScreens()
+        {
+            humanAssistedTrainingScreen = new HumanAssistedTrainingScreen(application);
+            application.ApplicationManager.AddScreen(humanAssistedTrainingScreen);
+            humanAssistedTrainingScreen.SetInactive();
+
+            mapMakingScreen = new MapMakingScreen(application);
+            application.ApplicationManager.AddScreen(mapMakingScreen);
+            mapMakingScreen.SetInactive();
+
+            selfTrainingScreen = new SelfTrainingScreen(application);
+            application.ApplicationManager.AddScreen(selfTrainingScreen);
+            selfTrainingScreen.SetInactive();
+
+            raceScreen = new RaceScreen(application);
+            application.ApplicationManager.AddScreen(raceScreen);
+            raceScreen.SetInactive();
+        }
+
         private MenuItem GetRaceMenuItem()
         {
             var raceMenuItem = new MenuItem("RaceMenu");
@@ -49,8 +75,7 @@ namespace SelfDriving.Screens
             };
             raceMenuItem.OnClick = () =>
             {
-                activeScreen = raceScreen;
-                grid.IsActive = false;
+                SetActiveScreen(raceScreen);
             };
 
             return raceMenuItem;
@@ -58,22 +83,20 @@ namespace SelfDriving.Screens
 
         private MenuItem GetManualTrainingMenuItem()
         {
-            var raceMenuItem = new MenuItem("HumanAssisted");
+            var humanAssistedMenuItem = new MenuItem("HumanAssisted");
             var humanAssistedTexture = new Texture(new Image("Resources/HumanAssistedDriving.png"));
             humanAssistedTexture.GenerateMipmap();
             humanAssistedTexture.Smooth = true;
-            raceMenuItem.Canvas = new RectangleShape(new Vector2f(300, 300))
+            humanAssistedMenuItem.Canvas = new RectangleShape(new Vector2f(300, 300))
             {
                 Texture = humanAssistedTexture,
             };
-            raceMenuItem.OnClick = () =>
+            humanAssistedMenuItem.OnClick = () =>
             {
-                humanAssistedTrainingScreen = new HumanAssistedTrainingScreen(application);
-                activeScreen = humanAssistedTrainingScreen;
-                grid.IsActive = false;
+                SetActiveScreen(humanAssistedTrainingScreen);
             };
 
-            return raceMenuItem;
+            return humanAssistedMenuItem;
         }
 
         private MenuItem GetSelfTrainingMenuItem()
@@ -90,9 +113,7 @@ namespace SelfDriving.Screens
 
             selfTrainingMenuItem.OnClick = () =>
             {
-                selfTrainingScreen = new SelfTrainingScreen(application);
-                activeScreen = selfTrainingScreen;
-                grid.IsActive = false;
+                SetActiveScreen(selfTrainingScreen);
             };
 
             return selfTrainingMenuItem;
@@ -100,47 +121,43 @@ namespace SelfDriving.Screens
 
         private MenuItem GetMapMakingMenuItem()
         {
-            var mapMakingMenuItem = new MenuItem("MapMaking");
+            var mapMakerMenuItem = new MenuItem("MapMaking");
             var raceTexture = new Texture(new Image("Resources/SelfDrivingTrackMaking.png"));
             raceTexture.GenerateMipmap();
             raceTexture.Smooth = true;
-            mapMakingMenuItem.Canvas = new RectangleShape(new Vector2f(300, 300))
+            mapMakerMenuItem.Canvas = new RectangleShape(new Vector2f(300, 300))
             {
                 Texture = raceTexture,
             };
 
-            mapMakingMenuItem.OnClick = () =>
+            mapMakerMenuItem.OnClick = () =>
             {
-                mapMakingScreen = new MapMakingScreen(application);
-                activeScreen = mapMakingScreen;
-                grid.IsActive = false;
+                SetActiveScreen(mapMakingScreen);
             };
 
-            return mapMakingMenuItem;
+            return mapMakerMenuItem;
         }
 
-        public override void OnUpdate(float deltaT)
+        public void SetActiveScreen(Screen screen)
         {
-            activeScreen?.OnUpdate(deltaT);
+            screen.SetActive();
+            SetInactive();
+            grid.IsActive = false;
         }
 
         public override void OnRender(RenderTarget target)
         {
             grid.OnRender(target);
-            activeScreen?.OnRender(target);
         }
 
-        public void OnExit()
+        public override void Suspend()
         {
             grid.IsActive = false;
         }
 
-        public void OnEnter()
+        public override void Resume()
         {
-            if (grid != null)
-            {
-                grid.IsActive = true;
-            }
+            grid.IsActive = IsUpdate;
         }
     }
 }

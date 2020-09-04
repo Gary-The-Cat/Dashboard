@@ -44,7 +44,7 @@ namespace OrbitalMechanics.Screens
 
         private IApplication Application { get; set; }
 
-        public OrbitalMechanicsScreen(IApplication application) : base(application)
+        public OrbitalMechanicsScreen(IApplication application) : base(application.Configuration)
         {
             frame = 0;
 

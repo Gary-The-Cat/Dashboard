@@ -24,10 +24,6 @@ namespace SelfDriving
             {
                 Texture = texture
             };
-
-            var track = MapStructure.GetTrack();
-            var trackString = JsonConvert.SerializeObject(track, Formatting.Indented);
-            File.WriteAllText("C:\\Test\\Track_1.json", trackString);
         }
 
         public IApplication Application { get; set; }
@@ -40,20 +36,17 @@ namespace SelfDriving
 
         public RenderWindow RenderWindow { get; set; }
 
+        public new void Initialize()
+        {
+            base.Initialize();
+
+            Screen = new SelfDrivingHomeScreen(Application);
+            Application.ApplicationManager.AddScreen(this.Screen);
+        }
+
         public new void Start()
         {
             base.Start();
-            this.Screen = new SelfDrivingHomeScreen(Application);
-        }
-
-        public void OnUpdate(float deltaT)
-        {
-            Screen.OnUpdate(deltaT);
-        }
-
-        public void OnRender(RenderTarget target)
-        {
-            Screen.OnRender(target);
         }
     }
 }

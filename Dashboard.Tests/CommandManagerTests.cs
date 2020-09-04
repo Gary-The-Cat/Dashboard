@@ -2,23 +2,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shared.Commands;
 using Shared.Commands.BasicCommands;
 using Shared.Commands.Interfaces;
-using Shared.Core;
 using System;
 using System.Collections.Generic;
 
 namespace Dashboard.Tests
 {
     [TestClass]
-    public class UnitTest1
+    public class CommandManagerTests
     {
         [TestMethod]
-        public void CommandManagerTests()
-        {
-            this.BasicPrimitiveTest();
-
-            this.BasicListTest();
-        }
-
         private void BasicPrimitiveTest()
         {
             var initialValue = 100;
@@ -56,7 +48,8 @@ namespace Dashboard.Tests
             Assert.AreEqual(manager.Redo(), null);
             Assert.AreEqual(initialValue, 120);
         }
-
+        
+        [TestMethod]
         private void BasicListTest()
         {
             var list = new List<string>();

@@ -5,10 +5,10 @@ namespace SelfDriving.Shared
     public struct LineSegment
     {
         [JsonProperty("Start")]
-        public Vector2f Start { get; }
+        public Vector2f Start { get; set; }
 
         [JsonProperty("End")]
-        public Vector2f End { get; }
+        public Vector2f End { get; set; }
 
         public LineSegment(float x1, float y1, float x2, float y2)
         {

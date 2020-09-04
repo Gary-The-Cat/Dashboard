@@ -32,20 +32,17 @@ namespace DigitRecognition
 
         public RenderWindow RenderWindow { get; set; }
 
+        public new void Initialize()
+        {
+            base.Initialize();
+
+            Screen = new DigitRecognitionScreen(Application);
+            Application.ApplicationManager.AddScreen(Screen);
+        }
+
         public new void Start()
         {
             base.Start();
-            this.Screen = new DigitRecognitionScreen(Application);
-        }
-
-        public void OnUpdate(float deltaT)
-        {
-            Screen.OnUpdate(deltaT);
-        }
-
-        public void OnRender(RenderTarget target)
-        {
-            Screen.OnRender(target);
         }
     }
 }

@@ -2,7 +2,6 @@ using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using Shared.CameraTools;
-using Shared.Core;
 using Shared.Interfaces;
 using Shared.ScreenConfig;
 using System;
@@ -16,13 +15,15 @@ namespace Dashboard.Core
 
         private RenderWindow window;
 
-        private IApplicationInstance homeApplicationinstance;
-
-        private IApplicationInstance activeApplicationInstance;
-
-        public Screen Screen { get; set; }
-
         public ScreenConfiguration Configuration { get; set; }
+
+        public IApplicationManager ApplicationManager => AppManager;
+
+        private ApplicationManager AppManager { get; set; }
+
+        private IApplicationInstance ActiveApplication => AppManager.ActiveApplication;
+
+        private IApplicationInstance HomeApplication => AppManager.HomeApplication;
 
         public Application(RenderWindow window, ScreenConfiguration configuration)
         {
@@ -30,9 +31,11 @@ namespace Dashboard.Core
 
             this.Configuration = configuration;
 
-            homeApplicationinstance = new HomeApplicationInstance(this, SetActiveApplicationInstance);
+            AppManager = new ApplicationManager(this);
 
-            activeApplicationInstance = homeApplicationinstance;
+            AppManager.HomeApplication = new HomeApplicationInstance(this, AppManager.SetActiveApplication);
+
+            AppManager.SetActiveApplication(HomeApplication);
         }
 
         public void Start()
@@ -45,7 +48,7 @@ namespace Dashboard.Core
             // Run
             this.Run();
 
-            activeApplicationInstance.Stop();
+            ActiveApplication.Stop();
         }
 
         public void Run()
@@ -63,10 +66,10 @@ namespace Dashboard.Core
                     window.Clear(new Color(0xe9, 0xe9, 0xe9));
 
                     // Update, not sure extent of logic to do in this class
-                    OnUpdate(0.016f);
+                    AppManager.OnUpdate(0.016f);
 
                     // Draw, not sure extent of logic to do in this class
-                    OnRender(window);
+                    AppManager.OnRender(window);
 
                     // Display updated frame
                     window.Display();
@@ -75,44 +78,20 @@ namespace Dashboard.Core
             catch (Exception e)
             {
                 // Log the error
-                Debug.WriteLine($"Application '{activeApplicationInstance.DisplayName}' exited with exception\n{e.InnerException}");
+                Debug.WriteLine($"Application '{ActiveApplication.DisplayName}' exited with exception\n{e.InnerException}");
 
                 // Cleanup the application & perform recovery where possible
-                if (this.activeApplicationInstance.OnException())
+                if (ActiveApplication.OnException())
                 {
-                    this.SetActiveApplicationInstance(this.activeApplicationInstance);
+                    AppManager.SetActiveApplication(ActiveApplication);
                 }
                 else
                 {
-                    this.SetActiveApplicationInstance(this.homeApplicationinstance);
+                    AppManager.SetActiveApplication(ActiveApplication);
                 }
 
-                this.Run();
+                Run();
             }
-        }
-
-        public void Stop()
-        {
-            window.Close();
-        }
-
-        private void SetActiveApplicationInstance(IApplicationInstance applicationInstance)
-        {
-            // Suspend the current application instance
-            this.activeApplicationInstance.Suspend();
-
-            // Probably need to think of a nicer way to do this, but for now passing in null brings us back to our home screen
-            this.activeApplicationInstance = applicationInstance ?? homeApplicationinstance;
-                        
-            // Ensure that the application has been initialized
-            if (this.activeApplicationInstance.IsInitialized)
-            {
-                this.activeApplicationInstance.Initialize();
-            }
-
-            // Every time an application becomes active, we call start, regardless of initialization status.
-            this.activeApplicationInstance.Start();
-            
         }
 
         private void Initialise()
@@ -121,32 +100,6 @@ namespace Dashboard.Core
             {
                 window = new RenderWindow(new VideoMode(1280, 720), "Application");
             }
-
-            this.activeApplicationInstance.Initialize();
-
-            // TODO initialise keyboard/mouse objects once they exist.
-        }
-
-        private void OnUpdate(float deltaT)
-        {
-            // Check if the user wants to return home. I like this being above the logic of the currently active application.
-            // But perhaps not this high, not sure if we need a level lower than this that is in charge of managing the
-            // application instances. This could be a single layer that could provide pause / playback functionality
-            // etc to any of the games/simulations we make.
-            if (Keyboard.IsKeyPressed(Keyboard.Key.Escape))
-            {
-                this.SetActiveApplicationInstance(null);
-
-                // We always reset the camera to the default view
-                this.window.SetView(GetDefaultView());
-            }
-
-            activeApplicationInstance.OnUpdate(deltaT);
-        }
-
-        private void OnRender(RenderTarget target)
-        {
-            activeApplicationInstance.OnRender(target);
         }
 
         public View GetDefaultView()

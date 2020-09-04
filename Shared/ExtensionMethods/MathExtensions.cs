@@ -43,5 +43,10 @@ namespace Shared.ExtensionMethods
             }
             return value;
         }
+
+        public static float GetDegreesFromRadians(this float value)
+        {
+            return value / PI * 180;
+        }
     }
 }

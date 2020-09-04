@@ -1,10 +1,16 @@
-﻿using System;
+﻿using SFML.Graphics;
+using System;
 using System.Diagnostics;
 
 namespace Shared.Core
 {
     public class ApplicationInstanceBase
     {
+        public ApplicationInstanceBase()
+        {
+            Id = Guid.NewGuid();
+        }
+
         public virtual void Stop()
         {
             Debug.WriteLine($"Stop: {GetType().Name}");
@@ -34,6 +40,7 @@ namespace Shared.Core
             Debug.WriteLine($"Exception thrown and unhandled by: {GetType().Name}");
             return false;
         }
+        public Guid Id { get; set; }
 
         public virtual Screen Screen { get; set; }
 

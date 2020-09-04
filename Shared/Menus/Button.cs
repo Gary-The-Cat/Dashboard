@@ -73,10 +73,7 @@ namespace Shared.Menus
 
         public void OnUpdate()
         {
-            if (Mouse.IsButtonPressed(Mouse.Button.Left))
-            {
-                callback.Invoke();
-            }
+
         }
 
         public void OnRender(RenderTarget target)
@@ -103,6 +100,16 @@ namespace Shared.Menus
 
             // Get the centre of the text
             return resultantPosition;
+        }
+
+        public FloatRect GetGlobalBounds()
+        {
+            return background.GetGlobalBounds();
+        }
+
+        public void OnClick()
+        {
+            callback.Invoke();
         }
     }
 }
