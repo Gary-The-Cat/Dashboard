@@ -1,4 +1,5 @@
 ﻿using SelfDriving.DataStructures;
+using SelfDriving.Screens.MapMaker.Commands;
 using SelfDriving.Shared;
 using SFML.Graphics;
 using SFML.System;
@@ -47,6 +48,8 @@ namespace SelfDriving.Screens.MapMaker
 
             RegisterMouseMoveCallback(application.Window, OnMouseMove);
             RegisterMouseClickCallback(application.Window, Mouse.Button.Left, OnMouseClick);
+            RegisterKeyboardCallback(application.Window, Keyboard.Key.Z, OnUndo, controlModifier: true);
+            RegisterKeyboardCallback(application.Window, Keyboard.Key.Y, OnRedo, controlModifier: true);
 
             var carConfig = new CarConfiguration();
 
@@ -69,6 +72,16 @@ namespace SelfDriving.Screens.MapMaker
             var windowSize = application.Window.Size;
             this.size = new Vector2f(windowSize.X, windowSize.Y);
             carForScale.Position = size / 2;
+        }
+
+        private void OnUndo()
+        {
+            commandManager.Undo();
+        }
+
+        private void OnRedo()
+        {
+            commandManager.Redo();
         }
 
         public void Initialize(Track track)
@@ -118,7 +131,11 @@ namespace SelfDriving.Screens.MapMaker
             if (!isDrawing)
             {
                 var (nearestPoint, distance) = sharedContainer.GetNearestPoint(point, isDrawing);
-                currentSegmentId = sharedContainer.AddTrackSegment(distance < 10 ? nearestPoint.Value : point, point);
+                var startPoint = distance < 10 ? nearestPoint.Value : point;
+                var command = new AddSegmentCommand((startPoint, point), sharedContainer);
+                commandManager.ExecuteCommand(command);
+
+                currentSegmentId = command.GetSegmentId();
                 isDrawing = true;
             }
             else

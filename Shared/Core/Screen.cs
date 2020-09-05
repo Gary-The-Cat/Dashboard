@@ -24,11 +24,21 @@ namespace Shared.Core
             IsDraw = true;
         }
 
-        public void RegisterKeyboardCallback(Window window, Keyboard.Key key, Action callback)
+        public void RegisterKeyboardCallback(
+            Window window,
+            Keyboard.Key key,
+            Action callback,
+            bool controlModifier = false,
+            bool shiftModifier = false)
         {
             window.KeyPressed += (_, e) =>
             {
                 if (!IsActive() || e.Code != key)
+                {
+                    return;
+                }
+
+                if (controlModifier != e.Control || shiftModifier != e.Shift)
                 {
                     return;
                 }

@@ -34,6 +34,11 @@ namespace SelfDriving.Screens.MapMaker
             return segmentId;
         }
 
+        public bool RemoveSegment(Guid segmentId)
+        {
+            return trackSegments.Remove(segmentId);
+        }
+
         public void SetSegmentEnd(Guid segmentId, Vector2f endPoint)
         {
             var segment = trackSegments[segmentId];

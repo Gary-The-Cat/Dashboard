@@ -38,33 +38,37 @@ namespace Shared.CameraTools
                 return;
             }
 
+            var isControlPressed =
+                Keyboard.IsKeyPressed(Keyboard.Key.LControl) ||
+                Keyboard.IsKeyPressed(Keyboard.Key.RControl);
+
             var ratio = configuration.Width / (float)configuration.Height;
             var offset = new Vector2f(0, 0);
-            if (Keyboard.IsKeyPressed(configuration.PanUp))
+            if (Keyboard.IsKeyPressed(configuration.PanUp) && !isControlPressed)
             {
                 offset.Y -= 400f * deltaT;
             }
 
-            if (Keyboard.IsKeyPressed(configuration.PanLeft))
+            if (Keyboard.IsKeyPressed(configuration.PanLeft) && !isControlPressed)
             {
                 offset.X -= 400f * deltaT / ratio;
             }
 
-            if (Keyboard.IsKeyPressed(configuration.PanDown))
+            if (Keyboard.IsKeyPressed(configuration.PanDown) && !isControlPressed)
             {
                 offset.Y += 400f * deltaT;
             }
 
-            if (Keyboard.IsKeyPressed(configuration.PanRight))
+            if (Keyboard.IsKeyPressed(configuration.PanRight) && !isControlPressed)
             {
                 offset.X += 400f * deltaT / ratio;
             }
 
-            if (Keyboard.IsKeyPressed(configuration.ZoomIn))
+            if (Keyboard.IsKeyPressed(configuration.ZoomIn) && !isControlPressed)
             {
                 this.Zoom += 0.1f * deltaT;
             }
-            else if (Keyboard.IsKeyPressed(configuration.ZoomOut))
+            else if (Keyboard.IsKeyPressed(configuration.ZoomOut) && !isControlPressed)
             {
                 this.Zoom -= 0.1f * deltaT;
             }
