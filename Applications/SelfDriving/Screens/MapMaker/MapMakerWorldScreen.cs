@@ -9,6 +9,7 @@ using Shared.Commands;
 using Shared.Core;
 using Shared.Interfaces;
 using System;
+using System.Collections.Generic;
 
 namespace SelfDriving.Screens.MapMaker
 {
@@ -33,6 +34,10 @@ namespace SelfDriving.Screens.MapMaker
         private Guid currentSegmentId;
 
         private bool isMoving;
+
+        private List<(Guid, int)> currentVertices;
+
+        private MoveVertexCommand currentMoveVertexCommand;
 
         public MapMakerWorldScreen(
             IApplication application,
@@ -149,18 +154,58 @@ namespace SelfDriving.Screens.MapMaker
         {
             if (isMoving)
             {
-
+                commandManager.ExecuteCommand(currentMoveVertexCommand);
+                currentMoveVertexCommand = null;
+                currentVertices = null;
+                isMoving = false;
             }
             else
             {
+                var (nearestPoint, distance) = sharedContainer.GetNearestPoint(point, isDrawing);
+
+                if(distance > 10)
+                {
+                    nearestPoint = point;
+                }
+
+                currentVertices = sharedContainer.GetSegmentsContaining(nearestPoint.Value);
+                currentMoveVertexCommand = new MoveVertexCommand(currentVertices, nearestPoint.Value, sharedContainer);
+
                 isMoving = true;
             }
         }
 
         private void OnMouseMove(float x, float y)
         {
+            
             var point = GetWorldPosition(x, y, Camera);
 
+            switch (sharedContainer.EditState)
+            {
+                case MapEditState.DrawingLines:
+                    ProcessDrawMove(point);
+                    break;
+                case MapEditState.MovingPoints:
+                    ProcessMoveMove(point);
+                    break;
+            }
+        }
+
+        private void ProcessMoveMove(Vector2f point)
+        {
+            if (isMoving)
+            {
+                currentVertices.ForEach(v => sharedContainer.SetVertexPosition(v.Item1, v.Item2, point));
+                currentMoveVertexCommand.UpdateFinalPosition(point);
+            }
+            else
+            {
+
+            }
+        }
+
+        private void ProcessDrawMove(Vector2f point)
+        {
             var (nearestPoint, distance) = sharedContainer.GetNearestPoint(point, isDrawing);
 
             if (isDrawing)
@@ -188,7 +233,7 @@ namespace SelfDriving.Screens.MapMaker
                     }
                     else
                     {
-                        angle +=  (45 - angleDelta);
+                        angle += (45 - angleDelta);
                     }
 
                     var length = sharedContainer.GetCurrentSegmentLength();

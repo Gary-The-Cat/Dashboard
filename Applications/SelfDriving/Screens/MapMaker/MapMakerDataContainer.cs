@@ -41,8 +41,13 @@ namespace SelfDriving.Screens.MapMaker
 
         public void SetSegmentEnd(Guid segmentId, Vector2f endPoint)
         {
+            SetVertexPosition(segmentId, 1, endPoint);
+        }
+
+        public void SetVertexPosition(Guid segmentId, int vertexId, Vector2f position)
+        {
             var segment = trackSegments[segmentId];
-            segment[1].Position = endPoint;
+            segment[vertexId].Position = position;
         }
 
         public (Vector2f start, Vector2f end) GetSegment(Guid segmentId)
@@ -102,6 +107,26 @@ namespace SelfDriving.Screens.MapMaker
             }
 
             return (nearestPoint, closestDistance);
+        }
+
+        public List<(Guid, int)> GetSegmentsContaining(Vector2f point)
+        {
+            var segmentsContainingPoint = new List<(Guid, int)>();
+
+            foreach (var segment in trackSegments)
+            {
+                if (segment.Value[0].Position == point)
+                {
+                    segmentsContainingPoint.Add((segment.Key, 0));
+                }
+
+                if (segment.Value[1].Position == point)
+                {
+                    segmentsContainingPoint.Add((segment.Key, 1));
+                }
+            }
+
+            return segmentsContainingPoint;
         }
     }
 }
