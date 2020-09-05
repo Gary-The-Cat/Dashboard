@@ -4,6 +4,7 @@ using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using Shared.CameraTools;
+using Shared.Commands;
 using Shared.Core;
 using Shared.Interfaces;
 using System;
@@ -18,6 +19,8 @@ namespace SelfDriving.Screens.MapMaker
 
         private MapMakerDataContainer sharedContainer;
 
+        private CommandManager commandManager;
+
         private IApplication application;
 
         private Vector2f size;
@@ -25,6 +28,8 @@ namespace SelfDriving.Screens.MapMaker
         private Vector2f OffScreen = new Vector2f(float.MinValue, float.MinValue);
 
         private bool isDrawing;
+
+        private Guid currentSegmentId;
 
         private bool isMoving;
 
@@ -35,11 +40,13 @@ namespace SelfDriving.Screens.MapMaker
             this.application = application;
             this.sharedContainer = sharedContainer;
 
+            commandManager = new CommandManager();
+
             this.isDrawing = false;
             this.isMoving = false;
 
             RegisterMouseMoveCallback(application.Window, OnMouseMove);
-            RegisterMouseClickCallback(application.Window, Mouse.Button.Right, OnMouseClick);
+            RegisterMouseClickCallback(application.Window, Mouse.Button.Left, OnMouseClick);
 
             var carConfig = new CarConfiguration();
 
@@ -80,7 +87,10 @@ namespace SelfDriving.Screens.MapMaker
 
             target.Draw(pointHighlight);
 
-            sharedContainer.trackSegments.ForEach(s => target.Draw(s, 0, 2, PrimitiveType.Lines));
+            foreach (var segment in sharedContainer.trackSegments.Values)
+            {
+                target.Draw(segment, 0, 2, PrimitiveType.Lines);
+            }
         }
 
         public override void OnUpdate(float deltaT)
@@ -108,12 +118,13 @@ namespace SelfDriving.Screens.MapMaker
             if (!isDrawing)
             {
                 var (nearestPoint, distance) = sharedContainer.GetNearestPoint(point, isDrawing);
-                sharedContainer.AddTrackSegment(distance < 10 ? nearestPoint.Value : point, point);
+                currentSegmentId = sharedContainer.AddTrackSegment(distance < 10 ? nearestPoint.Value : point, point);
                 isDrawing = true;
             }
             else
             {
                 isDrawing = false;
+                currentSegmentId = Guid.Empty;
             }
         }
 
@@ -140,18 +151,18 @@ namespace SelfDriving.Screens.MapMaker
                 // Check to see if we should snap to a point
                 if (distance < 10)
                 {
-                    sharedContainer.SetCurrentSegmentEnd(nearestPoint.Value);
+                    sharedContainer.SetSegmentEnd(currentSegmentId, nearestPoint.Value);
                     pointHighlight.Position = nearestPoint.Value;
                 }
                 else
                 {
-                    sharedContainer.SetCurrentSegmentEnd(point);
+                    sharedContainer.SetSegmentEnd(currentSegmentId, point);
                     pointHighlight.Position = OffScreen;
                 }
 
                 if (Keyboard.IsKeyPressed(Keyboard.Key.LShift))
                 {
-                    var start = sharedContainer.GetCurrentSegment().start;
+                    var start = sharedContainer.GetSegment(currentSegmentId).start;
                     var angle = sharedContainer.GetCurrentSegmentAngle() / 3.14159f * 180;
                     var angleDelta = angle % 45;
                     if (angleDelta < 22.5)
@@ -170,7 +181,7 @@ namespace SelfDriving.Screens.MapMaker
                         (float)(start.X + length * Math.Cos(angleInRadians)),
                         (float)(start.Y + length * Math.Sin(angleInRadians)));
 
-                    sharedContainer.SetCurrentSegmentEnd(newEndPoint);
+                    sharedContainer.SetSegmentEnd(currentSegmentId, newEndPoint);
                 }
             }
             else
@@ -188,9 +199,14 @@ namespace SelfDriving.Screens.MapMaker
 
         private Vector2f GetWorldPosition(float x, float y, Camera camera)
         {
-            var topRight = camera.GetView().Center - size / 2;
+            var cameraView = camera.GetView();
+            var topLeft = cameraView.Center - cameraView.Size / 2;
+            var xFraction = x / size.X;
+            var yFraction = y / size.Y;
 
-            return new Vector2f(topRight.X + x, topRight.Y + y);
+            return new Vector2f(
+                topLeft.X + (xFraction * cameraView.Size.X), 
+                topLeft.Y + (yFraction * cameraView.Size.Y));
         }
     }
 }

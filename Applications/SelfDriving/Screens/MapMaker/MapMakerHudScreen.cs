@@ -31,12 +31,15 @@ namespace SelfDriving.Screens.MapMaker
 
             application.Window.KeyPressed += OnKeyPress;
 
-            application.Window.MouseButtonPressed += OnMousePress;
+            RegisterMouseClickCallback(
+                application.Window,
+                Mouse.Button.Right,
+                OnMousePress);
 
-            var stateTextPosition = new Vector2f(application.Window.Size.X / 2, application.Window.Size.Y / 2);
+            var stateTextPosition = new Vector2f(application.Window.Size.X - 120, application.Window.Size.Y - 60);
 
             stateText = new Button(
-                "Small Test", 
+                MapEditState.DrawingLines.ToString(), 
                 stateTextPosition,
                 () => { },
                 HorizontalAlignment.Centre);
@@ -76,18 +79,11 @@ namespace SelfDriving.Screens.MapMaker
             this.stateText.Text = state.ToString();
         }
 
-        private void OnMousePress(object sender, MouseButtonEventArgs e)
+        private void OnMousePress(float x, float y)
         {
-            if (!this.IsUpdate)
-            {
-                return;
-            }
-
-            var position = new Vector2f(e.X, e.Y);
-
             buttons.ForEach(b => 
             {
-                if (b.GetGlobalBounds().Contains(e.X, e.Y))
+                if (b.GetGlobalBounds().Contains(x, y))
                 {
                     b.OnClick();
                 }
