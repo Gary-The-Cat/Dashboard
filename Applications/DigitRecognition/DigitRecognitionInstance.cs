@@ -34,10 +34,10 @@ namespace DigitRecognition
 
         public new void Initialize()
         {
-            base.Initialize();
-
             Screen = new DigitRecognitionScreen(Application);
             Application.ApplicationManager.AddScreen(Screen);
+
+            base.Initialize();
         }
 
         public new void Start()

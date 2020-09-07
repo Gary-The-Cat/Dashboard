@@ -38,10 +38,10 @@ namespace SelfDriving
 
         public new void Initialize()
         {
-            base.Initialize();
-
             Screen = new SelfDrivingHomeScreen(Application);
             Application.ApplicationManager.AddScreen(this.Screen);
+
+            base.Initialize();
         }
 
         public new void Start()

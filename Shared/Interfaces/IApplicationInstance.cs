@@ -10,6 +10,8 @@ namespace Shared.Interfaces
 
         public string DisplayName { get; }
 
+        public ScreenManager ScreenManager { get; set; }
+
         public RectangleShape Thumbnail { get; set; }
 
         public IApplication Application { get; set; }
@@ -36,5 +38,9 @@ namespace Shared.Interfaces
 
         // Recover the application from the exception thrown, return true if recovered, false if unable to recover.
         public bool OnException();
+
+        public void OnUpdate(float deltaT);
+
+        public void OnRender(RenderTarget target);
     }
 }

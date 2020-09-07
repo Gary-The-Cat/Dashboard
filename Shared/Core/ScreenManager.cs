@@ -1,5 +1,4 @@
 ﻿using SFML.Graphics;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,45 +6,35 @@ namespace Shared.Core
 {
     public class ScreenManager
     {
-        private Dictionary<Guid, List<Screen>> applicationScreens;
+        private List<Screen> screens;
 
-        private List<Screen> activeApplicationScreens => applicationScreens[ActiveApplication];
-
-        public Guid ActiveApplication { get; set; }
 
         public ScreenManager()
         {
-            applicationScreens = new Dictionary<Guid, List<Screen>>();
+            screens = new List<Screen>();
         }
 
         public void AddScreen(Screen screen)
         {
-            if (!applicationScreens.ContainsKey(ActiveApplication))
-            {
-                applicationScreens.Add(ActiveApplication, new List<Screen>());
-            }
-
-            var screens = activeApplicationScreens;
-
             screens.Insert(0, screen);
         }
 
         public void RemoveScreen(Screen screen)
         {
-            activeApplicationScreens.Remove(screen);
+            screens.Remove(screen);
         }
 
         public void OnResize(float width, float height)
         {
-            foreach (var screen in applicationScreens)
+            foreach (var screen in screens)
             {
-                ////screen.Camera.ScaleToWindow(width, height);
+                screen.Camera.ScaleToWindow(width, height);
             }
         }
 
         public void OnUpdate(float deltaT)
         {
-            foreach (var screen in activeApplicationScreens.Where(s => s.IsUpdate))
+            foreach (var screen in screens.Where(s => s.IsUpdate))
             {
                 screen.OnUpdate(deltaT);
             }
@@ -53,7 +42,7 @@ namespace Shared.Core
 
         public void OnRender(RenderTarget target)
         {
-            foreach (var screen in activeApplicationScreens.Where(s => s.IsDraw))
+            foreach (var screen in screens.Where(s => s.IsDraw))
             {
                 target.SetView(screen.Camera.GetView());
                 screen.OnRender(target);
@@ -62,7 +51,7 @@ namespace Shared.Core
 
         public void Suspend()
         {
-            foreach (var screen in activeApplicationScreens)
+            foreach (var screen in screens)
             {
                 screen.Suspend();
             }
@@ -70,20 +59,18 @@ namespace Shared.Core
 
         public void Resume()
         {
-            foreach (var screen in activeApplicationScreens)
+            foreach (var screen in screens)
             {
                 screen.Resume();
             }
         }
 
-        public bool IsScreenActive(Screen screen)
+        public void Start()
         {
-            if (!activeApplicationScreens.Contains(screen))
+            foreach (var screen in screens)
             {
-                return false;
+                screen.Start();
             }
-
-            return screen.IsUpdate || screen.IsDraw;
         }
     }
 }

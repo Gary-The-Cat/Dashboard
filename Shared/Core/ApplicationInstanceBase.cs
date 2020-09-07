@@ -9,6 +9,7 @@ namespace Shared.Core
         public ApplicationInstanceBase()
         {
             Id = Guid.NewGuid();
+            ScreenManager = new ScreenManager();
         }
 
         public virtual void Stop()
@@ -27,11 +28,13 @@ namespace Shared.Core
         {
             Debug.WriteLine($"Initialize: {GetType().Name}");
             this.IsInitialized = true;
+            ScreenManager.Start();
         }
 
         public virtual void Suspend()
         {
             Debug.WriteLine($"Suspend: {GetType().Name}");
+            this.ScreenManager.Suspend();
             this.IsActive = false;
         }
 
@@ -40,6 +43,17 @@ namespace Shared.Core
             Debug.WriteLine($"Exception thrown and unhandled by: {GetType().Name}");
             return false;
         }
+
+        public virtual void OnUpdate(float deltaT)
+        {
+            ScreenManager.OnUpdate(deltaT);
+        }
+
+        public virtual void OnRender(RenderTarget target)
+        {
+            ScreenManager.OnRender(target);
+        }
+
         public Guid Id { get; set; }
 
         public virtual Screen Screen { get; set; }
@@ -47,5 +61,7 @@ namespace Shared.Core
         public bool IsInitialized { get; internal set; }
 
         public bool IsActive { get; internal set; }
+
+        public ScreenManager ScreenManager { get; set; }
     }
 }

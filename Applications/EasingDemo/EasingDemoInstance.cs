@@ -34,10 +34,10 @@ namespace SandboxApplication.DemoApplication
 
         public new void Initialize()
         {
-            base.Initialize();
-
             Screen = new EasingDemoScreen(Application, Color.Blue);
             Application.ApplicationManager.AddScreen(Screen);
+
+            base.Initialize();
         }
 
 

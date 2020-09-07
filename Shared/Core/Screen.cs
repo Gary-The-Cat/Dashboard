@@ -10,11 +10,13 @@ namespace Shared.Core
     {
         public Camera Camera { get; set; }
 
-        public Func<bool> IsActive { get; set; }
+        public bool IsActive => IsUpdate && IsApplicationActive;
 
         public bool IsUpdate { get; set; }
 
         public bool IsDraw { get; set; }
+
+        public bool IsApplicationActive { get; set; }
 
         public Screen(ScreenConfiguration configuration)
         {
@@ -33,7 +35,7 @@ namespace Shared.Core
         {
             window.KeyPressed += (_, e) =>
             {
-                if (!IsActive() || e.Code != key)
+                if (!IsActive || e.Code != key)
                 {
                     return;
                 }
@@ -51,7 +53,7 @@ namespace Shared.Core
         {
             window.MouseButtonPressed += (_, e) =>
             {
-                if (!IsActive() || e.Button != button)
+                if (!IsActive || e.Button != button)
                 {
                     return;
                 }
@@ -64,7 +66,7 @@ namespace Shared.Core
         {
             window.MouseMoved += (_, e) =>
             {
-                if (!IsActive())
+                if (!IsActive)
                 {
                     return;
                 }
@@ -77,7 +79,7 @@ namespace Shared.Core
         {
             window.JoystickButtonPressed += (_, e) =>
             {
-                if (!IsActive() || e.Button != button)
+                if (!IsActive || e.Button != button)
                 {
                     return;
                 }
@@ -103,12 +105,17 @@ namespace Shared.Core
 
         public virtual void Suspend()
         {
-
+            IsApplicationActive = false;
         }
 
         public virtual void Resume()
         {
+            IsApplicationActive = true;
+        }
 
+        public virtual void Start()
+        {
+            IsApplicationActive = true;
         }
 
         public void SetInactive()

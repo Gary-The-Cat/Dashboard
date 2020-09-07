@@ -33,10 +33,10 @@ namespace OrbitalMechanics
 
         public new void Initialize()
         {
-            base.Initialize();
-
             Screen = new OrbitalMechanicsScreen(Application);
             Application.ApplicationManager.AddScreen(Screen);
+
+            base.Initialize();
         }
 
         public new void Start()

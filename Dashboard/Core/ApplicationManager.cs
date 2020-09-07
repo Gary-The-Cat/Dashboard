@@ -13,15 +13,13 @@ namespace Dashboard.Core
             this.application = application;
 
             this.application.Window.KeyPressed += OnKeyPressed;
-
-            screenManager = new ScreenManager();
         }
 
         public IApplicationInstance HomeApplication { get; set; }
 
         public IApplicationInstance ActiveApplication { get; private set; }
 
-        internal ScreenManager screenManager;
+        internal ScreenManager screenManager => ActiveApplication.ScreenManager;
 
         private readonly Application application;
 
@@ -29,7 +27,6 @@ namespace Dashboard.Core
 
         public void AddScreen(Screen screen)
         {
-            screen.IsActive = () => IsScreenActive(screen);
             screenManager.AddScreen(screen);
         }
 
@@ -40,12 +37,12 @@ namespace Dashboard.Core
 
         public void OnUpdate(float deltaT)
         {
-            screenManager.OnUpdate(deltaT);
+            ActiveApplication.OnUpdate(deltaT);
         }
 
         public void OnRender(RenderTarget target)
         {
-            screenManager.OnRender(target);
+            ActiveApplication.OnRender(target);
         }
 
         public void SetActiveApplication(IApplicationInstance application)
@@ -60,9 +57,6 @@ namespace Dashboard.Core
 
             // Probably need to think of a nicer way to do this, but for now passing in null brings us back to our home screen
             ActiveApplication = application;
-
-            // Update the screen manager, so it knows what application to draw
-            screenManager.ActiveApplication = ActiveApplication.Id;
 
             // Ensure that the application has been initialized
             if (!ActiveApplication.IsInitialized)
@@ -92,11 +86,6 @@ namespace Dashboard.Core
                 // We always reset the camera to the default view
                 Window.SetView(application.GetDefaultView());
             }
-        }
-
-        public bool IsScreenActive(Screen screen)
-        {
-            return screenManager.IsScreenActive(screen);
         }
     }
 }

@@ -2,11 +2,9 @@
 using SFML.Graphics;
 using SFML.Window;
 using Shared.Core;
-using Shared.ExtensionMethods;
 using Shared.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Dashboard.Screens
 {
