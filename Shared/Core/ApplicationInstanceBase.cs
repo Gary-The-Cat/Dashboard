@@ -56,8 +56,6 @@ namespace Shared.Core
 
         public Guid Id { get; set; }
 
-        public virtual Screen Screen { get; set; }
-
         public bool IsInitialized { get; internal set; }
 
         public bool IsActive { get; internal set; }

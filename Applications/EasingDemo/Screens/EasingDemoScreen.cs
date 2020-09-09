@@ -12,7 +12,10 @@ namespace EasingDemo.Screens
     {
         private RectangleShape sprite;
 
-        public EasingDemoScreen(IApplication application, Color color) : base(application.Configuration)
+        public EasingDemoScreen(
+            IApplication application, 
+            IApplicationInstance applicationInstance,
+            Color color) : base(application.Configuration, applicationInstance)
         {
             var size = application.Window.Size;
 

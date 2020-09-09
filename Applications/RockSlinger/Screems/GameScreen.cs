@@ -23,7 +23,10 @@ namespace RockSlinger.Screems
 
         private IApplication Application { get; set; }
 
-        public GameScreen(IApplication application) : base(application.Configuration)
+        public GameScreen(
+            IApplication application,
+            IApplicationInstance applicationInstance) 
+            : base(application.Configuration, applicationInstance)
         {
             this.Application = application;
 

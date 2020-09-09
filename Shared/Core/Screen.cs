@@ -1,6 +1,7 @@
 using SFML.Graphics;
 using SFML.Window;
 using Shared.CameraTools;
+using Shared.Interfaces;
 using Shared.ScreenConfig;
 using System;
 
@@ -18,9 +19,12 @@ namespace Shared.Core
 
         public bool IsApplicationActive { get; set; }
 
-        public Screen(ScreenConfiguration configuration)
+        public IApplicationInstance ParentApplication { get; set; }
+
+        public Screen(ScreenConfiguration configuration, IApplicationInstance applicationInstance)
         {
             Camera = new Camera(configuration);
+            ParentApplication = applicationInstance;
 
             IsUpdate = true;
             IsDraw = true;

@@ -28,14 +28,15 @@ namespace ORToolsDemo
 
         public RectangleShape Thumbnail { get; set; }
 
-        public override Screen Screen { get; set; }
-
         public RenderWindow RenderWindow { get; set; }
+
+        public void AddScreen(Screen screen) => ScreenManager.AddScreen(screen);
+
+        public void RemoveScreen(Screen screen) => ScreenManager.RemoveScreen(screen);
 
         public new void Initialize()
         {
-            Screen = new ORToolsDemoScreen(Application);
-            Application.ApplicationManager.AddScreen(Screen);
+            AddScreen(new ORToolsDemoScreen(Application, this));
 
             base.Initialize();
         }

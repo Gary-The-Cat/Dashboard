@@ -16,7 +16,10 @@ namespace SelfDriving.Screens.MapMaker
 
         private TrackSelectionVisual trackSelection;
 
-        public MapMakingScreen(IApplication application) : base(application.Configuration)
+        public MapMakingScreen(
+            IApplication application,
+            IApplicationInstance applicationInstance) 
+            : base(application.Configuration, applicationInstance)
         {
             this.application = application;
             this.state = MapMakerState.TrackSelection;
@@ -30,14 +33,14 @@ namespace SelfDriving.Screens.MapMaker
 
             trackSelection.OnTrackSelected = OnTrackSelected;
 
-            mapEditorWorldScreen = new MapMakerWorldScreen(application, sharedContainer);
+            mapEditorWorldScreen = new MapMakerWorldScreen(application, applicationInstance, sharedContainer);
             mapEditorWorldScreen.SetInactive();
 
-            mapEditorHudScreen = new MapMakerHudScreen(application, sharedContainer);
+            mapEditorHudScreen = new MapMakerHudScreen(application, applicationInstance, sharedContainer);
             mapEditorHudScreen.SetInactive();
 
-            application.ApplicationManager.AddScreen(mapEditorHudScreen);
-            application.ApplicationManager.AddScreen(mapEditorWorldScreen);
+            applicationInstance.AddScreen(mapEditorHudScreen);
+            applicationInstance.AddScreen(mapEditorWorldScreen);
 
             trackSelection.InsertTrack(new Track(), 0);
         }

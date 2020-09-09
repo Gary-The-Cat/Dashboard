@@ -41,7 +41,9 @@ namespace SelfDriving.Screens.MapMaker
 
         public MapMakerWorldScreen(
             IApplication application,
-            MapMakerDataContainer sharedContainer) : base(application.Configuration)
+            IApplicationInstance applicationInstance,
+            MapMakerDataContainer sharedContainer) 
+            : base(application.Configuration, applicationInstance)
         {
             this.application = application;
             this.sharedContainer = sharedContainer;

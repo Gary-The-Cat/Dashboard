@@ -26,20 +26,21 @@ namespace SelfDriving
             };
         }
 
+        public void AddScreen(Screen screen) => ScreenManager.AddScreen(screen);
+
+        public void RemoveScreen(Screen screen) => ScreenManager.RemoveScreen(screen);
+
         public IApplication Application { get; set; }
 
         public string DisplayName => "Self Driving";
 
         public RectangleShape Thumbnail { get; set; }
 
-        public override Screen Screen { get; set; }
-
         public RenderWindow RenderWindow { get; set; }
 
         public new void Initialize()
         {
-            Screen = new SelfDrivingHomeScreen(Application);
-            Application.ApplicationManager.AddScreen(this.Screen);
+            AddScreen(new SelfDrivingHomeScreen(Application, this));
 
             base.Initialize();
         }

@@ -15,7 +15,9 @@ namespace RockSlinger.Screems
         Texture crateBrokenTexture;
         Texture crateTattersTexture;
 
-        public LevelEditorScreen(IApplication application) : base(application)
+        public LevelEditorScreen(
+            IApplication application, 
+            IApplicationInstance applicationInstance) : base(application, applicationInstance)
         {
             var config = application.Configuration;
             application.Window.MouseButtonPressed += MouseButtonPressed;

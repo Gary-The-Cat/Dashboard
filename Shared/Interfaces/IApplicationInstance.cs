@@ -16,8 +16,6 @@ namespace Shared.Interfaces
 
         public IApplication Application { get; set; }
 
-        public Screen Screen { get; set; }
-
         public RenderWindow RenderWindow { get; set; }
 
         public bool IsInitialized { get; }
@@ -42,5 +40,9 @@ namespace Shared.Interfaces
         public void OnUpdate(float deltaT);
 
         public void OnRender(RenderTarget target);
+
+        public void AddScreen(Screen screen);
+
+        public void RemoveScreen(Screen screen);
     }
 }

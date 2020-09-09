@@ -37,7 +37,11 @@ namespace SelfDriving.Screens
 
         private bool TrackEvaluationFinished => simulation.GetCars().All(c => !c.IsRunning);
 
-        public SelfTrainingScreen(IApplication application, bool enableVisualization = true) : base(application.Configuration)
+        public SelfTrainingScreen(
+            IApplication application, 
+            IApplicationInstance applicationInstance,
+            bool enableVisualization = true) 
+            : base(application.Configuration, applicationInstance)
         {
             this.application = application;
             random = new Random();
@@ -64,7 +68,7 @@ namespace SelfDriving.Screens
             // If the visualization is turned on, create it, set the track and add the cars.
             if (enableVisualization)
             {
-                simulationVisualization = new RacingSimulationVisualization(application, simulation);
+                simulationVisualization = new RacingSimulationVisualization(application, applicationInstance, simulation);
                 simulationVisualization.SetTrack(currentTrack);
                 simulationVisualization.InitializeCars(simulation.GetCars());
             }

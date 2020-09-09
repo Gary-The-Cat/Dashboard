@@ -16,7 +16,10 @@ namespace SelfDriving.Screens
         private RaceScreen raceScreen;
         private IApplication application;
 
-        public SelfDrivingHomeScreen(IApplication application) : base(application.Configuration)
+        public SelfDrivingHomeScreen(
+            IApplication application,
+            IApplicationInstance applicationInstance) 
+            : base(application.Configuration, applicationInstance)
         {
             this.application = application;
 
@@ -46,20 +49,20 @@ namespace SelfDriving.Screens
 
         private void CreateModeScreens()
         {
-            humanAssistedTrainingScreen = new HumanAssistedTrainingScreen(application);
-            application.ApplicationManager.AddScreen(humanAssistedTrainingScreen);
+            humanAssistedTrainingScreen = new HumanAssistedTrainingScreen(application, ParentApplication);
+            ParentApplication.AddScreen(humanAssistedTrainingScreen);
             humanAssistedTrainingScreen.SetInactive();
 
-            mapMakingScreen = new MapMakingScreen(application);
-            application.ApplicationManager.AddScreen(mapMakingScreen);
+            mapMakingScreen = new MapMakingScreen(application, ParentApplication);
+            ParentApplication.AddScreen(mapMakingScreen);
             mapMakingScreen.SetInactive();
 
-            selfTrainingScreen = new SelfTrainingScreen(application);
-            application.ApplicationManager.AddScreen(selfTrainingScreen);
+            selfTrainingScreen = new SelfTrainingScreen(application, ParentApplication);
+            ParentApplication.AddScreen(selfTrainingScreen);
             selfTrainingScreen.SetInactive();
 
-            raceScreen = new RaceScreen(application);
-            application.ApplicationManager.AddScreen(raceScreen);
+            raceScreen = new RaceScreen(application, ParentApplication);
+            ParentApplication.AddScreen(raceScreen);
             raceScreen.SetInactive();
         }
 
@@ -140,7 +143,6 @@ namespace SelfDriving.Screens
 
         public void SetActiveScreen(Screen screen)
         {
-            screen.SetActive();
             SetInactive();
             grid.IsActive = false;
         }

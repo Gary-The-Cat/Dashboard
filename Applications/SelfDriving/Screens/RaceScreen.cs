@@ -8,7 +8,9 @@ namespace SelfDriving.Screens
 {
     public class RaceScreen : Screen
     {
-        public RaceScreen(IApplication application) : base(application.Configuration)
+        public RaceScreen(
+            IApplication application,
+            IApplicationInstance applicationInstance) : base(application.Configuration, applicationInstance)
         {
 
         }

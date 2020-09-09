@@ -70,26 +70,17 @@ namespace Dashboard.Core
 
         public RectangleShape Thumbnail { get; set; }
 
-        public override Screen Screen { get; set; }
-
         public RenderWindow RenderWindow { get; set; }
+
+        public void AddScreen(Screen screen) => ScreenManager.AddScreen(screen);
+
+        public void RemoveScreen(Screen screen) => ScreenManager.RemoveScreen(screen);
 
         public new void Initialize()
         {
-            Screen = new HomeScreen(Application, this.setActiveApplication, applications);
-            Application.ApplicationManager.AddScreen(Screen);
+            AddScreen(new HomeScreen(Application, this, this.setActiveApplication, applications));
 
             base.Initialize();
-        }
-
-        public void OnUpdate(float deltaT)
-        {
-            Screen.OnUpdate(deltaT);
-        }
-
-        public void OnRender(RenderTarget target)
-        {
-            Screen.OnRender(target);
         }
     }
 }

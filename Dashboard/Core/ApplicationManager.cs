@@ -25,16 +25,6 @@ namespace Dashboard.Core
 
         private RenderWindow Window => (RenderWindow)application.Window;
 
-        public void AddScreen(Screen screen)
-        {
-            screenManager.AddScreen(screen);
-        }
-
-        public void RemoveScreen(Screen screen)
-        {
-            screenManager.RemoveScreen(screen);
-        }
-
         public void OnUpdate(float deltaT)
         {
             ActiveApplication.OnUpdate(deltaT);

@@ -28,14 +28,15 @@ namespace CameraCapture
 
         public RectangleShape Thumbnail { get; set; }
 
-        public override Screen Screen { get; set; }
-
         public RenderWindow RenderWindow { get; set; }
+
+        public void AddScreen(Screen screen) => ScreenManager.AddScreen(screen);
+
+        public void RemoveScreen(Screen screen) => ScreenManager.RemoveScreen(screen);
 
         public new void Initialize()
         {
-            Screen = new CameraCaptreScreen(Application);
-            Application.ApplicationManager.AddScreen(Screen);
+            AddScreen(new CameraCaptreScreen(Application, this));
 
             base.Initialize();
         }
@@ -43,16 +44,6 @@ namespace CameraCapture
         public new void Start()
         {
             base.Start();
-        }
-
-        public void OnUpdate(float deltaT)
-        {
-            Screen.OnUpdate(deltaT);
-        }
-
-        public void OnRender(RenderTarget target)
-        {
-            Screen.OnRender(target);
         }
     }
 }
