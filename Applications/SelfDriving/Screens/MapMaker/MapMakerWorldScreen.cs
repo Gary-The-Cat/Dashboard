@@ -7,9 +7,11 @@ using SFML.Window;
 using Shared.CameraTools;
 using Shared.Commands;
 using Shared.Core;
+using Shared.Helpers;
 using Shared.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SelfDriving.Screens.MapMaker
 {
@@ -18,6 +20,8 @@ namespace SelfDriving.Screens.MapMaker
         private RectangleShape carForScale;
 
         private CircleShape pointHighlight;
+
+        private ConvexShape lineHighlight;
 
         private MapMakerDataContainer sharedContainer;
 
@@ -38,6 +42,12 @@ namespace SelfDriving.Screens.MapMaker
         private List<(Guid, int)> currentVertices;
 
         private MoveVertexCommand currentMoveVertexCommand;
+
+        private Func<Vector2f, Vector2f, Guid> addSegment;
+
+        private Func<Guid, bool> removeSegment;
+
+        private const double SnapThreshold = 20;
 
         public MapMakerWorldScreen(
             IApplication application,
@@ -76,6 +86,24 @@ namespace SelfDriving.Screens.MapMaker
                 Origin = new Vector2f(5, 5)
             };
 
+            lineHighlight = new ConvexShape()
+            {
+                Position = OffScreen,
+                FillColor = Color.Green,
+                OutlineColor = Color.Black,
+                OutlineThickness = 2,
+            };
+
+            addSegment = (Vector2f start, Vector2f end) =>
+            {
+                return sharedContainer.AddTrackSegment(start, end);
+            };
+
+            removeSegment = (Guid segmentId) =>
+            {
+                return sharedContainer.RemoveSegment(segmentId);
+            };
+
             var windowSize = application.Window.Size;
             this.size = new Vector2f(windowSize.X, windowSize.Y);
             carForScale.Position = size / 2;
@@ -107,6 +135,8 @@ namespace SelfDriving.Screens.MapMaker
 
             target.Draw(pointHighlight);
 
+            target.Draw(lineHighlight);
+
             foreach (var segment in sharedContainer.trackSegments.Values)
             {
                 target.Draw(segment, 0, 2, PrimitiveType.Lines);
@@ -130,6 +160,9 @@ namespace SelfDriving.Screens.MapMaker
                 case MapEditState.MovingPoints:
                     ProcessMoveClick(point);
                     break;
+                case MapEditState.Deletion:
+                    ProcessDeleteClick(point);
+                    break;
             }
         }
 
@@ -138,7 +171,7 @@ namespace SelfDriving.Screens.MapMaker
             if (!isDrawing)
             {
                 var (nearestPoint, distance) = sharedContainer.GetNearestPoint(point, isDrawing);
-                var startPoint = distance < 10 ? nearestPoint.Value : point;
+                var startPoint = distance < SnapThreshold ? nearestPoint.Value : point;
                 var command = new AddSegmentCommand((startPoint, point), sharedContainer);
                 commandManager.ExecuteCommand(command);
 
@@ -165,7 +198,7 @@ namespace SelfDriving.Screens.MapMaker
             {
                 var (nearestPoint, distance) = sharedContainer.GetNearestPoint(point, isDrawing);
 
-                if(distance > 10)
+                if(distance > SnapThreshold)
                 {
                     nearestPoint = point;
                 }
@@ -177,19 +210,109 @@ namespace SelfDriving.Screens.MapMaker
             }
         }
 
+        private void ProcessDeleteClick(Vector2f point)
+        {
+            var segmentsToRemove = new List<Guid>();
+            var (nearestPoint, distance) = sharedContainer.GetNearestPoint(point, isDrawing);
+
+            // Delete vertex
+            if (distance < SnapThreshold)
+            {
+                segmentsToRemove.AddRange(sharedContainer.GetSegmentsContaining(nearestPoint.Value).Select(v => v.Item1));
+            }
+            else
+            {
+                var (nearestLine, lineDistance) = sharedContainer.GetNearestLine(point, isDrawing);
+
+                // Delete line
+                if (lineDistance < SnapThreshold)
+                {
+                    segmentsToRemove.Add(nearestLine.Value);
+                }
+            }
+
+            foreach (var segment in segmentsToRemove.Select(s => (s, sharedContainer.GetSegment(s))))
+            {
+                var deleteCommand = new DeleteSegmentCommand(
+                    addSegment,
+                    removeSegment,
+                    segment.s,
+                    segment.Item2.start,
+                    segment.Item2.end);
+
+                commandManager.ExecuteCommand(deleteCommand);
+            }
+        }
+
         private void OnMouseMove(float x, float y)
         {
-            
             var point = GetWorldPosition(x, y, Camera);
 
             switch (sharedContainer.EditState)
             {
                 case MapEditState.DrawingLines:
+                    HighlightClosestPoint(point);
                     ProcessDrawMove(point);
                     break;
                 case MapEditState.MovingPoints:
+                    HighlightClosestPoint(point);
                     ProcessMoveMove(point);
                     break;
+                case MapEditState.Deletion:
+                    HighlightClosestPointOrEdge(point);
+                    break;
+            }
+        }
+
+        private void HighlightClosestPointOrEdge(Vector2f point)
+        {
+            var (nearestPoint, distance) = sharedContainer.GetNearestPoint(point, isDrawing);
+
+            if (distance < SnapThreshold)
+            {
+                lineHighlight.Position = OffScreen;
+                HighlightPoint(nearestPoint.Value, distance);
+            }
+            else
+            {
+                var (nearestLine, lineDistance) = sharedContainer.GetNearestLine(point, isDrawing);
+
+                pointHighlight.Position = OffScreen;
+                HighlightEdge(nearestLine, lineDistance);
+            }
+        }
+
+        private void HighlightClosestPoint(Vector2f point)
+        {
+            var (nearestPoint, distance) = sharedContainer.GetNearestPoint(point, isDrawing);
+
+            HighlightPoint(nearestPoint.Value, distance);
+        }
+
+        private void HighlightEdge(Guid? nearestLine, double lineDistance)
+        {
+            var edge = sharedContainer.GetSegment(nearestLine.Value);
+
+            if (lineDistance < SnapThreshold)
+            {
+                lineHighlight = SFMLGraphicsHelper.GetLine(edge.start, edge.end, 3, Color.Green);
+            }
+            else
+            {
+                lineHighlight.Position = OffScreen;
+            }
+        }
+
+        private void HighlightPoint(Vector2f point, double distance)
+        {
+            // Check to see if we should snap to a point
+            if (distance < SnapThreshold && !(isDrawing || isMoving))
+            {
+                pointHighlight.Position = point;
+            }
+            else
+            {
+                pointHighlight.Position = OffScreen;
             }
         }
 
@@ -213,15 +336,13 @@ namespace SelfDriving.Screens.MapMaker
             if (isDrawing)
             {
                 // Check to see if we should snap to a point
-                if (distance < 10)
+                if (distance < SnapThreshold)
                 {
                     sharedContainer.SetSegmentEnd(currentSegmentId, nearestPoint.Value);
-                    pointHighlight.Position = nearestPoint.Value;
                 }
                 else
                 {
                     sharedContainer.SetSegmentEnd(currentSegmentId, point);
-                    pointHighlight.Position = OffScreen;
                 }
 
                 if (Keyboard.IsKeyPressed(Keyboard.Key.LShift))
@@ -246,17 +367,6 @@ namespace SelfDriving.Screens.MapMaker
                         (float)(start.Y + length * Math.Sin(angleInRadians)));
 
                     sharedContainer.SetSegmentEnd(currentSegmentId, newEndPoint);
-                }
-            }
-            else
-            {
-                if (distance < 10)
-                {
-                    pointHighlight.Position = nearestPoint.Value;
-                }
-                else
-                {
-                    pointHighlight.Position = OffScreen;
                 }
             }
         }

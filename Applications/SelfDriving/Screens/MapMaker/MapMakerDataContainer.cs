@@ -2,6 +2,7 @@
 using SFML.Graphics;
 using SFML.System;
 using Shared.ExtensionMethods;
+using Shared.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,9 @@ namespace SelfDriving.Screens.MapMaker
 
         public IEnumerable<(Vector2f start, Vector2f end)> vertexPositions => 
             trackSegments.Values.Select(v => (v[0].Position, v[1].Position));
+
+        public IEnumerable<(Guid segmentId, Vector2f start, Vector2f end)> segments =>
+            trackSegments.Select(v => (v.Key, v.Value[0].Position, v.Value[1].Position));
 
         public MapMakerDataContainer()
         {
@@ -104,6 +108,31 @@ namespace SelfDriving.Screens.MapMaker
                     closestDistance = distanceToEnd;
                 }
 
+            }
+
+            return (nearestPoint, closestDistance);
+        }
+
+        public (Guid?, double) GetNearestLine(Vector2f point, bool isDrawing)
+        {
+            Guid? nearestPoint = null;
+            var closestDistance = float.MaxValue;
+            var lastSegment = segments.Last();
+
+            foreach (var segment in segments)
+            {
+                if (isDrawing && segment == lastSegment)
+                {
+                    continue;
+                }
+
+                var distance = (float)MathsHelper.LineToPointDistance2D(segment.start, segment.end, point);
+
+                if (distance < closestDistance)
+                {
+                    nearestPoint = segment.segmentId;
+                    closestDistance = distance;
+                }
             }
 
             return (nearestPoint, closestDistance);

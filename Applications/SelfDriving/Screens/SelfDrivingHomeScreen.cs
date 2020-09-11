@@ -144,6 +144,7 @@ namespace SelfDriving.Screens
         public void SetActiveScreen(Screen screen)
         {
             SetInactive();
+            screen.SetActive();
             grid.IsActive = false;
         }
 
