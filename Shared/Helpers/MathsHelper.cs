@@ -59,5 +59,45 @@ namespace Shared.Helpers
             }
             return Math.Abs(dist);
         }
+
+        // Find the point of intersection between the lines segmentA and segmentB.
+        public static void FindIntersection(
+            (Vector2f start, Vector2f end) segmentA, 
+            (Vector2f start, Vector2f end) segmentB,
+            out bool segments_intersect,
+            out Vector2f intersection)
+        {
+            // Get the segments' parameters.
+            float dx12 = segmentA.end.X - segmentA.start.X;
+            float dy12 = segmentA.end.Y - segmentA.start.Y;
+            float dx34 = segmentB.end.X - segmentB.start.X;
+            float dy34 = segmentB.end.Y - segmentB.start.Y;
+
+            // Solve for t1 and t2
+            float denominator = (dy12 * dx34 - dx12 * dy34);
+
+            float t1 =
+                ((segmentA.start.X - segmentB.start.X) * dy34 + (segmentB.start.Y - segmentA.start.Y) * dx34)
+                    / denominator;
+            if (float.IsInfinity(t1))
+            {
+                // The lines are parallel (or close enough to it).
+                segments_intersect = false;
+                intersection = new Vector2f(float.NaN, float.NaN);
+                return;
+            }
+
+            float t2 =
+                ((segmentB.start.X - segmentA.start.X) * dy12 + (segmentA.start.Y - segmentB.start.Y) * dx12)
+                    / -denominator;
+
+            // Find the point of intersection.
+            intersection = new Vector2f(segmentA.start.X + dx12 * t1, segmentA.start.Y + dy12 * t1);
+
+            // The segments intersect if t1 and t2 are between 0 and 1.
+            segments_intersect =
+                ((t1 >= 0) && (t1 <= 1) &&
+                 (t2 >= 0) && (t2 <= 1));
+        }
     }
 }

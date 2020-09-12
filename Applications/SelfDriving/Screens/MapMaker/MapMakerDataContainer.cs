@@ -27,11 +27,11 @@ namespace SelfDriving.Screens.MapMaker
             trackSegments = new Dictionary<Guid, Vertex[]>();
         }
 
-        public Guid AddTrackSegment(Vector2f startPoint, Vector2f endPoint)
+        public Guid AddSegment(Vector2f startPoint, Vector2f endPoint, bool isTrack)
         {
             var segment = new Vertex[2];
-            segment[0] = new Vertex() { Color = Color.Black, Position = startPoint };
-            segment[1] = new Vertex() { Color = Color.Black, Position = endPoint };
+            segment[0] = new Vertex() { Color = isTrack ? Color.Black : Color.Blue, Position = startPoint };
+            segment[1] = new Vertex() { Color = isTrack ? Color.Black : Color.Blue, Position = endPoint };
             var segmentId = Guid.NewGuid();
             trackSegments.Add(segmentId, segment);
 
@@ -156,6 +156,56 @@ namespace SelfDriving.Screens.MapMaker
             }
 
             return segmentsContainingPoint;
+        }
+
+        public (Vector2f start, Vector2f end) TrimSegment(Guid currentSegmentId)
+        {
+            var (start, end) = GetSegment(currentSegmentId);
+            bool startSet = false;
+            bool endSet = false;
+
+            foreach (var segment in segments)
+            {
+                if (segment.segmentId == currentSegmentId)
+                {
+                    continue;
+                }
+
+                MathsHelper.FindIntersection(
+                    (start, end),
+                    (segment.start, segment.end),
+                    out var intersects,
+                    out var intersectPoint);
+
+                if (intersects)
+                {
+                    if (!startSet)
+                    {
+                        startSet = true;
+                        start = intersectPoint;
+                    }
+                    else
+                    {
+                        end = intersectPoint;
+                        endSet = true;
+                        break;
+                    }
+                }
+            }
+
+            if (startSet && endSet)
+            {
+                // Update the visual for the current segement.
+                var currentSegment = trackSegments[currentSegmentId];
+                currentSegment[0].Position = start;
+                currentSegment[1].Position = end;
+
+                return (start, end);
+            }
+            else
+            {
+                return GetSegment(currentSegmentId);
+            }
         }
     }
 }

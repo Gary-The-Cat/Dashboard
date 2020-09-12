@@ -10,14 +10,22 @@ namespace SelfDriving.Screens.MapMaker.Commands
 
         private (Vector2f start, Vector2f end) segment;
 
-        private MapMakerDataContainer container;
+        private Func<Vector2f, Vector2f, Guid> addSegment;
+
+        private Func<Guid, bool> removeSegment;
+
+        private Func<Guid, (Vector2f start, Vector2f end)> getSegment;
 
         public AddSegmentCommand(
             (Vector2f start, Vector2f end) segment,
-            MapMakerDataContainer container)
+            Func<Vector2f, Vector2f, Guid> addSegment,
+            Func<Guid, bool> removeSegment,
+            Func<Guid, (Vector2f start, Vector2f end)> getSegment)
         {
             this.segment = segment;
-            this.container = container;
+            this.addSegment = addSegment;
+            this.removeSegment = removeSegment;
+            this.getSegment = getSegment;
         }
 
         public Guid GetSegmentId()
@@ -25,22 +33,27 @@ namespace SelfDriving.Screens.MapMaker.Commands
             return segmentId;
         }
 
+        public void UpdateSegment(Vector2f start, Vector2f end)
+        {
+            segment = (start, end);
+        }
+
         public bool Execute()
         {
-            segmentId = container.AddTrackSegment(segment.start, segment.end);
+            segmentId = addSegment(segment.start, segment.end);
             return true;
         }
 
         public bool Redo()
         {
-            segmentId = container.AddTrackSegment(segment.start, segment.end);
+            segmentId = addSegment(segment.start, segment.end);
             return true;
         }
 
         public bool Undo()
         {
-            segment = container.GetSegment(segmentId);
-            return container.RemoveSegment(segmentId);
+            segment = getSegment(segmentId);
+            return removeSegment(segmentId);
         }
     }
 }

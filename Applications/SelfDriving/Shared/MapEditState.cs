@@ -9,5 +9,6 @@ namespace SelfDriving.Shared
         DrawingLines,
         MovingPoints,
         Deletion,
+        Checkpoint,
     }
 }

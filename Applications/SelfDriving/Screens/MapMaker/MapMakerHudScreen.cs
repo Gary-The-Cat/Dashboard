@@ -49,6 +49,7 @@ namespace SelfDriving.Screens.MapMaker
             buttons.Add(new Button("Draw", new Vector2f(20, 20), () => SetState(MapEditState.DrawingLines), HorizontalAlignment.Left));
             buttons.Add(new Button("Move", new Vector2f(20, 70), () => SetState(MapEditState.MovingPoints), HorizontalAlignment.Left));
             buttons.Add(new Button("Delete", new Vector2f(20, 120), () => SetState(MapEditState.Deletion), HorizontalAlignment.Left));
+            buttons.Add(new Button("Checkpoints", new Vector2f(20, 170), () => SetState(MapEditState.Checkpoint), HorizontalAlignment.Left));
         }
 
         private void OnKeyPress(object sender, KeyEventArgs e)

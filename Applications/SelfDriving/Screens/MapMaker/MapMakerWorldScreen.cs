@@ -43,9 +43,15 @@ namespace SelfDriving.Screens.MapMaker
 
         private MoveVertexCommand currentMoveVertexCommand;
 
-        private Func<Vector2f, Vector2f, Guid> addSegment;
+        private AddSegmentCommand currentAddVertexCommand;
+
+        private Func<Vector2f, Vector2f, Guid> addTrackSegment;
+
+        private Func<Vector2f, Vector2f, Guid> addCheckpointSegment;
 
         private Func<Guid, bool> removeSegment;
+
+        private Func<Guid, (Vector2f start, Vector2f end)> getSegment;
 
         private const double SnapThreshold = 20;
 
@@ -94,14 +100,24 @@ namespace SelfDriving.Screens.MapMaker
                 OutlineThickness = 2,
             };
 
-            addSegment = (Vector2f start, Vector2f end) =>
+            addTrackSegment = (Vector2f start, Vector2f end) =>
             {
-                return sharedContainer.AddTrackSegment(start, end);
+                return sharedContainer.AddSegment(start, end, isTrack: true);
+            };
+
+            addCheckpointSegment = (Vector2f start, Vector2f end) =>
+            {
+                return sharedContainer.AddSegment(start, end, isTrack: false);
             };
 
             removeSegment = (Guid segmentId) =>
             {
                 return sharedContainer.RemoveSegment(segmentId);
+            };
+
+            getSegment = (Guid segmentId) =>
+            {
+                return sharedContainer.GetSegment(segmentId);
             };
 
             var windowSize = application.Window.Size;
@@ -123,7 +139,7 @@ namespace SelfDriving.Screens.MapMaker
         {
             foreach (var segment in track.Map)
             {
-                sharedContainer.AddTrackSegment(segment.Start, segment.End);
+                sharedContainer.AddSegment(segment.Start, segment.End, isTrack: true);
             }
         }
 
@@ -157,6 +173,9 @@ namespace SelfDriving.Screens.MapMaker
                 case MapEditState.DrawingLines:
                     ProcessDrawClick(point);
                     break;
+                case MapEditState.Checkpoint:
+                    ProcessDrawCheckpointClick(point);
+                    break;
                 case MapEditState.MovingPoints:
                     ProcessMoveClick(point);
                     break;
@@ -172,15 +191,51 @@ namespace SelfDriving.Screens.MapMaker
             {
                 var (nearestPoint, distance) = sharedContainer.GetNearestPoint(point, isDrawing);
                 var startPoint = distance < SnapThreshold ? nearestPoint.Value : point;
-                var command = new AddSegmentCommand((startPoint, point), sharedContainer);
-                commandManager.ExecuteCommand(command);
+                var command = new AddSegmentCommand(
+                    (startPoint, point),
+                    addTrackSegment,
+                    removeSegment,
+                    getSegment);
 
+                commandManager.ExecuteCommand(command);
+                currentAddVertexCommand = command;
                 currentSegmentId = command.GetSegmentId();
                 isDrawing = true;
             }
             else
             {
                 isDrawing = false;
+                currentAddVertexCommand = null;
+                currentSegmentId = Guid.Empty;
+            }
+        }
+
+        private void ProcessDrawCheckpointClick(Vector2f point)
+        {
+            if (!isDrawing)
+            {
+                var (nearestPoint, distance) = sharedContainer.GetNearestPoint(point, isDrawing);
+                var startPoint = distance < SnapThreshold ? nearestPoint.Value : point;
+                var command = new AddSegmentCommand(
+                    (startPoint, point),
+                    addCheckpointSegment,
+                    removeSegment,
+                    getSegment);
+
+                commandManager.ExecuteCommand(command);
+
+                currentSegmentId = command.GetSegmentId();
+                currentAddVertexCommand = command;
+
+                isDrawing = true;
+            }
+            else
+            {
+                var newSegmentPositions = sharedContainer.TrimSegment(currentSegmentId);
+                currentAddVertexCommand.UpdateSegment(newSegmentPositions.start, newSegmentPositions.end);
+
+                isDrawing = false;
+                currentAddVertexCommand = null;
                 currentSegmentId = Guid.Empty;
             }
         }
@@ -234,7 +289,7 @@ namespace SelfDriving.Screens.MapMaker
             foreach (var segment in segmentsToRemove.Select(s => (s, sharedContainer.GetSegment(s))))
             {
                 var deleteCommand = new DeleteSegmentCommand(
-                    addSegment,
+                    addTrackSegment,
                     removeSegment,
                     segment.s,
                     segment.Item2.start,
@@ -253,6 +308,9 @@ namespace SelfDriving.Screens.MapMaker
                 case MapEditState.DrawingLines:
                     HighlightClosestPoint(point);
                     ProcessDrawMove(point);
+                    break;
+                case MapEditState.Checkpoint:
+                    ProcessDrawCheckpointMove(point);
                     break;
                 case MapEditState.MovingPoints:
                     HighlightClosestPoint(point);
@@ -370,6 +428,14 @@ namespace SelfDriving.Screens.MapMaker
                 }
             }
         }
+
+        private void ProcessDrawCheckpointMove(Vector2f point)
+        {
+            if (isDrawing)
+            {
+                sharedContainer.SetSegmentEnd(currentSegmentId, point);
+            }
+         }
 
         private Vector2f GetWorldPosition(float x, float y, Camera camera)
         {
