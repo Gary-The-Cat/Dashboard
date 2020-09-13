@@ -1,7 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using SelfDriving.Shared;
-using SFML.System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,17 +18,6 @@ namespace SelfDriving.Helpers
                 var trackText = File.ReadAllText(file);
                 var track = JsonConvert.DeserializeObject<Track>(trackText);
                 track.FileLocation = file;
-                track.Map.Clear();
-                var trackObject = (JObject)JsonConvert.DeserializeObject(trackText);
-                var map = trackObject["Map"];
-
-                foreach (var line in map)
-                {
-                    var start = line["Start"].ToObject<Vector2f>();
-                    var end = line["End"].ToObject<Vector2f>();
-                    track.Map.Add(new LineSegment(start, end));
-                }
-
                 tracks.Add(track);
             }
 

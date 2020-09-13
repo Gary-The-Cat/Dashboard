@@ -46,7 +46,7 @@ namespace SelfDriving.Shared
 
             track.StartPosition = new SFML.System.Vector2f(137, 185);
             track.InitialHeading = 90;
-            track.Checkpoints = new List<SFML.System.Vector2f>();
+            track.Checkpoints = new List<LineSegment>();
 
             return track;
         }

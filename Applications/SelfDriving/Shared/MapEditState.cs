@@ -10,5 +10,6 @@ namespace SelfDriving.Shared
         MovingPoints,
         Deletion,
         Checkpoint,
+        StartPosition,
     }
 }

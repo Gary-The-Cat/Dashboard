@@ -6,7 +6,6 @@ using Shared.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace SelfDriving.Screens.MapMaker
 {
@@ -22,6 +21,10 @@ namespace SelfDriving.Screens.MapMaker
         public IEnumerable<(Guid segmentId, Vector2f start, Vector2f end)> segments =>
             trackSegments.Select(v => (v.Key, v.Value[0].Position, v.Value[1].Position));
 
+        public Vector2f StartPosition { get; set; }
+
+        public float StartRotation { get; set; }
+
         public MapMakerDataContainer()
         {
             trackSegments = new Dictionary<Guid, Vertex[]>();
@@ -36,6 +39,22 @@ namespace SelfDriving.Screens.MapMaker
             trackSegments.Add(segmentId, segment);
 
             return segmentId;
+        }
+
+        public List<LineSegment> GetMap()
+        {
+            var segments = trackSegments.Where(s => s.Value[0].Color == Color.Black).
+                Select(s => new LineSegment(s.Value[0].Position, s.Value[1].Position));
+
+            return segments.ToList();
+        }
+
+        public List<LineSegment> GetCheckpoints()
+        {
+            var segments = trackSegments.Where(s => s.Value[0].Color == Color.Blue).
+                Select(s => new LineSegment(s.Value[0].Position, s.Value[1].Position));
+
+            return segments.ToList();
         }
 
         public bool RemoveSegment(Guid segmentId)
@@ -81,6 +100,12 @@ namespace SelfDriving.Screens.MapMaker
         {
             Vector2f? nearestPoint = null;
             var closestDistance = float.MaxValue;
+
+            if (!vertexPositions.Any())
+            {
+                return (nearestPoint, closestDistance);
+            }
+
             var lastSegment = vertexPositions.Last();
 
             foreach (var segment in vertexPositions)
@@ -117,6 +142,12 @@ namespace SelfDriving.Screens.MapMaker
         {
             Guid? nearestPoint = null;
             var closestDistance = float.MaxValue;
+
+            if (!segments.Any())
+            {
+                return (nearestPoint, closestDistance);
+            }
+
             var lastSegment = segments.Last();
 
             foreach (var segment in segments)
@@ -161,8 +192,7 @@ namespace SelfDriving.Screens.MapMaker
         public (Vector2f start, Vector2f end) TrimSegment(Guid currentSegmentId)
         {
             var (start, end) = GetSegment(currentSegmentId);
-            bool startSet = false;
-            bool endSet = false;
+            var intersectionPoints = new List<Vector2f>();
 
             foreach (var segment in segments)
             {
@@ -179,28 +209,20 @@ namespace SelfDriving.Screens.MapMaker
 
                 if (intersects)
                 {
-                    if (!startSet)
-                    {
-                        startSet = true;
-                        start = intersectPoint;
-                    }
-                    else
-                    {
-                        end = intersectPoint;
-                        endSet = true;
-                        break;
-                    }
+                    intersectionPoints.Add(intersectPoint);
                 }
             }
 
-            if (startSet && endSet)
+            if (intersectionPoints.Count() == 2)
             {
                 // Update the visual for the current segement.
                 var currentSegment = trackSegments[currentSegmentId];
-                currentSegment[0].Position = start;
-                currentSegment[1].Position = end;
+                var trimmedStart = intersectionPoints[0];
+                var trimmedEnd = intersectionPoints[1];
+                currentSegment[0].Position = trimmedStart;
+                currentSegment[1].Position = trimmedEnd;
 
-                return (start, end);
+                return (trimmedStart, trimmedEnd);
             }
             else
             {

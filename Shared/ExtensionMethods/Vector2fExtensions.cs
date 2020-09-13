@@ -29,6 +29,11 @@ namespace Shared.ExtensionMethods
             return MathExtensions.Atan2(v.Y, v.X);
         }
 
+        public static float GetAngleDegrees(this Vector2f v)
+        {
+            return (float)(MathExtensions.Atan2(v.Y, v.X) / Math.PI * 180);
+        }
+
         //returns the length of the vector
         public static float Magnitude(this Vector2f v, Vector2f v2)
         {

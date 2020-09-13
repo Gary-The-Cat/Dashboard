@@ -10,6 +10,7 @@ namespace SelfDriving.Screens.MapMaker
     public class MapMakingScreen : Screen
     {
         private IApplication application;
+        private IApplicationInstance applicationInstance;
         private MapMakerState state;
         private MapMakerHudScreen mapEditorHudScreen;
         private MapMakerWorldScreen mapEditorWorldScreen;
@@ -22,9 +23,8 @@ namespace SelfDriving.Screens.MapMaker
             : base(application.Configuration, applicationInstance)
         {
             this.application = application;
+            this.applicationInstance = applicationInstance;
             this.state = MapMakerState.TrackSelection;
-
-            var sharedContainer = new MapMakerDataContainer();
 
             trackSelection = new TrackSelectionVisual(
                 application,
@@ -32,15 +32,6 @@ namespace SelfDriving.Screens.MapMaker
                 "Resources/Tracks");
 
             trackSelection.OnTrackSelected = OnTrackSelected;
-
-            mapEditorWorldScreen = new MapMakerWorldScreen(application, applicationInstance, sharedContainer);
-            mapEditorWorldScreen.SetInactive();
-
-            mapEditorHudScreen = new MapMakerHudScreen(application, applicationInstance, sharedContainer);
-            mapEditorHudScreen.SetInactive();
-
-            applicationInstance.AddScreen(mapEditorHudScreen);
-            applicationInstance.AddScreen(mapEditorWorldScreen);
 
             trackSelection.InsertTrack(new Track(), 0);
         }
@@ -54,8 +45,16 @@ namespace SelfDriving.Screens.MapMaker
         {
             SetInactive();
 
-            mapEditorWorldScreen.SetActive();
-            mapEditorHudScreen.SetActive();
+            var sharedContainer = new MapMakerDataContainer();
+
+            mapEditorWorldScreen = new MapMakerWorldScreen(application, applicationInstance, sharedContainer);
+            mapEditorHudScreen = new MapMakerHudScreen(application, applicationInstance, sharedContainer);
+
+            applicationInstance.AddScreen(mapEditorHudScreen);
+            applicationInstance.AddScreen(mapEditorWorldScreen);
+
+            mapEditorWorldScreen.Start();
+            mapEditorHudScreen.Start();
 
             mapEditorWorldScreen.Initialize(track);
         }

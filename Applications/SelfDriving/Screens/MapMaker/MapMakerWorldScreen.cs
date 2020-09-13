@@ -7,6 +7,7 @@ using SFML.Window;
 using Shared.CameraTools;
 using Shared.Commands;
 using Shared.Core;
+using Shared.ExtensionMethods;
 using Shared.Helpers;
 using Shared.Interfaces;
 using System;
@@ -38,6 +39,8 @@ namespace SelfDriving.Screens.MapMaker
         private Guid currentSegmentId;
 
         private bool isMoving;
+
+        private bool isPlacingStartPosition;
 
         private List<(Guid, int)> currentVertices;
 
@@ -80,7 +83,8 @@ namespace SelfDriving.Screens.MapMaker
             {
                 FillColor = Color.White,
                 OutlineColor = Color.Black,
-                OutlineThickness = 2
+                OutlineThickness = 2,
+                Origin = carConfig.CarSize / 2
             };
 
             pointHighlight = new CircleShape(5)
@@ -182,6 +186,23 @@ namespace SelfDriving.Screens.MapMaker
                 case MapEditState.Deletion:
                     ProcessDeleteClick(point);
                     break;
+                case MapEditState.StartPosition:
+                    ProcessPlacingStartPosition(point);
+                    break;
+            }
+        }
+
+        private void ProcessPlacingStartPosition(Vector2f point)
+        {
+            if (isPlacingStartPosition)
+            {
+                isPlacingStartPosition = false;
+            }
+            else
+            {
+                carForScale.Position = point;
+                sharedContainer.StartPosition = point;
+                isPlacingStartPosition = true;
             }
         }
 
@@ -319,6 +340,19 @@ namespace SelfDriving.Screens.MapMaker
                 case MapEditState.Deletion:
                     HighlightClosestPointOrEdge(point);
                     break;
+                case MapEditState.StartPosition:
+                    ProcessStartPositionMove(point);
+                    break;
+            }
+        }
+
+        private void ProcessStartPositionMove(Vector2f point)
+        {
+            if (isPlacingStartPosition)
+            {
+                var directionVector = point - carForScale.Position;
+                carForScale.Rotation = directionVector.GetAngleDegrees() + 90;
+                sharedContainer.StartRotation = carForScale.Rotation;
             }
         }
 
@@ -336,7 +370,15 @@ namespace SelfDriving.Screens.MapMaker
                 var (nearestLine, lineDistance) = sharedContainer.GetNearestLine(point, isDrawing);
 
                 pointHighlight.Position = OffScreen;
-                HighlightEdge(nearestLine, lineDistance);
+
+                if (nearestLine != null)
+                {
+                    HighlightEdge(nearestLine, lineDistance);
+                }
+                else
+                {
+                    lineHighlight.Position = OffScreen;
+                }
             }
         }
 
@@ -344,7 +386,10 @@ namespace SelfDriving.Screens.MapMaker
         {
             var (nearestPoint, distance) = sharedContainer.GetNearestPoint(point, isDrawing);
 
-            HighlightPoint(nearestPoint.Value, distance);
+            if(nearestPoint != null)
+            {
+                HighlightPoint(nearestPoint.Value, distance);
+            }
         }
 
         private void HighlightEdge(Guid? nearestLine, double lineDistance)
@@ -405,35 +450,50 @@ namespace SelfDriving.Screens.MapMaker
 
                 if (Keyboard.IsKeyPressed(Keyboard.Key.LShift))
                 {
-                    var start = sharedContainer.GetSegment(currentSegmentId).start;
-                    var angle = sharedContainer.GetCurrentSegmentAngle() / 3.14159f * 180;
-                    var angleDelta = angle % 45;
-                    if (angleDelta < 22.5)
-                    {
-                        angle -= angleDelta;
-                    }
-                    else
-                    {
-                        angle += (45 - angleDelta);
-                    }
-
-                    var length = sharedContainer.GetCurrentSegmentLength();
-                    var angleInRadians = angle / 180 * 3.14159f;
-
-                    var newEndPoint = new Vector2f(
-                        (float)(start.X + length * Math.Cos(angleInRadians)),
-                        (float)(start.Y + length * Math.Sin(angleInRadians)));
+                    var newEndPoint = GetAxisLockedEndPoint(currentSegmentId);
 
                     sharedContainer.SetSegmentEnd(currentSegmentId, newEndPoint);
                 }
             }
         }
 
+        private Vector2f GetAxisLockedEndPoint(Guid segmentId)
+        {
+            var start = sharedContainer.GetSegment(segmentId).start;
+            var angle = sharedContainer.GetCurrentSegmentAngle() / 3.14159f * 180;
+            var angleDelta = angle % 45;
+            if (angleDelta < 22.5)
+            {
+                angle -= angleDelta;
+            }
+            else
+            {
+                angle += (45 - angleDelta);
+            }
+
+            var length = sharedContainer.GetCurrentSegmentLength();
+            var angleInRadians = angle / 180 * 3.14159f;
+
+            var newEndPoint = new Vector2f(
+                (float)(start.X + length * Math.Cos(angleInRadians)),
+                (float)(start.Y + length * Math.Sin(angleInRadians)));
+
+            return newEndPoint;
+        }
+
         private void ProcessDrawCheckpointMove(Vector2f point)
         {
             if (isDrawing)
             {
+                // Update the end point to be the position of the mouse
                 sharedContainer.SetSegmentEnd(currentSegmentId, point);
+
+                // If the user is holding the shift key, lock it to 45 degree increments
+                if (Keyboard.IsKeyPressed(Keyboard.Key.LShift))
+                {
+                    var newEndPoint = GetAxisLockedEndPoint(currentSegmentId);
+                    sharedContainer.SetSegmentEnd(currentSegmentId, newEndPoint);
+                }
             }
          }
 
