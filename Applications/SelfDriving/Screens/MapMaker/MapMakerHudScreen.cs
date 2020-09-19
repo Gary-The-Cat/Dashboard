@@ -67,8 +67,12 @@ namespace SelfDriving.Screens.MapMaker
 
             var trackText = JsonConvert.SerializeObject(track, Formatting.Indented);
 
-            var saveName = $"{Directory.GetCurrentDirectory()}\\Track_{DateTime.Now:YY_DD_MM_hh.mm.ss}.json";
-            File.WriteAllText(saveName, trackText);
+            var baseFileName = $"{Directory.GetCurrentDirectory()}\\Track_{DateTime.Now:YY_DD_MM_hh.mm.ss}";
+            var trackFileName = $"{baseFileName}.json";
+            var trackThumbnailName = $"{baseFileName}.png";
+            File.WriteAllText(trackFileName, trackText);
+
+            ThumbnailHelper.GenerateTrackThumbnail(track, trackThumbnailName);
         }
 
         public override void OnUpdate(float dt)

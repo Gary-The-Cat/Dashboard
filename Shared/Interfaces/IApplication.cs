@@ -12,6 +12,10 @@ namespace Shared.Interfaces
 
         public IApplicationManager ApplicationManager { get; }
 
+        public IEventService EventService { get; set; }
+
+        public INotificationService NotificaitonService { get; set; }
+
         public SFML.Graphics.View GetDefaultView();
     }
 }

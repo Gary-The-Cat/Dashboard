@@ -29,7 +29,7 @@ namespace Shared.Menus
 
             this.AutoScale = true;
 
-            this.IsActive = true;
+            this.IsActive = false;
 
             this.grid = new IMenuItem[1,1];
         }

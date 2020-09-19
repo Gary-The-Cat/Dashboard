@@ -31,6 +31,14 @@ The dashboard is the bread and butter of this whole endevor. It is a landing pag
 
 The dashboard handles things like starting/stopping applications, error handling and more. it is a powerful concept and could be expanded to do a lot more, but this is what it does for now. It allows me easy access to the projects I've worked on in the past, or am working on now.
 
+The dashboard also contains and offers a number of services to any applicaitons that are running on it. This list will grow with time, but currently includes:
+
+#### Notification Service
+A notification service for showing prompts to users in the form of toast messages, and simple common dialogs such as yes/no, confirm etc.
+
+#### Event Service
+The default event behaviour in SFML is not designed for easy use in a multi-application space. The event service offers a number of simple methods that can be used to register for callbacks for keypresses, joystick or mouse events - even with the use of modifiers such as Ctrl or Shift. Furthermore, events will only be triggered when the screen in question is active. If you are using an application with multiple screen layers, the dashboard will automatically perform basic handling checks, allowing a screen to claim a click event, and mark it as handled.
+
 ## Solution Structure
 - All projects depend on shared
 - ApplicationInstances depend on Application

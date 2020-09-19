@@ -106,5 +106,19 @@ namespace SelfDriving.Screens
                     break;
             }
         }
+
+        public override void Resume()
+        {
+            base.Resume();
+
+            trackSelection.SetActive(true);
+        }
+
+        public override void Suspend()
+        {
+            base.Suspend();
+
+            trackSelection.SetActive(false);
+        }
     }
 }

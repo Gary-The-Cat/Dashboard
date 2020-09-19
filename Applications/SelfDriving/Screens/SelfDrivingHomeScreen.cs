@@ -31,7 +31,7 @@ namespace SelfDriving.Screens
         private void ConfigureGrid()
         {
             grid = new GridVisual(application.Window.Size, new Vector2f(0, 0));
-
+            grid.IsActive = true;
             grid.AddColumn();
             grid.AddRow();
             grid.SetMousePressedEvent(application.Window);
@@ -145,6 +145,7 @@ namespace SelfDriving.Screens
         {
             SetInactive();
             screen.SetActive();
+            screen.Resume();
             grid.IsActive = false;
         }
 
@@ -160,7 +161,7 @@ namespace SelfDriving.Screens
 
         public override void Resume()
         {
-            grid.IsActive = IsUpdate;
+            grid.IsActive = true;
         }
     }
 }
