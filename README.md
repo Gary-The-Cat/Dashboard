@@ -50,12 +50,22 @@ The default event behaviour in SFML is not designed for easy use in a multi-appl
 ## Applications
 
 ### Maze Solver
+The maze generation method was written by a friend of mine M1o_P1x. The solver was originally written in WPF of all things, and transferred over to SFML which brought some significant speed improvements.
+
 ![Maze Solver](/Samples/MazeSolver.gif)
 
 ### Driving Simulation / Self-Driving Neural Network
+The driving simulation was one of my largest projects to date. It builds on top of the GenericGA framework that I have written, and also uses the basic MLP Neural network that I have written. When porting it to the new project, I took the opportunity to expand the project to allow cars to train themselves or learn from user input. The map making functionality is nearing completion, and the race functionality will come next.
 
 ![Simulation](/Samples/DrivingSample.gif)
 
+### Driving Sim Map Maker
+The map maker is a very simple to use application that was used as a testbed for the new functionality I wanted to have in the dashboard. This includes undo/redo functionality for all interactions, handling events through the new EventService, and providing user feedback with the NotificationService.
+
+![Simulation](/Samples/MapMakerSample.gif)
+
 ### Number Prediction Neural Network
+
+Number prediction is often the 'hello world' of neural networks. I used this project as a means to explore convolution. You will notice that the convolution is inherently missing from this project, because I lost the original project that had it, and could only find an older version. Live and learn.
 
 ![Number Prediction](/Samples/NumberPredictionSample.gif)

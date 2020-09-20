@@ -40,7 +40,7 @@ namespace Dashboard.Core
 
             EventService = new EventService(this.window, () => ActiveApplication);
 
-            NotificaitonService = new NotificationService();
+            NotificaitonService = new NotificationService(this);
 
             AppManager = new ApplicationManager(this);
 

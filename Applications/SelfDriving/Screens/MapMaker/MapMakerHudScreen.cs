@@ -22,7 +22,6 @@ namespace SelfDriving.Screens.MapMaker
         private List<Button> buttons;
 
         private MapMakerDataContainer sharedContainer;
-        Button stateText;
 
         public MapMakerHudScreen(
             IApplication application, 
@@ -40,19 +39,50 @@ namespace SelfDriving.Screens.MapMaker
                 new MouseClickCallbackEventArgs(Mouse.Button.Left),
                 OnMousePress);
 
-            var stateTextPosition = new Vector2f(application.Window.Size.X - 120, application.Window.Size.Y - 60);
+            buttons.Add(new Button("Draw", new Vector2f(20, 20), () =>
+            {
+                SetState(MapEditState.DrawingLines);
+                application.NotificaitonService.ShowToast(
+                    ScreenLocation.TopRight,
+                    ToastType.Successful,
+                    "Drawing Lines Enabled");
+            }, HorizontalAlignment.Left));
 
-            stateText = new Button(
-                MapEditState.DrawingLines.ToString(), 
-                stateTextPosition,
-                () => { },
-                HorizontalAlignment.Centre);
+            buttons.Add(new Button("Move", new Vector2f(20, 70), () => 
+            {
+                SetState(MapEditState.MovingPoints);
+                application.NotificaitonService.ShowToast(
+                    ScreenLocation.TopRight,
+                    ToastType.Info,
+                    "Moving Points Enabled");
+            }, HorizontalAlignment.Left));
 
-            buttons.Add(new Button("Draw", new Vector2f(20, 20), () => SetState(MapEditState.DrawingLines), HorizontalAlignment.Left));
-            buttons.Add(new Button("Move", new Vector2f(20, 70), () => SetState(MapEditState.MovingPoints), HorizontalAlignment.Left));
-            buttons.Add(new Button("Delete", new Vector2f(20, 120), () => SetState(MapEditState.Deletion), HorizontalAlignment.Left));
-            buttons.Add(new Button("Checkpoints", new Vector2f(20, 170), () => SetState(MapEditState.Checkpoint), HorizontalAlignment.Left));
-            buttons.Add(new Button("Start", new Vector2f(20, 225), () => SetState(MapEditState.StartPosition), HorizontalAlignment.Left));
+            buttons.Add(new Button("Delete", new Vector2f(20, 120), () => 
+            {
+                SetState(MapEditState.Deletion);
+                application.NotificaitonService.ShowToast(
+                    ScreenLocation.TopRight,
+                    ToastType.Warning,
+                    "Deletion Enabled");
+            }, HorizontalAlignment.Left));
+
+            buttons.Add(new Button("Checkpoints", new Vector2f(20, 170), () =>
+            {
+                SetState(MapEditState.Checkpoint);
+                application.NotificaitonService.ShowToast(
+                    ScreenLocation.TopRight,
+                    ToastType.Info,
+                    "Checkpoint Mode Enabled");
+            }, HorizontalAlignment.Left));
+
+            buttons.Add(new Button("Start", new Vector2f(20, 225), () =>
+            {
+                SetState(MapEditState.StartPosition);
+                application.NotificaitonService.ShowToast(
+                    ScreenLocation.TopRight,
+                    ToastType.Successful,
+                    "Set Start Position");
+            }, HorizontalAlignment.Left));
 
             var exportTextPosition = new Vector2f(20, application.Window.Size.Y - 60);
             buttons.Add(new Button("Export", exportTextPosition, () => ExportTrack(), HorizontalAlignment.Left));
@@ -93,14 +123,11 @@ namespace SelfDriving.Screens.MapMaker
             target.SetView(application.GetDefaultView());
 
             buttons.ForEach(b => b.OnRender(target));
-
-            stateText.OnRender(target);
         }
 
         private void SetState(MapEditState state)
         {
             this.sharedContainer.EditState = state;
-            this.stateText.Text = state.ToString();
         }
 
         private void OnMousePress(MouseClickEventArgs args)

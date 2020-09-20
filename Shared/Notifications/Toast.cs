@@ -2,11 +2,14 @@
 using SFML.System;
 using Shared.Interfaces;
 using Shared.Maths;
+using System;
 
 namespace Shared.Notifications
 {
     public class Toast : IVisual
     {
+        private static float TransitionTime = 1.5f;
+
         public string Message { get; }
 
         public ToastType Type { get; }
@@ -18,6 +21,7 @@ namespace Shared.Notifications
         public Vector2f Position { get; private set; }
 
         private Vector2f finalPosition;
+
         private Vector2f initialPosition;
 
         private float timeAlive;
@@ -35,36 +39,46 @@ namespace Shared.Notifications
             this.Duration = duration;
 
             timeAlive = 0;
-            visual = new ToastVisual(this);
+            visual = new ToastVisual(this);            
+        }
 
-            finalPosition = new Vector2f(1280, 720) - visual.GetSize();
-            initialPosition = new Vector2f(1280, finalPosition.Y);
-            Position = initialPosition;
-
+        private void SetWorker(float start, float finish)
+        {
             worker = new EasingWorker(
                 Easings.EaseInOutCirc,
                 value =>
                 {
-                    Position = new Vector2f((float)(1280 - value), finalPosition.Y);
+                    Position = new Vector2f((float)(value), finalPosition.Y);
                 },
-                1.5f,
-                0,
-                visual.GetSize().X);
+                TransitionTime,
+                start,
+                finish);
+        }
+
+        public void SetEndPosition(Vector2f vector2f)
+        {
+            finalPosition = vector2f;
+            SetWorker(initialPosition.X, finalPosition.X);
+        }
+
+        public void SetStartPosition(Vector2f vector2f)
+        {
+            initialPosition = vector2f;
+            Position = vector2f;
         }
 
         public void OnUpdate(float deltaT)
         {
-            if (timeAlive > 3.4f && !easeOutStarted)
+            if (!IsAlive)
             {
-                worker = new EasingWorker(
-                    Easings.EaseInOutCirc,
-                    value =>
-                    {
-                        Position = new Vector2f((float)((1280 - visual.GetSize().X) + value), finalPosition.Y);
-                    },
-                    1.5f,
-                    0,
-                    visual.GetSize().X);
+                worker = null;
+
+                return;
+            }
+
+            if (timeAlive > Duration - TransitionTime && !easeOutStarted)
+            {
+                SetWorker(finalPosition.X, initialPosition.X);
 
                 easeOutStarted = true;
             }
@@ -73,15 +87,18 @@ namespace Shared.Notifications
 
             timeAlive += deltaT;
 
-            if (IsAlive)
-            {
-                visual.OnUpdate(deltaT);
-            }
+            visual.OnUpdate(deltaT);
         }
 
         public void OnRender(RenderTarget target)
         {
             visual.OnRender(target);
         }
+
+        public Vector2f GetSize()
+        {
+            return visual.GetSize();
+        }
+
     }
 }
