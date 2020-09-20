@@ -28,14 +28,14 @@ namespace EasingDemo.Screens
                 FillColor = color
             };
 
-            var worker = new EasingWorker(
-                Easings.EaseInOutCirc,
-                a => 
-                {
-                    sprite.Scale = new Vector2f((float)a, (float)a);
-                }, 
-                2000,
-                2);
+            //_ = new EasingWorker(
+            //    Easings.EaseInOutCirc,
+            //    a => 
+            //    {
+            //        sprite.Scale = new Vector2f((float)a, (float)a);
+            //    }, 
+            //    durationMillis: 2000,
+            //    maxValue: 2);
         }
 
         public void OnEnter()

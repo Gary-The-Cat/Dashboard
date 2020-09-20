@@ -28,21 +28,23 @@ namespace Dashboard.Core
         public void OnUpdate(float deltaT)
         {
             ActiveApplication.OnUpdate(deltaT);
+
+            application.NotificaitonService.OnUpdate(deltaT);
         }
 
         public void OnRender(RenderTarget target)
         {
             ActiveApplication.OnRender(target);
+
+            application.NotificaitonService.OnRender(target);
         }
 
         public void SetActiveApplication(IApplicationInstance application)
         {
             if (ActiveApplication != null)
             {
-                ActiveApplication.Suspend();
-
                 // Suspend all screen activity - event listeners
-                screenManager.Suspend();
+                ActiveApplication.Suspend();
             }
 
             // Probably need to think of a nicer way to do this, but for now passing in null brings us back to our home screen
@@ -55,12 +57,10 @@ namespace Dashboard.Core
             }
             else
             {
-                // Resume all screen activity - event listeners
-                screenManager.Resume();
+                // Every time an application becomes active, we call start, regardless of initialization status.
+                ActiveApplication.Start();
             }
 
-            // Every time an application becomes active, we call start, regardless of initialization status.
-            ActiveApplication.Start();
         }
 
         private void OnKeyPressed(object sender, KeyEventArgs e)

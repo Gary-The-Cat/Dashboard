@@ -1,7 +1,7 @@
 ﻿using SFML.Graphics;
 using System;
 
-namespace Shared.Colour
+namespace Shared.SharecdColors
 {
     public class HslColor
     {

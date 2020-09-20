@@ -1,4 +1,5 @@
 ﻿using SFML.Graphics;
+using Shared.Interfaces;
 using System;
 using System.Diagnostics;
 
@@ -22,6 +23,7 @@ namespace Shared.Core
         {
             Debug.WriteLine($"Start: {GetType().Name}");
             this.IsActive = true;
+            ScreenManager.Resume();
         }
 
         public virtual void Initialize()
@@ -61,5 +63,9 @@ namespace Shared.Core
         public bool IsActive { get; internal set; }
 
         public ScreenManager ScreenManager { get; set; }
+
+        public IEventService EventService { get; set; }
+
+        public INotificationService NotificationService { get; set; }
     }
 }

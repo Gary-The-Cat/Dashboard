@@ -3,6 +3,8 @@ using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using Shared.Core;
+using Shared.Events.CallbackArgs;
+using Shared.Events.EventArgs;
 using Shared.Interfaces;
 using Shared.NeuralNetworks;
 using System.IO;
@@ -67,17 +69,15 @@ namespace DigitRecognition.Screens
             });
 
             RegisterKeyboardCallback(
-                application.Window,
-                Keyboard.Key.Right,
+                new KeyPressCallbackEventArgs(Keyboard.Key.Right),
                 NextImage);
 
             RegisterKeyboardCallback(
-                application.Window,
-                Keyboard.Key.Left,
+                new KeyPressCallbackEventArgs(Keyboard.Key.Left),
                 PreviousImage);
         }
 
-        private void NextImage()
+        private void NextImage(KeyboardEventArgs _)
         {
             selectedImage++;
             if (selectedImage == imageExtraction.ImageCount)
@@ -88,7 +88,7 @@ namespace DigitRecognition.Screens
             isGuessRequired = true;
         }
 
-        private void PreviousImage()
+        private void PreviousImage(KeyboardEventArgs _)
         {
             selectedImage--;
             if (selectedImage < 0)

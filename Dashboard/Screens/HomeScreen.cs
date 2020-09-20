@@ -2,6 +2,7 @@
 using SFML.Graphics;
 using SFML.Window;
 using Shared.Core;
+using Shared.Events.CallbackArgs;
 using Shared.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -38,9 +39,8 @@ namespace Dashboard.Screens
                 application);
 
             this.RegisterKeyboardCallback(
-                application.Window,
-                Keyboard.Key.Enter,
-                () => this.setActiveApplication(selectedApplication));
+                new KeyPressCallbackEventArgs(Keyboard.Key.Enter),
+                (_) => this.setActiveApplication(selectedApplication));
         }
 
         public override void OnUpdate(float dt)

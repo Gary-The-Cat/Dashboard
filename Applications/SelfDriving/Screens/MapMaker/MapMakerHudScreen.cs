@@ -4,8 +4,11 @@ using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using Shared.Core;
+using Shared.Events.CallbackArgs;
+using Shared.Events.EventArgs;
 using Shared.Interfaces;
 using Shared.Menus;
+using Shared.Notifications;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -34,8 +37,7 @@ namespace SelfDriving.Screens.MapMaker
             this.buttons = new List<Button>();
 
             RegisterMouseClickCallback(
-                application.Window,
-                Mouse.Button.Right,
+                new MouseClickCallbackEventArgs(Mouse.Button.Left),
                 OnMousePress);
 
             var stateTextPosition = new Vector2f(application.Window.Size.X - 120, application.Window.Size.Y - 60);
@@ -73,6 +75,10 @@ namespace SelfDriving.Screens.MapMaker
             File.WriteAllText(trackFileName, trackText);
 
             ThumbnailHelper.GenerateTrackThumbnail(track, trackThumbnailName);
+
+            application.NotificaitonService.ShowToast(
+                ToastType.Error,
+                "Track exported successfully");
         }
 
         public override void OnUpdate(float dt)
@@ -97,13 +103,15 @@ namespace SelfDriving.Screens.MapMaker
             this.stateText.Text = state.ToString();
         }
 
-        private void OnMousePress(float x, float y)
+        private void OnMousePress(MouseClickEventArgs args)
         {
             buttons.ForEach(b => 
             {
-                if (b.GetGlobalBounds().Contains(x, y))
+                if (b.GetGlobalBounds().Contains(args.Args.X, args.Args.Y))
                 {
                     b.OnClick();
+
+                    args.IsHandled = true;
                 }
             });
         }

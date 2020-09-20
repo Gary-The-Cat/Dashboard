@@ -18,6 +18,10 @@ namespace Shared.Interfaces
 
         public RenderWindow RenderWindow { get; set; }
 
+        public IEventService EventService { get; set; }
+
+        public INotificationService NotificationService { get; set; }
+
         public bool IsInitialized { get; }
 
         public bool IsActive { get; }

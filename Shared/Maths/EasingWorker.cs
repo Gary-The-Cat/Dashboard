@@ -5,26 +5,51 @@ namespace Shared.Maths
 {
     public class EasingWorker
     {
+        public bool IsAlive => timeAlive < duration; 
+
+        private Func<double, double> getValue;
+
+        private Action<double> setValue;
+
+        private float duration;
+
+        private float timeAlive;
+
+        private float minValue;
+
+        private float difference;
+
         public EasingWorker(
             Func<double, double> getValue, 
-            Action<double> updateValue,
-            int durationMillis,
-            double maxValue,
-            double steps = 100)
+            Action<double> setValue,
+            float durationSeconds,
+            float minValue = 0,
+            float maxValue = 1)
         {
-            double t = 0;
-            double step = (durationMillis / steps);
+            this.getValue = getValue;
+            this.setValue = setValue;
+            this.duration = durationSeconds;
+            this.minValue = minValue;
+            this.difference = maxValue - minValue;
+            timeAlive = 0;
+        }
 
-            var timer = new Timer(_ =>
+        public void OnUpdate(float deltaT)
+        {
+            if (!IsAlive)
             {
-                var value = getValue(t) * maxValue;
-                t += (step/1000);
-                t = t > 1 ? 1 : t;
-                updateValue(value);
-            }, 
-            null, 
-            durationMillis,
-            (int)step);
+                return;
+            }
+
+            timeAlive += deltaT;
+
+            var proportion = timeAlive / duration;
+
+            var scale = getValue(proportion);
+
+            var newValue = minValue + (scale * difference);
+
+            setValue(newValue);
         }
     }
 }

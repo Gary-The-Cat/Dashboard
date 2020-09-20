@@ -324,13 +324,13 @@ namespace OrbitalMechanics.Screens
                 {
                     var outerSize = throwAnchor.Value.Magnitude(projectile.ProjectileBody.Position) / 8;
                     outerSize = outerSize == 0 ? 1 : outerSize;
-                    var colour = new Color(255, (byte)(255 - outerSize), (byte)(255 - outerSize));
+                    var color = new Color(255, (byte)(255 - outerSize), (byte)(255 - outerSize));
 
                     var anchorCentre = new CircleShape(10)
                     {
                         Position = throwAnchor.Value,
                         Origin = new Vector2f(10, 10),
-                        FillColor = colour
+                        FillColor = color
                     };
 
                     var anchorOuter = new CircleShape(outerSize)
@@ -339,7 +339,7 @@ namespace OrbitalMechanics.Screens
                         Origin = new Vector2f(outerSize, outerSize),
                         FillColor = Color.Transparent,
                         OutlineThickness = 1,
-                        OutlineColor = colour
+                        OutlineColor = color
                     };
 
 

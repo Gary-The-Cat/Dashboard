@@ -26,8 +26,8 @@ namespace OrbitalMechanics.Planets
             int pixels = (int)planetRadius;
             var texture = new Color[pixels * 2, pixels * 2];
             var centroid = new Vector2f(pixels, pixels);
-            var baseColour = GetBaseColour(planetType);
-            var secondaryColour = GetSecondaryColour(planetType, baseColour);
+            var baseColor = GetBaseColor(planetType);
+            var secondaryColor = GetSecondaryColor(planetType, baseColor);
             bool hasRings = GetHasRings(planetType);
             bool hasStripe = GetHasStripe(planetType);
             bool hasIslands = GetHasIslands(planetType);
@@ -49,28 +49,28 @@ namespace OrbitalMechanics.Planets
                         var isSecondary = Math.Min(1, Math.Max(0, pixelHeight)) > LandHeight;
                         var isSnow = pixelHeight > SnowHeight;
 
-                        Color colour;
+                        Color color;
 
                         if (isSecondary && !isSnow)
                         {
-                            colour = hasIslands ? secondaryColour : baseColour;
+                            color = hasIslands ? secondaryColor : baseColor;
                         }
                         else if (isSnow)
                         {
-                            colour = Color.White;
+                            color = Color.White;
                         }
                         else
                         {
-                            colour = baseColour;
+                            color = baseColor;
                         }
 
                         if (!isSnow)
                         {
-                            colour = colour.Darken(Math.Abs(pixelHeight - LandHeight) * HeightScale);
+                            color = color.Darken(Math.Abs(pixelHeight - LandHeight) * HeightScale);
                         }
 
 
-                        texture[x, y] = colour;
+                        texture[x, y] = color;
                     }
                 }
             }
@@ -95,12 +95,12 @@ namespace OrbitalMechanics.Planets
             return false;
         }
 
-        private static Color GetSecondaryColour(PlanetType planetType, Color baseColour)
+        private static Color GetSecondaryColor(PlanetType planetType, Color baseColor)
         {
             return new Color(0x27, 0x98, 0x38);
         }
 
-        private static Color[] DwarfColours = new Color[]
+        private static Color[] DwarfColors = new Color[]
         {
             new Color(0x76, 0x54, 0x35)
         };
@@ -110,20 +110,20 @@ namespace OrbitalMechanics.Planets
             new Color(0x3C, 0x6B, 0x88)
         };
 
-        private static Color[] GasGiantColours = new Color[]
+        private static Color[] GasGiantColors = new Color[]
         {
             new Color(0x76, 0x54, 0x35),
             new Color(0x95, 0x83, 0x67)
         };
 
 
-        private static Color GetBaseColour(PlanetType planetType)
+        private static Color GetBaseColor(PlanetType planetType)
         {
             var random = new Random();
 
             if (planetType == PlanetType.Dwarf)
             {
-                return DwarfColours[random.Next(0, DwarfColours.Length - 1)];
+                return DwarfColors[random.Next(0, DwarfColors.Length - 1)];
             }
             else if (planetType == PlanetType.Terrestrial)
             {
@@ -131,7 +131,7 @@ namespace OrbitalMechanics.Planets
             }
             else if (planetType == PlanetType.GasGiant)
             {
-                return GasGiantColours[random.Next(0, GasGiantColours.Length - 1)];
+                return GasGiantColors[random.Next(0, GasGiantColors.Length - 1)];
             }
 
             return Color.White;

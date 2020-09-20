@@ -101,14 +101,14 @@ namespace Shared.Graphing
             this.axisLines = GetAxisLines();
         }
 
-        public void SetBackgroundColour(Color backgroundColor)
+        public void SetBackgroundColor(Color backgroundColor)
         {
             this.backgroundColor = backgroundColor;
 
             backgroundShape.FillColor = this.backgroundColor;
         }
 
-        public void SetForegroundColour(Color foregroundColor)
+        public void SetForegroundColor(Color foregroundColor)
         {
             this.foregroundColor = foregroundColor;
             this.axisLines = GetAxisLines();
@@ -206,13 +206,13 @@ namespace Shared.Graphing
             return id;
         }
 
-        public int DrawTriangle(Vector2f p1, Vector2f p2, Vector2f p3, Func<Vector2f, Color> getPointColour)
+        public int DrawTriangle(Vector2f p1, Vector2f p2, Vector2f p3, Func<Vector2f, Color> getPointColor)
         {
             VertexArray triangle = new VertexArray(PrimitiveType.Triangles, 3);
 
-            triangle[0] = new Vertex(GetScreenPosition(p1), getPointColour(p1));
-            triangle[1] = new Vertex(GetScreenPosition(p2), getPointColour(p2));
-            triangle[2] = new Vertex(GetScreenPosition(p3), getPointColour(p3));
+            triangle[0] = new Vertex(GetScreenPosition(p1), getPointColor(p1));
+            triangle[1] = new Vertex(GetScreenPosition(p2), getPointColor(p2));
+            triangle[2] = new Vertex(GetScreenPosition(p3), getPointColor(p3));
 
             var id = GetNextId();
             graphElements.Add(id, triangle);

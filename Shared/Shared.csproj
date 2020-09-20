@@ -11,9 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="DataStructures\" />
     <Folder Include="ECS\LeoEcs\" />
     <Folder Include="ECS\Entities\" />
-    <Folder Include="Services\" />
   </ItemGroup>
   
   <PropertyGroup>

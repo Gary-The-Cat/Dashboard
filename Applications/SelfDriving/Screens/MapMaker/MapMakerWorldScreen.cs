@@ -7,12 +7,15 @@ using SFML.Window;
 using Shared.CameraTools;
 using Shared.Commands;
 using Shared.Core;
+using Shared.Events.CallbackArgs;
+using Shared.Events.EventArgs;
 using Shared.ExtensionMethods;
 using Shared.Helpers;
 using Shared.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static SFML.Window.Mouse;
 
 namespace SelfDriving.Screens.MapMaker
 {
@@ -72,10 +75,7 @@ namespace SelfDriving.Screens.MapMaker
             this.isDrawing = false;
             this.isMoving = false;
 
-            RegisterMouseMoveCallback(application.Window, OnMouseMove);
-            RegisterMouseClickCallback(application.Window, Mouse.Button.Left, OnMouseClick);
-            RegisterKeyboardCallback(application.Window, Keyboard.Key.Z, OnUndo, controlModifier: true);
-            RegisterKeyboardCallback(application.Window, Keyboard.Key.Y, OnRedo, controlModifier: true);
+            RegisterCallbacks();
 
             var carConfig = new CarConfiguration();
 
@@ -129,14 +129,12 @@ namespace SelfDriving.Screens.MapMaker
             carForScale.Position = size / 2;
         }
 
-        private void OnUndo()
+        private void RegisterCallbacks()
         {
-            commandManager.Undo();
-        }
-
-        private void OnRedo()
-        {
-            commandManager.Redo();
+            RegisterMouseMoveCallback(OnMouseMove);
+            RegisterMouseClickCallback(new MouseClickCallbackEventArgs(Button.Left), OnMouseClick);
+            RegisterKeyboardCallback(new KeyPressCallbackEventArgs(Keyboard.Key.Z, isCtrlRequired: true), OnUndo);
+            RegisterKeyboardCallback(new KeyPressCallbackEventArgs(Keyboard.Key.Y, isCtrlRequired: true), OnRedo);
         }
 
         public void Initialize(Track track)
@@ -167,10 +165,23 @@ namespace SelfDriving.Screens.MapMaker
         {
             base.OnUpdate(deltaT);
         }
-
-        private void OnMouseClick(float x, float y)
+        private void OnUndo(KeyboardEventArgs args)
         {
-            var point = GetWorldPosition(x, y, Camera);
+            commandManager.Undo();
+
+            args.IsHandled = true;
+        }
+
+        private void OnRedo(KeyboardEventArgs args)
+        {
+            commandManager.Redo();
+
+            args.IsHandled = true;
+        }
+
+        private void OnMouseClick(MouseClickEventArgs args)
+        {
+            var point = GetWorldPosition(args.Args.X, args.Args.Y, Camera);
 
             switch (sharedContainer.EditState)
             {
@@ -320,9 +331,9 @@ namespace SelfDriving.Screens.MapMaker
             }
         }
 
-        private void OnMouseMove(float x, float y)
+        private void OnMouseMove(MoveMouseEventArgs args)
         {
-            var point = GetWorldPosition(x, y, Camera);
+            var point = GetWorldPosition(args.Args.X, args.Args.Y, Camera);
 
             switch (sharedContainer.EditState)
             {
@@ -450,17 +461,17 @@ namespace SelfDriving.Screens.MapMaker
 
                 if (Keyboard.IsKeyPressed(Keyboard.Key.LShift))
                 {
-                    var newEndPoint = GetAxisLockedEndPoint(currentSegmentId);
+                    var newEndPoint = GetAxisLockedEndPoint(currentSegmentId, point);
 
                     sharedContainer.SetSegmentEnd(currentSegmentId, newEndPoint);
                 }
             }
         }
 
-        private Vector2f GetAxisLockedEndPoint(Guid segmentId)
+        private Vector2f GetAxisLockedEndPoint(Guid segmentId, Vector2f mousePosition)
         {
             var start = sharedContainer.GetSegment(segmentId).start;
-            var angle = sharedContainer.GetCurrentSegmentAngle() / 3.14159f * 180;
+            var angle = sharedContainer.GetSegmentAngle(segmentId) / 3.14159f * 180;
             var angleDelta = angle % 45;
             if (angleDelta < 22.5)
             {
@@ -471,7 +482,7 @@ namespace SelfDriving.Screens.MapMaker
                 angle += (45 - angleDelta);
             }
 
-            var length = sharedContainer.GetCurrentSegmentLength();
+            var length = sharedContainer.GetSegmentLength(segmentId);
             var angleInRadians = angle / 180 * 3.14159f;
 
             var newEndPoint = new Vector2f(
@@ -491,7 +502,7 @@ namespace SelfDriving.Screens.MapMaker
                 // If the user is holding the shift key, lock it to 45 degree increments
                 if (Keyboard.IsKeyPressed(Keyboard.Key.LShift))
                 {
-                    var newEndPoint = GetAxisLockedEndPoint(currentSegmentId);
+                    var newEndPoint = GetAxisLockedEndPoint(currentSegmentId, point);
                     sharedContainer.SetSegmentEnd(currentSegmentId, newEndPoint);
                 }
             }

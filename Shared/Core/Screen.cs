@@ -1,6 +1,7 @@
 using SFML.Graphics;
-using SFML.Window;
 using Shared.CameraTools;
+using Shared.Events.CallbackArgs;
+using Shared.Events.EventArgs;
 using Shared.Interfaces;
 using Shared.ScreenConfig;
 using System;
@@ -9,6 +10,8 @@ namespace Shared.Core
 {
     public class Screen
     {
+        public Guid Id { get; set; }
+
         public Camera Camera { get; set; }
 
         public bool IsActive => IsUpdate && IsApplicationActive;
@@ -28,69 +31,17 @@ namespace Shared.Core
 
             IsUpdate = true;
             IsDraw = true;
+
+            Id = Guid.NewGuid();
         }
 
-        public void RegisterKeyboardCallback(
-            Window window,
-            Keyboard.Key key,
-            Action callback,
-            bool controlModifier = false,
-            bool shiftModifier = false)
-        {
-            window.KeyPressed += (_, e) =>
-            {
-                if (!IsActive || e.Code != key)
-                {
-                    return;
-                }
+        public void RegisterMouseClickCallback(MouseClickCallbackEventArgs eventArgs, Action<MouseClickEventArgs> callback) =>
+            ParentApplication.EventService.RegisterMouseClickCallback(this.Id, eventArgs, callback);
+        public void RegisterMouseMoveCallback(Action<MoveMouseEventArgs> callback) =>
+            ParentApplication.EventService.RegisterMouseMoveCallback(this.Id, callback);
 
-                if (controlModifier != e.Control || shiftModifier != e.Shift)
-                {
-                    return;
-                }
-
-                callback?.Invoke();
-            };
-        }
-
-        public void RegisterMouseClickCallback(Window window, Mouse.Button button, Action<float, float> callback)
-        {
-            window.MouseButtonPressed += (_, e) =>
-            {
-                if (!IsActive || e.Button != button)
-                {
-                    return;
-                }
-
-                callback?.Invoke(e.X, e.Y);
-            };
-        }
-
-        public void RegisterMouseMoveCallback(Window window, Action<float, float> callback)
-        {
-            window.MouseMoved += (_, e) =>
-            {
-                if (!IsActive)
-                {
-                    return;
-                }
-
-                callback?.Invoke(e.X, e.Y);
-            };
-        }
-
-        public void RegisterJoystickCallback(Window window, uint button, Action callback)
-        {
-            window.JoystickButtonPressed += (_, e) =>
-            {
-                if (!IsActive || e.Button != button)
-                {
-                    return;
-                }
-
-                callback?.Invoke();
-            };
-        }
+        public void RegisterKeyboardCallback(KeyPressCallbackEventArgs eventArgs, Action<KeyboardEventArgs> callback) =>
+            ParentApplication.EventService.RegisterKeyboardCallback(this.Id, eventArgs, callback);
 
         public virtual void OnUpdate(float deltaT)
         {

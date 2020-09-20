@@ -2,8 +2,11 @@ using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using Shared.CameraTools;
+using Shared.Events;
 using Shared.Interfaces;
+using Shared.Notifications;
 using Shared.ScreenConfig;
+using Shared.Services;
 using System;
 using System.Diagnostics;
 
@@ -25,15 +28,25 @@ namespace Dashboard.Core
 
         private IApplicationInstance HomeApplication => AppManager.HomeApplication;
 
+        public IEventService EventService { get; set; }
+
+        public INotificationService NotificaitonService { get; set; }
+
         public Application(RenderWindow window, ScreenConfiguration configuration)
         {
             this.window = window;
 
-            this.Configuration = configuration;
+            Configuration = configuration;
+
+            EventService = new EventService(this.window, () => ActiveApplication);
+
+            NotificaitonService = new NotificationService();
 
             AppManager = new ApplicationManager(this);
 
             AppManager.HomeApplication = new HomeApplicationInstance(this, AppManager.SetActiveApplication);
+
+            AppManager.HomeApplication.EventService = EventService;
 
             AppManager.SetActiveApplication(HomeApplication);
         }
@@ -46,7 +59,7 @@ namespace Dashboard.Core
             window.Closed += (sender, e) => window.Close();
 
             // Run
-            this.Run();
+            Run();
 
             ActiveApplication.Stop();
         }

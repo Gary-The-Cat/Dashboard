@@ -82,16 +82,16 @@ namespace SelfDriving.Screens.MapMaker
             return (startPos, endPos);
         }
 
-        public double GetCurrentSegmentLength()
+        public double GetSegmentLength(Guid segmentId)
         {
-            var (start, end) = vertexPositions.Last();
+            var (start, end) = GetSegment(segmentId);
 
             return start.Distance(end);
         }
 
-        public double GetCurrentSegmentAngle()
+        public double GetSegmentAngle(Guid segmentId)
         {
-            var (start, end) = vertexPositions.Last();
+            var (start, end) = GetSegment(segmentId);
 
             return (end - start).GetAngle();
         }

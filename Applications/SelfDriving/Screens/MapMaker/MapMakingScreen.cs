@@ -58,5 +58,17 @@ namespace SelfDriving.Screens.MapMaker
 
             mapEditorWorldScreen.Initialize(track);
         }
+
+        public override void Resume()
+        {
+            base.Resume();
+            trackSelection.SetActive(true);
+        }
+
+        public override void Suspend()
+        {
+            base.Suspend();
+            trackSelection.SetActive(false);
+        }
     }
 }

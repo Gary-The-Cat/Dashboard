@@ -2,7 +2,6 @@
 using Dashboard.Screens;
 using SFML.Graphics;
 using Shared.Core;
-using Shared.DataStructures;
 using Shared.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -35,7 +34,9 @@ namespace Dashboard.Core
                 IApplicationInstance applicationInstance;
                 try
                 {
-                     applicationInstance = (IApplicationInstance)Activator.CreateInstance(type, application);
+                    applicationInstance = (IApplicationInstance)Activator.CreateInstance(type, application);
+                    applicationInstance.EventService = application.EventService;
+                    applicationInstance.NotificationService = application.NotificaitonService;
                 }
                 catch (Exception e)
                 {
@@ -50,7 +51,7 @@ namespace Dashboard.Core
                     texture.GenerateMipmap();
                     texture.Smooth = true;
 
-                    applicationInstance.Thumbnail = new TranslatableRectangle(new SFML.System.Vector2f(300, 300))
+                    applicationInstance.Thumbnail = new RectangleShape(new SFML.System.Vector2f(300, 300))
                     {
                         Texture = texture
                     };

@@ -6,7 +6,10 @@ using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using Shared.Core;
+using Shared.Events.CallbackArgs;
+using Shared.Events.EventArgs;
 using Shared.Interfaces;
+using System;
 using System.Collections.Generic;
 
 namespace SelfDriving.Screens
@@ -37,13 +40,19 @@ namespace SelfDriving.Screens
                 new Vector2f(0, 0),
                 "Resources/Tracks");
 
-            RegisterKeyboardCallback(application.Window, Keyboard.Key.R, ResetSimulation);
-            RegisterKeyboardCallback(application.Window, Keyboard.Key.M, SetTrackSelection);
-            RegisterJoystickCallback(application.Window, 7, ResetSimulation);
+            RegisterCallbacks();
 
             trackSelection.OnTrackSelected = OnTrackSelected;
 
             gameState = GameState.TrackSelection;
+        }
+
+        private void RegisterCallbacks()
+        {
+            RegisterKeyboardCallback(new KeyPressCallbackEventArgs(Keyboard.Key.R), ResetSimulation);
+            RegisterKeyboardCallback(new KeyPressCallbackEventArgs(Keyboard.Key.M), SetTrackSelection);
+
+            //RegisterJoystickCallback(application.Window, 7, ResetSimulation);
         }
 
         private void OnTrackSelected(Track track)
@@ -67,14 +76,14 @@ namespace SelfDriving.Screens
             currentTrack = track;
         }
 
-        private void SetTrackSelection()
+        private void SetTrackSelection(KeyboardEventArgs args)
         {
             ((RenderWindow)application.Window).SetView(application.GetDefaultView());
             this.trackSelection.SetActive(true);
             this.gameState = GameState.TrackSelection;
         }
 
-        private void ResetSimulation()
+        private void ResetSimulation(KeyboardEventArgs args)
         {
             racingSimulation.Reset();
             racingSimulationVisualization.Reset();

@@ -1,11 +1,11 @@
 ﻿using Google.OrTools.LinearSolver;
 using SFML.Graphics;
 using SFML.System;
-using Shared.Colour;
 using Shared.Core;
 using Shared.ExtensionMethods;
 using Shared.Graphing;
 using Shared.Interfaces;
+using Shared.SharecdColors;
 using System.Linq;
 
 namespace ORToolsDemo.Screens

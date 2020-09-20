@@ -1,26 +1,32 @@
 ﻿using SFML.Graphics;
 using Shared.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Shared.Notifications
 {
     public class NotificationService : INotificationService
     {
+        private List<Toast> toastVisuals;
+
+        public NotificationService()
+        {
+            toastVisuals = new List<Toast>();
+        }
+
         public void OnRender(RenderTarget target)
         {
-            throw new NotImplementedException();
+            toastVisuals.ForEach(t => t.OnRender(target));
+            toastVisuals.RemoveAll(t => !t.IsAlive);
         }
 
         public void OnUpdate(float deltaT)
         {
-            throw new NotImplementedException();
+            toastVisuals.ForEach(t => t.OnUpdate(deltaT));
         }
 
         public void ShowToast(ToastType type, string message)
         {
-            throw new NotImplementedException();
+            toastVisuals.Add(new Toast(type, message));
         }
     }
 }
