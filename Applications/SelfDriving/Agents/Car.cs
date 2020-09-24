@@ -6,6 +6,7 @@ using SelfDriving.Shared;
 using SFML.Graphics;
 using SFML.System;
 using Shared.CollisionData;
+using Shared.DataStructures;
 using Shared.ExtensionMethods;
 using Shared.FireBase;
 using System;
@@ -95,7 +96,7 @@ namespace SelfDriving.Agents
             this.Collisions = collisions;
 
             // Get the next action to take
-            var output = Controller.GetOutput(rayDistances, Position, Heading, checkpointManager.CurrentWaypoint);
+            var output = Controller.GetOutput(rayDistances, Position, Heading, checkpointManager.CurrentWaypoint.Centroid);
 
             // Update the speed
             speed += output.Acceleration * Configuration.AccelerationCoefficient * deltaT;
@@ -208,8 +209,7 @@ namespace SelfDriving.Agents
             this.Heading = track.InitialHeading;
 
             // Initialize the checkpoint manager for the new course & set current waypoint
-            // :TODO: Update the checkpoint manager to work with line segments
-            ////this.checkpointManager.Initialize(track.Checkpoints);
+            this.checkpointManager.Initialize(track.Checkpoints);
 
             // Initialize the controller (AI)
             this.Controller.Initalize(Configuration);

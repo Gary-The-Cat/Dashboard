@@ -6,7 +6,7 @@ namespace Shared.Notifications
 {
     public class ToastVisual : IVisual
     {
-        private static Vector2f ColoredRegionSize = new Vector2f(70, 58);
+        public static Vector2f ColoredRegionSize = new Vector2f(70, 58);
         private static Vector2f IconSize = new Vector2f(50, 50);
         private static float WidthBuffer = 40;
 
@@ -71,7 +71,7 @@ namespace Shared.Notifications
                 case ToastType.Error:
                     return "Error.png";
                 default:
-                    return "Error.png";
+                    return "Info.png";
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SFML.System;
-namespace SelfDriving.Shared
+
+namespace Shared.DataStructures
 {
     public struct LineSegment
     {
@@ -21,5 +22,7 @@ namespace SelfDriving.Shared
             Start = start;
             End = end;
         }
+
+        public Vector2f Centroid => (End + Start) / 2;
     }
 }

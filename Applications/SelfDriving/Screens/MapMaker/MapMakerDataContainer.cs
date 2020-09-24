@@ -1,6 +1,7 @@
 ﻿using SelfDriving.Shared;
 using SFML.Graphics;
 using SFML.System;
+using Shared.DataStructures;
 using Shared.ExtensionMethods;
 using Shared.Helpers;
 using System;

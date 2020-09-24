@@ -143,6 +143,14 @@ namespace SelfDriving.Screens.MapMaker
             {
                 sharedContainer.AddSegment(segment.Start, segment.End, isTrack: true);
             }
+
+            foreach (var segment in track.Checkpoints)
+            {
+                sharedContainer.AddSegment(segment.Start, segment.End, isTrack: false);
+            }
+
+            carForScale.Position = track.StartPosition;
+            carForScale.Rotation = track.InitialHeading;
         }
 
         public override void OnRender(RenderTarget target)
@@ -362,7 +370,7 @@ namespace SelfDriving.Screens.MapMaker
             if (isPlacingStartPosition)
             {
                 var directionVector = point - carForScale.Position;
-                carForScale.Rotation = directionVector.GetAngleDegrees() + 90;
+                carForScale.Rotation = directionVector.GetAngleDegrees() - 90;
                 sharedContainer.StartRotation = carForScale.Rotation;
             }
         }

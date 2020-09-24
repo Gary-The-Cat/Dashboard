@@ -1,4 +1,7 @@
-﻿using SFML.System;
+﻿using SelfDriving.Shared;
+using SFML.System;
+using Shared.DataStructures;
+using Shared.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,22 +10,22 @@ namespace SelfDriving.Managers
 {
     public class CheckpointManager
     {
-        public Vector2f CurrentWaypoint { get; set; }
+        public LineSegment CurrentWaypoint { get; set; }
 
-        public Vector2f LastWaypoint { get; set; }
+        public LineSegment LastWaypoint { get; set; }
 
         public float WaypointTolerance = 100f;
 
         public int CheckpointsPassed { get; set; } = 0;
 
-        private List<Vector2f> waypoints;
+        private List<LineSegment> waypoints;
 
         public CheckpointManager()
         {
-            waypoints = new List<Vector2f>();
+            waypoints = new List<LineSegment>();
         }
 
-        public CheckpointManager(List<Vector2f> waypoints)
+        public CheckpointManager(List<LineSegment> waypoints)
         {
             this.waypoints = waypoints;
             if (waypoints != null)
@@ -30,7 +33,7 @@ namespace SelfDriving.Managers
             this.LastWaypoint = GetLastWaypoint(waypoints.IndexOf(CurrentWaypoint));
         }
 
-        public void Initialize(List<Vector2f> waypoints)
+        public void Initialize(List<LineSegment> waypoints)
         {
             this.waypoints.Clear();
             this.waypoints.AddRange(waypoints);
@@ -40,7 +43,7 @@ namespace SelfDriving.Managers
 
         public void Update(Vector2f currentPosition)
         {
-            if (GetDistance(CurrentWaypoint, currentPosition) < WaypointTolerance)
+            if (MathsHelper.LineToPointDistance2D(CurrentWaypoint, currentPosition) < WaypointTolerance)
             {
                 SetNextWaypoint();
             }
@@ -48,7 +51,7 @@ namespace SelfDriving.Managers
 
         public bool CheckComplete(Vector2f currentPosition)
         {
-            if (GetDistance(LastWaypoint, currentPosition) < WaypointTolerance)
+            if (MathsHelper.LineToPointDistance2D(LastWaypoint , currentPosition) < WaypointTolerance)
             {
                 return false;
             }
@@ -56,7 +59,7 @@ namespace SelfDriving.Managers
             return true;
         }
 
-        private Vector2f GetLastWaypoint(int currentWaypointIndex)
+        private LineSegment GetLastWaypoint(int currentWaypointIndex)
         {
             var previousWaypointIndex = currentWaypointIndex - 2;
             if (previousWaypointIndex < 0)
@@ -82,12 +85,6 @@ namespace SelfDriving.Managers
                 CurrentWaypoint = waypoints.First();
                 this.LastWaypoint = GetLastWaypoint(waypoints.IndexOf(CurrentWaypoint));
             }
-        }
-
-
-        private float GetDistance(Vector2f a, Vector2f b)
-        {
-            return (float)Math.Sqrt(Math.Pow(a.X - b.X, 2) + Math.Pow(a.Y - b.Y, 2));
         }
     }
 }

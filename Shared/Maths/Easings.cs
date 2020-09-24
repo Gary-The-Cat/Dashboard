@@ -58,5 +58,11 @@ namespace Shared.Maths
 
             return 1 + c3 * Math.Pow(x - 1, 3) + c1 * Math.Pow(x - 1, 2);
         }
+
+        // #ref https://easings.net/#easeOutQuint
+        public static double EaseOutQuint(double x)
+        {
+            return 1 - Math.Pow(1 - x, 5);
+        }
     }
 }

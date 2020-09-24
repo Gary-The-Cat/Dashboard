@@ -1,4 +1,5 @@
 ﻿using SFML.System;
+using Shared.DataStructures;
 using System.Collections.Generic;
 
 namespace SelfDriving.Shared

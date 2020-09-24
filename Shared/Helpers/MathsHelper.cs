@@ -1,5 +1,7 @@
 ﻿using SFML.System;
+using Shared.DataStructures;
 using System;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace Shared.Helpers
 {
@@ -42,6 +44,11 @@ namespace Shared.Helpers
             return Math.Sqrt(d1 * d1 + d2 * d2);
         }
 
+        public static double LineToPointDistance2D(LineSegment line, Vector2f point)
+        {
+            return LineToPointDistance2D(line.Start, line.End, point);
+        }
+            
         //Compute the distance from AB to C
         //if isSegment is true, AB is a segment, not a line.
         public static double LineToPointDistance2D(Vector2f pointA, Vector2f pointB, Vector2f pointC, bool isSegment = true)

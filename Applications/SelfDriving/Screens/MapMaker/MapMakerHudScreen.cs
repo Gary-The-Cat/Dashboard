@@ -43,8 +43,7 @@ namespace SelfDriving.Screens.MapMaker
             {
                 SetState(MapEditState.DrawingLines);
                 application.NotificaitonService.ShowToast(
-                    ScreenLocation.TopRight,
-                    ToastType.Successful,
+                    ToastType.Info,
                     "Drawing Lines Enabled");
             }, HorizontalAlignment.Left));
 
@@ -52,7 +51,6 @@ namespace SelfDriving.Screens.MapMaker
             {
                 SetState(MapEditState.MovingPoints);
                 application.NotificaitonService.ShowToast(
-                    ScreenLocation.TopRight,
                     ToastType.Info,
                     "Moving Points Enabled");
             }, HorizontalAlignment.Left));
@@ -61,7 +59,6 @@ namespace SelfDriving.Screens.MapMaker
             {
                 SetState(MapEditState.Deletion);
                 application.NotificaitonService.ShowToast(
-                    ScreenLocation.TopRight,
                     ToastType.Warning,
                     "Deletion Enabled");
             }, HorizontalAlignment.Left));
@@ -70,7 +67,6 @@ namespace SelfDriving.Screens.MapMaker
             {
                 SetState(MapEditState.Checkpoint);
                 application.NotificaitonService.ShowToast(
-                    ScreenLocation.TopRight,
                     ToastType.Info,
                     "Checkpoint Mode Enabled");
             }, HorizontalAlignment.Left));
@@ -79,8 +75,7 @@ namespace SelfDriving.Screens.MapMaker
             {
                 SetState(MapEditState.StartPosition);
                 application.NotificaitonService.ShowToast(
-                    ScreenLocation.TopRight,
-                    ToastType.Successful,
+                    ToastType.Info,
                     "Set Start Position");
             }, HorizontalAlignment.Left));
 

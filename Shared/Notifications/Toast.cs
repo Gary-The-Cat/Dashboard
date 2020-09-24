@@ -14,15 +14,15 @@ namespace Shared.Notifications
 
         public ToastType Type { get; }
 
+        public ScreenLocation Location { get; }
+
         public float Duration { get; }
 
         public bool IsAlive => timeAlive < Duration;
 
         public Vector2f Position { get; private set; }
 
-        private Vector2f finalPosition;
-
-        private Vector2f initialPosition;
+        private Vector2f initialPosition { get; set; }
 
         private float timeAlive;
 
@@ -30,35 +30,45 @@ namespace Shared.Notifications
 
         private bool easeOutStarted = false;
 
-        private EasingWorker worker;
+        private EasingWorker xWorker;
 
-        public Toast(ToastType type, string message, float duration = 5)
+        private EasingWorker yWorker;
+
+        public Toast(ToastType type, ScreenLocation location, string message, float duration = 5)
         {
             this.Message = message;
             this.Type = type;
+            this.Location = location;
             this.Duration = duration;
 
             timeAlive = 0;
             visual = new ToastVisual(this);            
         }
 
-        private void SetWorker(float start, float finish)
+        public void SetDesiredXPosition(float start, float finish, float transitionTime = 1.5f)
         {
-            worker = new EasingWorker(
-                Easings.EaseInOutCirc,
-                value =>
-                {
-                    Position = new Vector2f((float)(value), finalPosition.Y);
-                },
-                TransitionTime,
-                start,
-                finish);
+            xWorker = new EasingWorker(
+                       Easings.EaseInOutCirc,
+                       value =>
+                       {
+                           Position = new Vector2f((float)value, Position.Y);
+                       },
+                       transitionTime,
+                       start,
+                       finish);
         }
 
-        public void SetEndPosition(Vector2f vector2f)
+        public void SetDesiredYPosition(float start, float finish, float transitionTime = 1.5f)
         {
-            finalPosition = vector2f;
-            SetWorker(initialPosition.X, finalPosition.X);
+            yWorker = new EasingWorker(
+                      Easings.EaseOutQuint,
+                      value =>
+                      {
+                          Position = new Vector2f(Position.X, (float)value);
+                      },
+                      transitionTime,
+                      start,
+                      finish);
         }
 
         public void SetStartPosition(Vector2f vector2f)
@@ -71,19 +81,21 @@ namespace Shared.Notifications
         {
             if (!IsAlive)
             {
-                worker = null;
+                xWorker = null;
 
                 return;
             }
 
             if (timeAlive > Duration - TransitionTime && !easeOutStarted)
             {
-                SetWorker(finalPosition.X, initialPosition.X);
+                SetDesiredXPosition(Position.X, initialPosition.X);
 
                 easeOutStarted = true;
             }
 
-            worker.OnUpdate(deltaT);
+            xWorker.OnUpdate(deltaT);
+
+            yWorker?.OnUpdate(deltaT);
 
             timeAlive += deltaT;
 
