@@ -109,8 +109,6 @@ namespace SelfDriving.Screens.MapMaker
         public override void OnUpdate(float dt)
         {
             base.OnUpdate(dt);
-
-            buttons.ForEach(b => b.OnUpdate());
         }
 
         public override void OnRender(RenderTarget target)
@@ -127,15 +125,7 @@ namespace SelfDriving.Screens.MapMaker
 
         private void OnMousePress(MouseClickEventArgs args)
         {
-            buttons.ForEach(b => 
-            {
-                if (b.GetGlobalBounds().Contains(args.Args.X, args.Args.Y))
-                {
-                    b.OnClick();
-
-                    args.IsHandled = true;
-                }
-            });
+            buttons.ForEach(b => b.TryClick(args));
         }
     }
 }

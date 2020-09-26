@@ -2,10 +2,12 @@
 using SelfDriving.Interfaces;
 using SelfDriving.Shared;
 using SFML.Graphics;
+using SFML.System;
 using Shared.Core;
 using Shared.Events.CallbackArgs;
 using Shared.Events.EventArgs;
 using Shared.Interfaces;
+using Shared.Menus;
 using Shared.NeuralNetworks;
 using System;
 using System.Collections.Generic;
@@ -21,6 +23,7 @@ namespace SelfDriving.Screens.HumanAssistedTraining
         private IApplication application;
         private IApplicationInstance applicationInstance;
         private Action returnToTrainScreen;
+        private Button backButton;
 
         public SelfDrivingTestScreen(
             IApplication application,
@@ -34,13 +37,17 @@ namespace SelfDriving.Screens.HumanAssistedTraining
 
             random = new Random();
 
-            RegisterKeyboardCallback(new KeyPressCallbackEventArgs(SFML.Window.Keyboard.Key.B), ReturnToTrainScreen);
-        }
+            backButton = new Button(
+                "Back",
+                new Vector2f(20, 20),
+                () => 
+                {
+                    SetInactive();
+                    returnToTrainScreen?.Invoke();
+                },
+                HorizontalAlignment.Left);
 
-        private void ReturnToTrainScreen(KeyboardEventArgs obj)
-        {
-            SetInactive();
-            returnToTrainScreen?.Invoke();
+            RegisterMouseClickCallback(new MouseClickCallbackEventArgs(SFML.Window.Mouse.Button.Left), OnMouseClick);
         }
 
         public void Initialize(Track track, MLPNeuralNetwork controller)
@@ -51,8 +58,19 @@ namespace SelfDriving.Screens.HumanAssistedTraining
             simulation = new RacingSimulation(application);
             simulation.SetTrack(track);
 
+            // Add the 1:1 trained AI to the list of cars
+            var cars = new List<ICarAI>() { carAi };
+
+            // Spawn 100 mutated versions of our AI
+            for(int i = 0; i < 100; i++)
+            {
+                var car = carAi.Clone();
+                car.Mutate();
+                cars.Add((CarAI)car);
+            }
+
             // Initialize the simulation
-            simulation.InitializeCars(new List<ICarAI> { carAi });
+            simulation.InitializeCars(cars);
 
             // If the visualization is turned on, create it, set the track and add the cars.
             simulationVisualization = new RacingSimulationVisualization(application, applicationInstance, simulation);
@@ -71,6 +89,14 @@ namespace SelfDriving.Screens.HumanAssistedTraining
         {
             base.OnRender(target);
             simulationVisualization.OnRender(target);
+
+            target.SetView(application.GetDefaultView());
+            backButton.OnRender(target);
+        }
+
+        private void OnMouseClick(MouseClickEventArgs obj)
+        {
+            backButton.TryClick(obj);
         }
     }
 }

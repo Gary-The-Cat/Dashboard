@@ -205,10 +205,10 @@ namespace SelfDriving.Agents
             this.Position = track.StartPosition;
 
             // Set the initial heading, tracks may start with us facing any direction.
-            this.initialHeading = track.InitialHeading;
+            this.initialHeading = (float)(track.InitialHeading / 180 * Math.PI);
 
             // Update the initial heading
-            this.Heading = track.InitialHeading;
+            this.Heading = this.initialHeading;
 
             // Initialize the checkpoint manager for the new course & set current waypoint
             this.checkpointManager.Initialize(track);

@@ -79,11 +79,6 @@ namespace Shared.Menus
             }
         }
 
-        public void OnUpdate()
-        {
-
-        }
-
         public void OnRender(RenderTarget target)
         {
             target.Draw(background);
@@ -115,9 +110,14 @@ namespace Shared.Menus
             return background.GetGlobalBounds();
         }
 
-        public void OnClick()
+        public void TryClick(Shared.Events.EventArgs.MouseClickEventArgs eventArgs)
         {
-            callback.Invoke();
+            if (GetGlobalBounds().Contains(eventArgs.Args.X, eventArgs.Args.Y))
+            {
+                callback.Invoke();
+
+                eventArgs.IsHandled = true;
+            }
         }
     }
 }

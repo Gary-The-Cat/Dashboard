@@ -15,6 +15,8 @@ using Shared.NeuralNetworks;
 using Shared.Notifications;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
 
 namespace SelfDriving.Screens.HumanAssistedTraining
@@ -118,16 +120,34 @@ namespace SelfDriving.Screens.HumanAssistedTraining
 
                 StartTesting();
             }, HorizontalAlignment.Left));
+
+            buttons.Add(new Button("Export", new Vector2f(20, application.Configuration.Height - 65), () =>
+            {
+                SaveNetwork();
+
+                application.NotificaitonService.ShowToast(
+                    ToastType.Info,
+                    "Saved");
+            }, HorizontalAlignment.Left));
+        }
+
+        private void SaveNetwork()
+        {
+            if (!EnsureNetworkExists())
+            {
+                return;   
+            }
+
+            var fileBasedNetwork = network.GetFileRepresentation();
+            var baseFileName = $"{Directory.GetCurrentDirectory()}\\Network_{DateTime.Now:YY_DD_MM_hh.mm.ss}";
+            var saveLocation = $"{baseFileName}.mlpnn";
+            File.WriteAllText(saveLocation, fileBasedNetwork);
         }
 
         private void StartTesting()
         {
-            if (network == null)
+            if (!EnsureNetworkExists())
             {
-                application.NotificaitonService.ShowToast(
-                    ToastType.Error,
-                    "You must train a network first!");
-
                 return;
             }
 
@@ -149,10 +169,36 @@ namespace SelfDriving.Screens.HumanAssistedTraining
             selfDrivingTestScreen.Start();
         }
 
+        private bool EnsureNetworkExists()
+        {
+            if (network == null)
+            {
+                application.NotificaitonService.ShowToast(
+                    ToastType.Error,
+                    "You must train a network first!");
+
+                return false;
+            }
+
+            return true;
+        }
+
         private void StartTraining()
         {
-            var inputData = humanAi.StateInputMeasurements.ToList();
-            var expectedOutputData = humanAi.StateOutputMeasurements.ToList();
+            var (inputData, expectedOutputData) = GetReducedDataset(
+                humanAi.StateInputMeasurements.ToList(), 
+                humanAi.StateOutputMeasurements.ToList()); 
+
+            for(int i = 0; i < inputData.Count(); i++)
+            {
+                if (inputData[i].All(d => d == 0))
+                {
+                    inputData.RemoveAt(i);
+                    expectedOutputData.RemoveAt(i);
+
+                    i--;
+                }
+            }
 
             application.NotificaitonService.ShowToast(
                 ToastType.Info,
@@ -164,6 +210,59 @@ namespace SelfDriving.Screens.HumanAssistedTraining
             application.NotificaitonService.ShowToast(
                 ToastType.Info,
                 "Training Complete.");
+        }
+
+        private (List<float[]>, List<float[]>) GetReducedDataset(List<float[]> inputData, List<float[]> expectedOutputData)
+        {
+            var accellerateData = new List<(float[], float[])>();
+            var brakeData = new List<(float[], float[])>();
+            var turnLeftData = new List<(float[], float[])>();
+            var turnRightData = new List<(float[], float[])>();
+
+            for (int i = 0; i < inputData.Count; i++)
+            {
+                if (expectedOutputData[i][0] == 1)
+                {
+                    accellerateData.Add((inputData[i], expectedOutputData[i]));
+                }
+
+                if (expectedOutputData[i][1] == 1)
+                {
+                    turnLeftData.Add((inputData[i], expectedOutputData[i]));
+                }
+
+                if (expectedOutputData[i][2] == 1)
+                {
+                    turnRightData.Add((inputData[i], expectedOutputData[i]));
+                }
+
+                if (expectedOutputData[i][3] == 1)
+                {
+                    brakeData.Add((inputData[i], expectedOutputData[i]));
+                }
+            }
+
+            var minCount = Math.Min(Math.Min(
+                accellerateData.Count(), 
+                turnLeftData.Count()), 
+                turnRightData.Count());
+
+            var resultInputData = new List<float[]>();
+            var resultExpectedOutputData = new List<float[]>();
+
+            for (int i = 0; i < minCount; i++)
+            {
+                resultInputData.Add(accellerateData[i].Item1);
+                resultExpectedOutputData.Add(accellerateData[i].Item2);
+
+                resultInputData.Add(turnLeftData[i].Item1);
+                resultExpectedOutputData.Add(turnLeftData[i].Item2);
+
+                resultInputData.Add(turnRightData[i].Item1);
+                resultExpectedOutputData.Add(turnRightData[i].Item2);
+            }
+
+            return (resultInputData, resultExpectedOutputData);
         }
 
         private void ToggleCaptureOn()
@@ -188,15 +287,7 @@ namespace SelfDriving.Screens.HumanAssistedTraining
 
         private void OnMousePress(MouseClickEventArgs args)
         {
-            buttons.ForEach(b =>
-            {
-                if (b.GetGlobalBounds().Contains(args.Args.X, args.Args.Y))
-                {
-                    b.OnClick();
-
-                    args.IsHandled = true;
-                }
-            });
+            buttons.ForEach(b => b.TryClick(args));
         }
 
         private void RegisterCallbacks()
@@ -244,7 +335,6 @@ namespace SelfDriving.Screens.HumanAssistedTraining
             {
                 case GameState.Racing:
                     racingSimulation.OnUpdate(dt);
-                    buttons.ForEach(b => b.OnUpdate());
                     samplesCaptured.Text = $"{humanAi.SamplesCaptured}";
                     racingSimulationVisualization.OnUpdate(dt);
                     break;
