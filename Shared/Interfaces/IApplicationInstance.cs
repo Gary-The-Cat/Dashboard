@@ -1,4 +1,5 @@
 ﻿using SFML.Graphics;
+using SFML.System;
 using Shared.Core;
 using System;
 
@@ -10,13 +11,13 @@ namespace Shared.Interfaces
 
         public string DisplayName { get; }
 
+        public Vector2f WindowSize { get; }
+
         public ScreenManager ScreenManager { get; set; }
 
         public RectangleShape Thumbnail { get; set; }
 
         public IApplication Application { get; set; }
-
-        public RenderWindow RenderWindow { get; set; }
 
         public IEventService EventService { get; set; }
 
@@ -48,5 +49,7 @@ namespace Shared.Interfaces
         public void AddScreen(Screen screen);
 
         public void RemoveScreen(Screen screen);
+
+        public View GetDefaultView => Application.GetDefaultView();
     }
 }

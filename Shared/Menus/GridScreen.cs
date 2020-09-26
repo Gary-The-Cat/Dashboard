@@ -2,11 +2,14 @@
 using SFML.System;
 using SFML.Window;
 using Shared.Core;
+using Shared.Events.EventArgs;
+using Shared.Interfaces;
+using Shared.ScreenConfig;
 using System;
 
 namespace Shared.Menus
 {
-    public class GridVisual
+    public class GridScreen : Screen
     {
         private const int MinPixelBuffer = 50;
 
@@ -16,37 +19,31 @@ namespace Shared.Menus
 
         private Vector2f position;
 
-        public bool IsActive { get; set; }
+        private IApplicationInstance applicationInstance;
 
         // Do we want to let the user set a fixed size?
         public bool AutoScale { get; }
 
-        public GridVisual(Vector2u gridSize, Vector2f position)
+        public GridScreen(
+            ScreenConfiguration configuration,
+            IApplicationInstance applicationInstance) : base (configuration, applicationInstance)
         {
-            this.screenSize = new Vector2f(gridSize.X, gridSize.Y);
+            this.screenSize = new Vector2f(configuration.Width, configuration.Height);
 
-            this.position = position;
+            this.position = new Vector2f(0, 0);
 
             this.AutoScale = true;
 
-            this.IsActive = false;
-
             this.grid = new IMenuItem[1,1];
+
+            this.applicationInstance = applicationInstance;
+
+            RegisterMouseClickCallback(new Events.CallbackArgs.MouseClickCallbackEventArgs(Mouse.Button.Left), OnMousePress);
         }
 
-        public void SetMousePressedEvent(Window window)
+        private void OnMousePress(MouseClickEventArgs args)
         {
-            window.MouseButtonPressed += OnMousePress;
-        }
-
-        private void OnMousePress(object sender, MouseButtonEventArgs e)
-        {
-            if (!IsActive)
-            {
-                return;
-            }
-
-            var relativePosition = new Vector2f(e.X, e.Y) - position;
+            var relativePosition = new Vector2f(args.Args.X, args.Args.Y) - position;
             (int x, int y)? gridPosition = GetGridPosition(relativePosition);
 
             if (gridPosition != null)
@@ -54,6 +51,8 @@ namespace Shared.Menus
                 var menuItem = grid[gridPosition.Value.x, gridPosition.Value.y];
                 menuItem.OnClick?.Invoke();
             }
+
+            args.IsHandled = true;
         }
 
         public void Clear()
@@ -143,12 +142,9 @@ namespace Shared.Menus
 
         public int NumRows => grid.GetLength(1);
 
-        public void OnRender(RenderTarget target)
+        public override void OnRender(RenderTarget target)
         {
-            if (!IsActive)
-            {
-                return;
-            }
+            target.SetView(applicationInstance.GetDefaultView);
 
             var size = GetFixedMaxSize();
 

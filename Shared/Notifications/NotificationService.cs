@@ -27,6 +27,7 @@ namespace Shared.Notifications
 
         public void OnRender(RenderTarget target)
         {
+            target.SetView(application.GetDefaultView());
             foreach (var toastVisuals in toastLookup.Values)
             {
                 foreach (var toastVisual in toastVisuals)

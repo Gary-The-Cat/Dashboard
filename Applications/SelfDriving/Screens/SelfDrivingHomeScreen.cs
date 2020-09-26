@@ -1,4 +1,5 @@
-﻿using SelfDriving.Screens.MapMaker;
+﻿using SelfDriving.Screens.HumanAssistedTraining;
+using SelfDriving.Screens.MapMaker;
 using SFML.Graphics;
 using SFML.System;
 using Shared.Core;
@@ -9,12 +10,13 @@ namespace SelfDriving.Screens
 {
     public class SelfDrivingHomeScreen : Screen
     {
-        private GridVisual grid;
+        private GridScreen grid;
         private SelfTrainingScreen selfTrainingScreen;
         private HumanAssistedTrainingScreen humanAssistedTrainingScreen;
         private MapMakingScreen mapMakingScreen;
         private RaceScreen raceScreen;
         private IApplication application;
+        private IApplicationInstance applicationInstance;
 
         public SelfDrivingHomeScreen(
             IApplication application,
@@ -22,19 +24,20 @@ namespace SelfDriving.Screens
             : base(application.Configuration, applicationInstance)
         {
             this.application = application;
+            this.applicationInstance = applicationInstance;
 
             ConfigureGrid();
+
+            applicationInstance.AddScreen(grid);
 
             CreateModeScreens();
         }
 
         private void ConfigureGrid()
         {
-            grid = new GridVisual(application.Window.Size, new Vector2f(0, 0));
-            grid.IsActive = true;
+            grid = new GridScreen(application.Configuration,applicationInstance);
             grid.AddColumn();
             grid.AddRow();
-            grid.SetMousePressedEvent(application.Window);
 
             var selfTrainingMenuItem = GetSelfTrainingMenuItem();
             var manualTrainingMenuItem = GetManualTrainingMenuItem();
@@ -45,6 +48,8 @@ namespace SelfDriving.Screens
             grid.AddMenuItem(0, 1, manualTrainingMenuItem);
             grid.AddMenuItem(1, 0, raceMenuItem);
             grid.AddMenuItem(1, 1, mapMakingMenuItem);
+
+            AddChildScreen(grid);
         }
 
         private void CreateModeScreens()
@@ -144,24 +149,7 @@ namespace SelfDriving.Screens
         public void SetActiveScreen(Screen screen)
         {
             SetInactive();
-            Suspend();
             screen.SetActive();
-            screen.Resume();
-        }
-
-        public override void OnRender(RenderTarget target)
-        {
-            grid.OnRender(target);
-        }
-
-        public override void Suspend()
-        {
-            grid.IsActive = false;
-        }
-
-        public override void Resume()
-        {
-            grid.IsActive = true;
         }
     }
 }

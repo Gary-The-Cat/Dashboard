@@ -16,8 +16,8 @@ namespace Dashboard
 
             var configuration = new ScreenConfiguration();
 
-            configuration.Width = 1280;
-            configuration.Height = 720;
+            configuration.Width = 1920;
+            configuration.Height = 1080;
 
             var window = new RenderWindow(
                 new VideoMode(configuration.Width, configuration.Height), 
@@ -26,7 +26,7 @@ namespace Dashboard
                 settings);
 
             Image im = new Image("..\\..\\..\\Icon.png");
-            window.SetIcon(128, 128, im.Pixels);
+            window.SetIcon(64,64, im.Pixels);
             window.SetVerticalSyncEnabled(true);
 
             var application = new Application(window, configuration);

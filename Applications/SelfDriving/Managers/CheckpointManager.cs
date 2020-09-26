@@ -1,6 +1,7 @@
 ﻿using SelfDriving.Shared;
 using SFML.System;
 using Shared.DataStructures;
+using Shared.ExtensionMethods;
 using Shared.Helpers;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,13 @@ namespace SelfDriving.Managers
 
         public int CheckpointsPassed { get; set; } = 0;
 
+        public int TrackCheckpoints { get; private set; } = 0;
+
+        public int LapsCompleted { get; private set; } = 0;
+
         private List<LineSegment> waypoints;
+
+        private Vector2f startPosition;
 
         public CheckpointManager()
         {
@@ -33,12 +40,16 @@ namespace SelfDriving.Managers
             this.LastWaypoint = GetLastWaypoint(waypoints.IndexOf(CurrentWaypoint));
         }
 
-        public void Initialize(List<LineSegment> waypoints)
+        public void Initialize(Track track)
         {
-            this.waypoints.Clear();
-            this.waypoints.AddRange(waypoints);
-            this.CurrentWaypoint = this.waypoints.First();
-            this.LastWaypoint = this.waypoints.Last();
+            startPosition = track.StartPosition;
+
+            waypoints.Clear();
+            waypoints.AddRange(track.Checkpoints);
+
+            TrackCheckpoints = waypoints.Count;
+            CurrentWaypoint = waypoints.First();
+            LastWaypoint = waypoints.Last();
         }
 
         public void Update(Vector2f currentPosition)
@@ -47,11 +58,19 @@ namespace SelfDriving.Managers
             {
                 SetNextWaypoint();
             }
+
+            // Check that we have completed a full lap
+            if (CheckpointsPassed >= TrackCheckpoints && 
+                currentPosition.Magnitude(startPosition) < WaypointTolerance)
+            {
+                CheckpointsPassed = 0;
+                LapsCompleted++;
+            }
         }
 
         public bool CheckComplete(Vector2f currentPosition)
         {
-            if (MathsHelper.LineToPointDistance2D(LastWaypoint , currentPosition) < WaypointTolerance)
+            if (MathsHelper.LineToPointDistance2D(LastWaypoint, currentPosition) < WaypointTolerance)
             {
                 return false;
             }

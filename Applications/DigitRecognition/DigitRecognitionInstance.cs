@@ -28,8 +28,6 @@ namespace DigitRecognition
 
         public RectangleShape Thumbnail { get; set; }
 
-        public RenderWindow RenderWindow { get; set; }
-
         public void AddScreen(Screen screen) => ScreenManager.AddScreen(screen);
 
         public void RemoveScreen(Screen screen) => ScreenManager.RemoveScreen(screen);

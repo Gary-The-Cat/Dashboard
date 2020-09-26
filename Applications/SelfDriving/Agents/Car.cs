@@ -209,7 +209,7 @@ namespace SelfDriving.Agents
             this.Heading = track.InitialHeading;
 
             // Initialize the checkpoint manager for the new course & set current waypoint
-            this.checkpointManager.Initialize(track.Checkpoints);
+            this.checkpointManager.Initialize(track);
 
             // Initialize the controller (AI)
             this.Controller.Initalize(Configuration);

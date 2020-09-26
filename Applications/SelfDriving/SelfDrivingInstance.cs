@@ -11,7 +11,6 @@ namespace SelfDriving
 {
     public class SelfDrivingInstance : ApplicationInstanceBase, IApplicationInstance
     {
-
         public SelfDrivingInstance(IApplication application)
         {
             this.Application = application;
@@ -35,8 +34,6 @@ namespace SelfDriving
         public string DisplayName => "Self Driving";
 
         public RectangleShape Thumbnail { get; set; }
-
-        public RenderWindow RenderWindow { get; set; }
 
         public new void Initialize()
         {

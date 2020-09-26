@@ -68,7 +68,7 @@ namespace Shared.Services
                             keyboardEvent.args.IsCtrlModifierRequired != e.Control || 
                             keyboardEvent.args.IsShiftModifierRequired != e.Shift)
                         {
-                            return;
+                            continue;
                         }
 
                         keyboardEvent.callback?.Invoke(keyboardEventArgs);

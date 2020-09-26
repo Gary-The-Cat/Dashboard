@@ -1,4 +1,5 @@
 ﻿using SFML.Graphics;
+using SFML.System;
 using Shared.Interfaces;
 using System;
 using System.Diagnostics;
@@ -57,6 +58,8 @@ namespace Shared.Core
         }
 
         public Guid Id { get; set; }
+
+        public Vector2f WindowSize { get; set; }
 
         public bool IsInitialized { get; internal set; }
 

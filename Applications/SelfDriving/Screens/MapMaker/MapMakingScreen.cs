@@ -1,9 +1,8 @@
-﻿using SelfDriving.Shared;
+﻿using SelfDriving.Screens.TrackSelection;
+using SelfDriving.Shared;
 using SFML.Graphics;
-using SFML.System;
 using Shared.Core;
 using Shared.Interfaces;
-using System;
 
 namespace SelfDriving.Screens.MapMaker
 {
@@ -15,7 +14,7 @@ namespace SelfDriving.Screens.MapMaker
         private MapMakerHudScreen mapEditorHudScreen;
         private MapMakerWorldScreen mapEditorWorldScreen;
 
-        private TrackSelectionVisual trackSelection;
+        private TrackSelectionScreen trackSelection;
 
         public MapMakingScreen(
             IApplication application,
@@ -26,9 +25,9 @@ namespace SelfDriving.Screens.MapMaker
             this.applicationInstance = applicationInstance;
             this.state = MapMakerState.TrackSelection;
 
-            trackSelection = new TrackSelectionVisual(
-                application,
-                new Vector2f(0, 0),
+            trackSelection = new TrackSelectionScreen(
+                application.Configuration,
+                applicationInstance,
                 "Resources/Tracks");
 
             trackSelection.OnTrackSelected = OnTrackSelected;
@@ -59,16 +58,18 @@ namespace SelfDriving.Screens.MapMaker
             mapEditorWorldScreen.Initialize(track);
         }
 
-        public override void Resume()
+        public override void SetActive()
         {
-            base.Resume();
-            trackSelection.SetActive(true);
+            base.SetActive();
+
+            trackSelection.SetActive();
         }
 
-        public override void Suspend()
+        public override void SetInactive()
         {
-            base.Suspend();
-            trackSelection.SetActive(false);
+            base.SetInactive();
+
+            trackSelection.SetInactive();
         }
     }
 }

@@ -1,35 +1,40 @@
 ﻿using SelfDriving.Helpers;
+using SelfDriving.Shared;
 using SFML.Graphics;
-using SFML.System;
+using Shared.Core;
 using Shared.Interfaces;
 using Shared.Menus;
+using Shared.ScreenConfig;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace SelfDriving.Shared
+namespace SelfDriving.Screens.TrackSelection
 {
-    public class TrackSelectionVisual
+    public class TrackSelectionScreen : Screen
     {
         private List<Track> tracks;
 
-        private GridVisual grid;
+        private GridScreen grid;
 
         public Action<Track> OnTrackSelected;
 
-        public TrackSelectionVisual(
-            IApplication application,
-            Vector2f position,
-            string trackDirectory)
+        public TrackSelectionScreen(
+            ScreenConfiguration configuration,
+            IApplicationInstance application,
+            string trackDirectory) : base(configuration, application)
         {
-            grid = new GridVisual(application.Window.Size, position);
+            grid = new GridScreen(configuration, application);
+            grid.SetInactive();
 
-            grid.SetMousePressedEvent(application.Window);
+            AddChildScreen(grid);
 
             tracks = TrackHelper.LoadTrackFiles(trackDirectory);
 
             PopulateTrackVisuals();
+
+            application.AddScreen(grid);
         }
 
         public void InsertTrack(Track track, int index)
@@ -49,7 +54,7 @@ namespace SelfDriving.Shared
                 // We couldnt find the matching image for this track, don't add it.
                 var texture = GetTrackTexture(track.FileLocation);
 
-                MenuItem trackVisual = null;
+                MenuItem trackVisual;
 
                 if (texture == null)
                 {
@@ -86,7 +91,7 @@ namespace SelfDriving.Shared
             trackVisual.OnClick = () =>
             {
                 this.OnTrackSelected?.Invoke(track);
-                grid.IsActive = false;
+                grid.SetInactive();
             };
 
             return trackVisual;
@@ -103,7 +108,7 @@ namespace SelfDriving.Shared
             trackVisual.OnClick = () =>
             {
                 this.OnTrackSelected?.Invoke(track);
-                grid.IsActive = false;
+                grid.SetInactive();
             };
 
             return trackVisual;
@@ -126,12 +131,7 @@ namespace SelfDriving.Shared
             }
         }
 
-        public void SetActive(bool isActive)
-        {
-            grid.IsActive = isActive;
-        }
-
-        public void OnRender(RenderTarget target)
+        public override void OnRender(RenderTarget target)
         {
             grid.OnRender(target);
         }

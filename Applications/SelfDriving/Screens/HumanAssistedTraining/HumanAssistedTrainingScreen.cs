@@ -1,6 +1,7 @@
 ﻿using SelfDriving.Agents;
 using SelfDriving.DataStructures;
 using SelfDriving.Interfaces;
+using SelfDriving.Screens.TrackSelection;
 using SelfDriving.Shared;
 using SFML.Graphics;
 using SFML.System;
@@ -9,19 +10,22 @@ using Shared.Core;
 using Shared.Events.CallbackArgs;
 using Shared.Events.EventArgs;
 using Shared.Interfaces;
+using Shared.Menus;
+using Shared.Notifications;
 using System;
 using System.Collections.Generic;
 
-namespace SelfDriving.Screens
+namespace SelfDriving.Screens.HumanAssistedTraining
 {
     public class HumanAssistedTrainingScreen : Screen
     {
-        private TrackSelectionVisual trackSelection;
+        private TrackSelectionScreen trackSelection;
         private RacingSimulation racingSimulation;
         private RacingSimulationVisualization racingSimulationVisualization;
 
         private GameState gameState;
         private Track currentTrack;
+        private List<Button> buttons;
 
         private IApplication application;
 
@@ -35,23 +39,53 @@ namespace SelfDriving.Screens
             racingSimulation = new RacingSimulation(application);
             racingSimulationVisualization = new RacingSimulationVisualization(application, applicationInstance, racingSimulation);
 
-            trackSelection = new TrackSelectionVisual(
-                application,
-                new Vector2f(0, 0),
+            trackSelection = new TrackSelectionScreen(
+                application.Configuration,
+                applicationInstance,
                 "Resources/Tracks");
+
+            trackSelection.SetInactive();
+
+            AddChildScreen(trackSelection);
+
+            buttons = new List<Button>();
 
             RegisterCallbacks();
 
             trackSelection.OnTrackSelected = OnTrackSelected;
 
             gameState = GameState.TrackSelection;
+
+            this.PopulateButtons();
+        }
+
+        private void PopulateButtons()
+        {
+            buttons.Add(new Button("Draw", new Vector2f(20, 20), () =>
+            {
+                application.NotificaitonService.ShowToast(
+                    ToastType.Info,
+                    "Drawing Lines Enabled");
+            }, HorizontalAlignment.Left));
+        }
+        private void OnMousePress(MouseClickEventArgs args)
+        {
+            buttons.ForEach(b =>
+            {
+                if (b.GetGlobalBounds().Contains(args.Args.X, args.Args.Y))
+                {
+                    b.OnClick();
+
+                    args.IsHandled = true;
+                }
+            });
         }
 
         private void RegisterCallbacks()
         {
             RegisterKeyboardCallback(new KeyPressCallbackEventArgs(Keyboard.Key.R), ResetSimulation);
             RegisterKeyboardCallback(new KeyPressCallbackEventArgs(Keyboard.Key.M), SetTrackSelection);
-
+            RegisterMouseClickCallback(new MouseClickCallbackEventArgs(Mouse.Button.Left), OnMousePress);
             //RegisterJoystickCallback(application.Window, 7, ResetSimulation);
         }
 
@@ -79,7 +113,7 @@ namespace SelfDriving.Screens
         private void SetTrackSelection(KeyboardEventArgs args)
         {
             ((RenderWindow)application.Window).SetView(application.GetDefaultView());
-            this.trackSelection.SetActive(true);
+            this.trackSelection.SetActive();
             this.gameState = GameState.TrackSelection;
         }
 
@@ -96,6 +130,7 @@ namespace SelfDriving.Screens
             {
                 case GameState.Racing:
                     racingSimulation.OnUpdate(dt);
+                    buttons.ForEach(b => b.OnUpdate());
                     racingSimulationVisualization.OnUpdate(dt);
                     break;
             }
@@ -112,22 +147,24 @@ namespace SelfDriving.Screens
                     break;
                 case GameState.Racing:
                     racingSimulationVisualization.OnRender(target);
+                    target.SetView(application.GetDefaultView());
+                    buttons.ForEach(b => b.OnRender(target));
                     break;
             }
         }
 
-        public override void Resume()
+        public override void SetActive()
         {
-            base.Resume();
+            base.SetActive();
 
-            trackSelection.SetActive(true);
+            trackSelection.SetActive();
         }
 
-        public override void Suspend()
+        public override void SetInactive()
         {
-            base.Suspend();
+            base.SetInactive();
 
-            trackSelection.SetActive(false);
+            trackSelection.SetInactive();
         }
     }
 }

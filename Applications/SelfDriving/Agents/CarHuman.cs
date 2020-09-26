@@ -20,6 +20,8 @@ namespace SelfDriving.Agents
 
         private float frequencyMs = 0;
 
+        private bool isCapturingInput = false;
+
         public List<float[]> StateInputMeasurements { get; set; }
 
         public List<float[]> StateOutputMeasurements { get; set; }
@@ -83,8 +85,11 @@ namespace SelfDriving.Agents
                         outputMeasurement[2] = output.LeftTurnForce;
                         outputMeasurement[3] = output.RightTurnForce;
 
-                        StateInputMeasurements.Add(rayCollisions);
-                        StateOutputMeasurements.Add(outputMeasurement);
+                        if (isCapturingInput)
+                        {
+                            StateInputMeasurements.Add(rayCollisions);
+                            StateOutputMeasurements.Add(outputMeasurement);
+                        }
                     }
                 }
             }
@@ -152,6 +157,22 @@ namespace SelfDriving.Agents
                 this.gameController.OnUpdate();
                 this.gameController.Reset();
             }
+        }
+
+        public void StartCapture()
+        {
+            isCapturingInput = true;
+        }
+
+        public void StopCapture()
+        {
+            isCapturingInput = false;
+        }
+
+        public void ResetCapture()
+        {
+            StateInputMeasurements.Clear();
+            StateOutputMeasurements.Clear();
         }
 
         public double Fitness { get; set; }
