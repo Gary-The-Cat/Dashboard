@@ -80,12 +80,12 @@ namespace SelfDriving.Agents
                     {
                         timesinceLastMeasurement = 0;
 
-                        var outputMeasurement = new float[rayCollisions.Length + 4];
+                        var outputMeasurement = new float[4];
 
                         outputMeasurement[0] = output.Acceleration;
-                        outputMeasurement[1] = output.BreakingForce;
-                        outputMeasurement[2] = output.LeftTurnForce;
-                        outputMeasurement[3] = output.RightTurnForce;
+                        outputMeasurement[3] = output.BreakingForce;
+                        outputMeasurement[1] = output.LeftTurnForce;
+                        outputMeasurement[2] = output.RightTurnForce;
 
                         if (isCapturingInput)
                         {
