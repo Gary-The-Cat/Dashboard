@@ -1,9 +1,7 @@
 ﻿using SFML.Graphics;
 using SFML.System;
-using SFML.Window;
 using Shared.ExtensionMethods;
 using System;
-using System.Net.WebSockets;
 
 namespace Shared.Menus
 {
@@ -24,7 +22,8 @@ namespace Shared.Menus
 
         private static Vector2f BorderBuffer = new Vector2f(30, 20);
 
-        private static Vector2f TextMargin = new Vector2f(0, 12);
+        private static Vector2f LargeTextMargin = new Vector2f(0, 16);
+        private static Vector2f SmallTextMargin = new Vector2f(0, 12);
 
         public Button(
             string text, 
@@ -40,12 +39,12 @@ namespace Shared.Menus
 
             background = new RectangleShape()
             {
-                FillColor = new Color(32, 126, 160),
-                OutlineColor = new Color(16, 63, 80),
+                FillColor = new Color(36, 142, 180),
+                OutlineColor = new Color(32, 126, 160),
                 OutlineThickness = 2
             };
 
-            this.text = new Text(text, font);
+            Text = text;
 
             this.SetPositions();
         }
@@ -56,6 +55,7 @@ namespace Shared.Menus
             set 
             {
                 text = new Text(value, font);
+                this.text.FillColor = new Color(233, 233, 233);
                 this.SetPositions();
             }
         }
@@ -68,7 +68,15 @@ namespace Shared.Menus
             background.Size = backgroundSize;
 
             background.Position = GetPosition(position, backgroundSize, buttonHorizontalAlignment);
-            text.Position = background.Position + new Vector2f(background.Size.X / 2, 0) + TextMargin;
+
+            if(textSize.Height > 25)
+            {
+                text.Position = background.Position + new Vector2f(background.Size.X / 2, 0) + LargeTextMargin;
+            }
+            else
+            {
+                text.Position = background.Position + new Vector2f(background.Size.X / 2, 0) + SmallTextMargin;
+            }
         }
 
         public void OnUpdate()

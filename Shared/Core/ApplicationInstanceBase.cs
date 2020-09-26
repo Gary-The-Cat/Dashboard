@@ -57,6 +57,10 @@ namespace Shared.Core
             ScreenManager.OnRender(target);
         }
 
+        public void AddScreen(Screen screen) => ScreenManager.AddScreen(screen);
+
+        public void RemoveScreen(Screen screen) => ScreenManager.RemoveScreen(screen);
+
         public Guid Id { get; set; }
 
         public Vector2f WindowSize { get; set; }

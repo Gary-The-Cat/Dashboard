@@ -11,9 +11,11 @@ using Shared.Events.CallbackArgs;
 using Shared.Events.EventArgs;
 using Shared.Interfaces;
 using Shared.Menus;
+using Shared.NeuralNetworks;
 using Shared.Notifications;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SelfDriving.Screens.HumanAssistedTraining
 {
@@ -22,12 +24,19 @@ namespace SelfDriving.Screens.HumanAssistedTraining
         private TrackSelectionScreen trackSelection;
         private RacingSimulation racingSimulation;
         private RacingSimulationVisualization racingSimulationVisualization;
+        private SelfDrivingTestScreen selfDrivingTestScreen;
 
         private GameState gameState;
         private Track currentTrack;
         private List<Button> buttons;
 
+        private Button toggleCapture;
+        private Button samplesCaptured;
+        private CarHuman humanAi;
+        private MLPNeuralNetwork network;
+
         private IApplication application;
+        private IApplicationInstance applicationInstance;
 
         public HumanAssistedTrainingScreen(
             IApplication application,
@@ -35,6 +44,7 @@ namespace SelfDriving.Screens.HumanAssistedTraining
             : base(application.Configuration, applicationInstance)
         {
             this.application = application;
+            this.applicationInstance = applicationInstance;
 
             racingSimulation = new RacingSimulation(application);
             racingSimulationVisualization = new RacingSimulationVisualization(application, applicationInstance, racingSimulation);
@@ -56,18 +66,126 @@ namespace SelfDriving.Screens.HumanAssistedTraining
 
             gameState = GameState.TrackSelection;
 
+            // Create our human player
+            humanAi = new CarHuman(true, 20);
+            humanAi.Initalize(new CarConfiguration());
+
             this.PopulateButtons();
         }
 
         private void PopulateButtons()
         {
-            buttons.Add(new Button("Draw", new Vector2f(20, 20), () =>
+            toggleCapture = new Button("Stop Capture", new Vector2f(20, 20), () =>
+            {
+                if (humanAi.IsCapturing())
+                {
+                    ToggleCaptureOff();
+                }
+                else
+                {
+                    ToggleCaptureOn();
+                }
+            }, HorizontalAlignment.Left);
+
+            buttons.Add(toggleCapture);
+
+            samplesCaptured = new Button(
+                "0", 
+                new Vector2f(this.application.Configuration.Width - 20, 20), 
+                () => { }, 
+                HorizontalAlignment.Right);
+
+            buttons.Add(samplesCaptured);
+
+            buttons.Add(new Button("Reset", new Vector2f(20, 75), () =>
+            {
+                humanAi.ResetCapture();
+                application.NotificaitonService.ShowToast(
+                    ToastType.Info,
+                    "Capture Data Cleared");
+            }, HorizontalAlignment.Left));
+
+            buttons.Add(new Button("Train", new Vector2f(20, 125), () =>
+            {
+                StartTraining();
+            }, HorizontalAlignment.Left));
+
+            buttons.Add(new Button("Test", new Vector2f(20, 175), () =>
             {
                 application.NotificaitonService.ShowToast(
                     ToastType.Info,
-                    "Drawing Lines Enabled");
+                    "Starting Test...");
+
+                StartTesting();
             }, HorizontalAlignment.Left));
         }
+
+        private void StartTesting()
+        {
+            if (network == null)
+            {
+                application.NotificaitonService.ShowToast(
+                    ToastType.Error,
+                    "You must train a network first!");
+
+                return;
+            }
+
+            SetInactive();
+
+            selfDrivingTestScreen = new SelfDrivingTestScreen(
+                application, 
+                applicationInstance, 
+                () =>
+                {
+                    SetActive();
+                    trackSelection.SetInactive();
+                });
+
+            selfDrivingTestScreen.Initialize(currentTrack, network);
+
+            applicationInstance.AddScreen(selfDrivingTestScreen);
+
+            selfDrivingTestScreen.Start();
+        }
+
+        private void StartTraining()
+        {
+            var inputData = humanAi.StateInputMeasurements.ToList();
+            var expectedOutputData = humanAi.StateOutputMeasurements.ToList();
+
+            application.NotificaitonService.ShowToast(
+                ToastType.Info,
+                "Training Started...");
+
+            // Right now the training happens so fast, not sure if we need to be reporting progress
+            network = NeuralNetworkHelper.GetTrainedNetwork(inputData, expectedOutputData, (c, t) => { });
+
+            application.NotificaitonService.ShowToast(
+                ToastType.Info,
+                "Training Complete.");
+        }
+
+        private void ToggleCaptureOn()
+        {
+            humanAi.StartCapture();
+
+            toggleCapture.Text = "Stop Capture";
+            application.NotificaitonService.ShowToast(
+                ToastType.Info,
+                "Capture Started...");
+        }
+
+        private void ToggleCaptureOff()
+        {
+            humanAi.StopCapture();
+
+            toggleCapture.Text = "Start Capture";
+            application.NotificaitonService.ShowToast(
+                ToastType.Info,
+                "Capture Stopped");
+        }
+
         private void OnMousePress(MouseClickEventArgs args)
         {
             buttons.ForEach(b =>
@@ -93,10 +211,6 @@ namespace SelfDriving.Screens.HumanAssistedTraining
         {
             // Toggle our game state to now be racing.
             gameState = GameState.Racing;
-
-            // Create our human player
-            var humanAi = new CarHuman(true, 100);
-            humanAi.Initalize(new CarConfiguration());
 
             // Add the car into the simulation
             racingSimulation.SetTrack(track);
@@ -131,6 +245,7 @@ namespace SelfDriving.Screens.HumanAssistedTraining
                 case GameState.Racing:
                     racingSimulation.OnUpdate(dt);
                     buttons.ForEach(b => b.OnUpdate());
+                    samplesCaptured.Text = $"{humanAi.SamplesCaptured}";
                     racingSimulationVisualization.OnUpdate(dt);
                     break;
             }

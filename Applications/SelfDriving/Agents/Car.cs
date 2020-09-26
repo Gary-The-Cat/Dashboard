@@ -95,6 +95,8 @@ namespace SelfDriving.Agents
 
             this.Collisions = collisions;
 
+            Controller.OnUpdate(deltaT);
+
             // Get the next action to take
             var output = Controller.GetOutput(rayDistances, Position, Heading, checkpointManager.CurrentWaypoint.Centroid);
 

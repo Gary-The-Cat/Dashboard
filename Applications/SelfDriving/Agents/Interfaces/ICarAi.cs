@@ -19,6 +19,8 @@ namespace SelfDriving.Interfaces
 
         void KillCar();
 
+        void OnUpdate(float deltaT);
+
         void Reset();
 
         CarConfiguration Configuration { get; set; }

@@ -2,6 +2,8 @@
 using SFML.System;
 using SFML.Window;
 using Shared.Core;
+using Shared.Events.CallbackArgs;
+using Shared.Events.EventArgs;
 using Shared.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -23,8 +25,15 @@ namespace Dashboard.Home
         private int selectedApplicationIndex = 0;
         private Font defaultFont;
         private Sprite background;
+        private RectangleShape leftVisual;
+        private RectangleShape rightVisual;
+        private RectangleShape selectedVisual;
+        private Action<IApplicationInstance> setActiveApplication;
 
-        public ApplicationDashboard(List<ApplicationInstanceVisual> applications, IApplication application)
+        public ApplicationDashboard(
+            List<ApplicationInstanceVisual> applications,
+            Action<IApplicationInstance> setActiveApplication, 
+            IApplication application)
         {
             defaultFont = new Font("Resources\\font.ttf");
             selectedIconSize = new Vector2u(300, 300);
@@ -32,13 +41,68 @@ namespace Dashboard.Home
             this.applications = applications;
             this.size = application.Window.Size;
             this.UpdateSizingAndSpacing();
+            this.setActiveApplication = setActiveApplication;
 
             Texture blueprint = new Texture(CreateBlueprint(size.X, size.Y));
             background = new Sprite(blueprint);
 
             application.Window.KeyPressed += KeyPressed;
+            application.Window.MouseWheelScrolled += OnMouseMove;
+            application.Window.MouseButtonPressed += OnMouseClick;
 
             IsActive = true;
+
+            selectedVisual = new RectangleShape(new Vector2f(selectedIconSize.X, selectedIconSize.Y));
+            leftVisual = new RectangleShape(new Vector2f(nonSelectedIconSize.X, nonSelectedIconSize.Y));
+            rightVisual = new RectangleShape(new Vector2f(nonSelectedIconSize.X, nonSelectedIconSize.Y));
+        }
+
+        private void OnMouseMove(object sender, MouseWheelScrollEventArgs e)
+        {
+            if (!IsActive)
+            {
+                return;
+            }
+
+            if (e.Delta < 0)
+            {
+                selectedApplicationIndex -= 1;
+                if (selectedApplicationIndex < 0)
+                {
+                    selectedApplicationIndex = applications.Count - 1;
+                }
+            }
+            else
+            {
+                selectedApplicationIndex += 1;
+                if (selectedApplicationIndex >= applications.Count)
+                {
+                    selectedApplicationIndex = 0;
+                }
+            }
+        }
+
+        private void OnMouseClick(object sender, MouseButtonEventArgs e)
+        {
+            if (!IsActive)
+            {
+                return;
+            }
+
+            if (selectedVisual.GetGlobalBounds().Contains(e.X, e.Y))
+            {
+                setActiveApplication(applications[GetSelectedApplicationIndex()].ApplicationInstance);
+            }
+
+            if (leftVisual.GetGlobalBounds().Contains(e.X, e.Y))
+            {
+                setActiveApplication(applications[GetLeftApplicationIndex()].ApplicationInstance);
+            }
+
+            if (rightVisual.GetGlobalBounds().Contains(e.X, e.Y))
+            {
+                setActiveApplication(applications[GetRightApplicationIndex()].ApplicationInstance);
+            }
         }
 
         private void KeyPressed(object sender, KeyEventArgs e)
@@ -48,7 +112,6 @@ namespace Dashboard.Home
                 return;
             }
 
-            // TODO replace this with Key Just Pressed code & Add ability to interact with mouse
             if(e.Code == Keyboard.Key.Left)
             {
                 selectedApplicationIndex -= 1;
@@ -88,12 +151,9 @@ namespace Dashboard.Home
                 var selected = GetSelectedApplicationIndex();
                 var left = GetLeftApplicationIndex();
                 var right = GetRightApplicationIndex();
-
-                var selectedVisual = new RectangleShape(new Vector2f(selectedIconSize.X, selectedIconSize.Y))
-                {
-                    Texture = applications[selected].Image.Texture,
-                    Position = GetSelectedApplicationPosition()
-                };
+                
+                selectedVisual.Texture = applications[selected].Image.Texture;
+                selectedVisual.Position = GetSelectedApplicationPosition();
 
                 var selectedText = new Text(applications[selected].DisplayName, defaultFont, 28)
                 {
@@ -104,17 +164,11 @@ namespace Dashboard.Home
                 var bounds = selectedText.GetLocalBounds();
                 selectedText.Origin = new Vector2f(bounds.Width / 2, bounds.Height / 2);
 
-                var leftVisual = new RectangleShape(new Vector2f(nonSelectedIconSize.X, nonSelectedIconSize.Y))
-                {
-                    Texture = applications[left].Image.Texture,
-                    Position = GetLeftApplicationPosition()
-                };
+                leftVisual.Texture = applications[left].Image.Texture;
+                leftVisual.Position = GetLeftApplicationPosition();
 
-                var rightVisual = new RectangleShape(new Vector2f(nonSelectedIconSize.X, nonSelectedIconSize.Y))
-                {
-                    Texture = applications[right].Image.Texture,
-                    Position = GetRightApplicationPosition()
-                };
+                rightVisual.Texture = applications[right].Image.Texture;
+                rightVisual.Position = GetRightApplicationPosition();
 
                 target.Draw(background);
                 target.Draw(selectedVisual);

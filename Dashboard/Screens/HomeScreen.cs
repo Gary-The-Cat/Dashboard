@@ -36,6 +36,7 @@ namespace Dashboard.Screens
             this.applications = applicationInstances;
             this.applicationDashboard = new ApplicationDashboard(
                 applicationInstances, 
+                setActiveApplication,
                 application);
 
             this.RegisterKeyboardCallback(

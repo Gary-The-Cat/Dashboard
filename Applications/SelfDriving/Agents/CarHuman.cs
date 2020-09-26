@@ -20,11 +20,13 @@ namespace SelfDriving.Agents
 
         private float frequencyMs = 0;
 
-        private bool isCapturingInput = false;
+        private bool isCapturingInput = true;
 
         public List<float[]> StateInputMeasurements { get; set; }
 
         public List<float[]> StateOutputMeasurements { get; set; }
+
+        public int SamplesCaptured { get; private set; }
 
         private XBoxController gameController;
 
@@ -35,7 +37,7 @@ namespace SelfDriving.Agents
         public CarHuman(bool captureState, int frequencyMs)
         {
             this.captureState = captureState;
-            this.frequencyMs = frequencyMs / 1000;
+            this.frequencyMs = frequencyMs / 1000.0f;
             StateInputMeasurements = new List<float[]>();
             StateOutputMeasurements = new List<float[]>();
 
@@ -89,6 +91,7 @@ namespace SelfDriving.Agents
                         {
                             StateInputMeasurements.Add(rayCollisions);
                             StateOutputMeasurements.Add(outputMeasurement);
+                            SamplesCaptured++;
                         }
                     }
                 }
@@ -147,6 +150,7 @@ namespace SelfDriving.Agents
                 // Remove the last 1 second worth of records
                 StateInputMeasurements = StateInputMeasurements.SkipLast(10).ToList();
                 StateOutputMeasurements = StateOutputMeasurements.SkipLast(10).ToList();
+                SamplesCaptured = StateInputMeasurements.Count();
             }
         }
 
@@ -157,6 +161,11 @@ namespace SelfDriving.Agents
                 this.gameController.OnUpdate();
                 this.gameController.Reset();
             }
+        }
+
+        public bool IsCapturing()
+        {
+            return isCapturingInput;
         }
 
         public void StartCapture()
@@ -173,6 +182,12 @@ namespace SelfDriving.Agents
         {
             StateInputMeasurements.Clear();
             StateOutputMeasurements.Clear();
+            SamplesCaptured = 0;
+        }
+
+        public void OnUpdate(float deltaT)
+        {
+            timesinceLastMeasurement += deltaT;
         }
 
         public double Fitness { get; set; }

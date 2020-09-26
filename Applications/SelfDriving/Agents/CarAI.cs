@@ -25,6 +25,8 @@ namespace SelfDriving.Agents
             }
 
             this.Random = random;
+
+            this.Configuration = new CarConfiguration();
         }
 
         public double Fitness { get; private set; } = -1;
@@ -115,6 +117,11 @@ namespace SelfDriving.Agents
         }
 
         public void Reset()
+        {
+            // Nothing for now
+        }
+
+        public void OnUpdate(float deltaT)
         {
             // Nothing for now
         }

@@ -82,7 +82,7 @@ namespace Shared.NeuralNetworks
         {
             // Using fixed number of training iterations is kind of a lazy approach, should really
             // implement some system that runs until we converge to an acceptable error value.
-            var iterations = 1;
+            var iterations = 5;
             var totalSteps = inputData.Count * iterations;
 
             for (int i = 0; i < iterations; i++)
@@ -91,7 +91,11 @@ namespace Shared.NeuralNetworks
                 {
                     this.FeedForward(inputData[j]);
                     this.BackPropagate(expectedOutput[j]);
-                    reportProgress?.Invoke(j, totalSteps);
+
+                    if (j % 100 == 0)
+                    {
+                        reportProgress?.Invoke(j, totalSteps);
+                    }
                 }
             }
         }
@@ -99,6 +103,11 @@ namespace Shared.NeuralNetworks
         public float[] GetFlattenedWeights()
         {
             return layers.SelectMany(l => l.GetFlattenedWeights()).ToArray();
+        }
+
+        public int[] GetStructure()
+        {
+            return layer;
         }
 
         public void UpdateNetworkWeights(List<float> newWeights)

@@ -102,7 +102,7 @@ namespace SelfDriving.Screens.MapMaker
             ThumbnailHelper.GenerateTrackThumbnail(track, trackThumbnailName);
 
             application.NotificaitonService.ShowToast(
-                ToastType.Error,
+                ToastType.Successful,
                 "Track exported successfully");
         }
 

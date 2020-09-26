@@ -25,10 +25,6 @@ namespace SelfDriving
             };
         }
 
-        public void AddScreen(Screen screen) => ScreenManager.AddScreen(screen);
-
-        public void RemoveScreen(Screen screen) => ScreenManager.RemoveScreen(screen);
-
         public IApplication Application { get; set; }
 
         public string DisplayName => "Self Driving";
