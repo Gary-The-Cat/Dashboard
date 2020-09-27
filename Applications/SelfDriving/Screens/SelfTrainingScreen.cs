@@ -7,8 +7,10 @@ using SFML.Graphics;
 using Shared.Core;
 using Shared.GeneticAlgorithms;
 using Shared.Interfaces;
+using Shared.NeuralNetworks;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace SelfDriving.Screens
@@ -46,8 +48,17 @@ namespace SelfDriving.Screens
             this.application = application;
             random = new Random();
 
+
+            List<float> seed = null;
+            var seedFile = "Resources/CarAi/AI_2.mlpnn";
+            if (File.Exists(seedFile))
+            {
+                var seedText = File.ReadAllText(seedFile);
+                seed = seedText.Split(',').Select(s => float.Parse(s)).ToList();
+            }
+
             // Create the GA
-            genericAlgorithm = this.CreateGeneticAlgorithm();
+            genericAlgorithm = this.CreateGeneticAlgorithm(seed);
 
             // Load the tracks used for evaluation
             tracks = TrackHelper.LoadTrackFiles("Resources/Tracks");

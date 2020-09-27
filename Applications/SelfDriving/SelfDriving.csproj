@@ -29,6 +29,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Resources\CarAi\AI_1.mlpnn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\CarAi\AI_2.mlpnn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\HumanAssistedDriving.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

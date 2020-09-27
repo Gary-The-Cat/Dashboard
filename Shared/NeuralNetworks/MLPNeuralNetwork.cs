@@ -118,6 +118,7 @@ namespace Shared.NeuralNetworks
                 var totalLayerWeights = layer.GetFlattenedWeights().Count();
                 var newLayerWeights = newWeights.GetRange(currentPosition, totalLayerWeights);
                 layer.UpdateWeightsFromList(newLayerWeights);
+                currentPosition += totalLayerWeights;
             }
         }
 
