@@ -52,7 +52,7 @@ namespace SelfDriving.Screens.HumanAssistedTraining
 
         public void Initialize(Track track, MLPNeuralNetwork controller)
         {
-            var carAi = new CarAI(controller.GetStructure(), random, controller.GetFlattenedWeights().ToList());
+            var carAi = new CarAI(random, controller);
 
             // Load the simulation
             simulation = new RacingSimulation(application);

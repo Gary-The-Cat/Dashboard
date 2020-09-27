@@ -13,6 +13,17 @@ namespace SelfDriving.Agents
     {
         private int InputNodes => this.networkStructure[0];
 
+        public CarAI(Random random, MLPNeuralNetwork network)
+        {
+            this.networkStructure = network.GetStructure();
+
+            this.Network = network;
+
+            this.Random = random;
+
+            this.Configuration = new CarConfiguration();
+        }
+
         public CarAI(int[] networkStructure, Random random, List<float> initialWeights = null)
         {
             this.networkStructure = networkStructure;
