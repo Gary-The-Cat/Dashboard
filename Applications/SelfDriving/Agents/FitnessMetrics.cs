@@ -8,7 +8,7 @@ namespace SelfDriving.Agents
     {
         public static float DistanceMetric(Car car)
         {
-            return car.TotalDistance / 1000;
+            return car.TotalDistance / 250;
         }
 
         public static float TimeAliveMetric(Car car)

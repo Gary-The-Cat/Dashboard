@@ -42,6 +42,7 @@ namespace SelfDriving.Screens
         public SelfTrainingScreen(
             IApplication application, 
             IApplicationInstance applicationInstance,
+            Screen parentScreen,
             bool enableVisualization = true) 
             : base(application.Configuration, applicationInstance)
         {

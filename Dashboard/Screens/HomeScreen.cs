@@ -23,6 +23,8 @@ namespace Dashboard.Screens
 
         private ApplicationDashboard applicationDashboard;
 
+        private IApplicationInstance applicationInstance;
+
         private IApplicationInstance selectedApplication => applicationDashboard.SelectedApplication.ApplicationInstance;
 
         public HomeScreen(
@@ -33,6 +35,7 @@ namespace Dashboard.Screens
         {
             this.application = application;
             this.setActiveApplication = setActiveApplication;
+            this.applicationInstance = applicationInstance;
             this.applications = applicationInstances;
             this.applicationDashboard = new ApplicationDashboard(
                 applicationInstances, 
@@ -62,6 +65,16 @@ namespace Dashboard.Screens
         public override void Resume()
         {
             this.applicationDashboard.IsActive = true;
+        }
+
+        public override void SetActive()
+        {
+            base.SetActive();
+
+            applicationInstance.GoBack = () =>
+            {
+                applicationInstance.GoHome();
+            };
         }
     }
 }

@@ -12,6 +12,7 @@ namespace Shared.Services
     {
         private Func<IApplicationInstance> getActiveApplication;
         private Dictionary<Guid, List<(KeyPressCallbackEventArgs args, Action<KeyboardEventArgs> callback)>> keyPressEvents;
+        private Dictionary<Guid, List<(JoystickCallbackEventArgs args, Action<JoystickEventArgs> callback)>> joystickButtonEvents;
         private Dictionary<Guid, List<(MouseClickCallbackEventArgs args, Action<MouseClickEventArgs> callback)>> mouseClickEvents;
         private Dictionary<Guid, List<Action<MoveMouseEventArgs>>> mouseMoveEvents;
 
@@ -21,10 +22,12 @@ namespace Shared.Services
         {
             this.getActiveApplication = getActiveApplication;
             this.keyPressEvents = new Dictionary<Guid, List<(KeyPressCallbackEventArgs, Action<KeyboardEventArgs>)>>();
+            this.joystickButtonEvents = new Dictionary<Guid, List<(JoystickCallbackEventArgs args, Action<JoystickEventArgs> callback)>>();
             this.mouseClickEvents = new Dictionary<Guid, List<(MouseClickCallbackEventArgs args, Action<MouseClickEventArgs> callback)>>();
             this.mouseMoveEvents = new Dictionary<Guid, List<Action<MoveMouseEventArgs>>>();
 
             this.InitializeKeyboardListener(window);
+            this.InitializeJoystickButtonListener(window);
             this.InitializeMouseClickListener(window);
             this.InitializeMouseMoveListener(window);
         }
@@ -164,6 +167,52 @@ namespace Shared.Services
             };
         }
 
+        private void InitializeJoystickButtonListener(Window window)
+        {
+            window.JoystickButtonPressed += (_, e) =>
+            {
+                var joystickEventArgs = new JoystickEventArgs(e);
+                var activeApplication = getActiveApplication();
+
+                // Iterate over each of the currently active screens in the application & perform any callbacks
+                var screenIds = activeApplication.ScreenManager.GetScreenIds();
+
+                // Check for handling top down (drawn last first, so reversed from the screen Ids list)
+                foreach (var screen in screenIds.Reverse())
+                {
+                    // The event has been handled, we should stop
+                    if (joystickEventArgs.IsHandled)
+                    {
+                        break;
+                    }
+
+                    // The screen is not active
+                    if (!activeApplication.ScreenManager.IsScreenActive(screen))
+                    {
+                        continue;
+                    }
+
+                    // There are no events set up for this screen
+                    if (!joystickButtonEvents.ContainsKey(screen))
+                    {
+                        continue;
+                    }
+
+                    // There are events, and this screen is active, loop through each of its events and call them
+                    foreach (var joystickButtonEvent in joystickButtonEvents[screen])
+                    {
+                        // If the event does not match the event arguments
+                        if (e.Button != joystickButtonEvent.args.Key)
+                        {
+                            continue;
+                        }
+
+                        joystickButtonEvent.callback?.Invoke(joystickEventArgs);
+                    }
+                }
+            };
+        }
+
         public void RegisterKeyboardCallback(
            Guid screenId,
            KeyPressCallbackEventArgs eventArgs,
@@ -203,17 +252,14 @@ namespace Shared.Services
 
         }
 
-        //public void RegisterJoystickCallback(Window window, uint button, Action callback)
-        //{
-        //    window.JoystickButtonPressed += (_, e) =>
-        //    {
-        //        if (!IsActive || e.Button != button)
-        //        {
-        //            return;
-        //        }
+        public void RegisterJoystickButtonCallback(Guid screenId, JoystickCallbackEventArgs eventArgs, Action<JoystickEventArgs> callback)
+        {
+            if (!this.joystickButtonEvents.ContainsKey(screenId))
+            {
+                this.joystickButtonEvents.Add(screenId, new List<(JoystickCallbackEventArgs, Action<JoystickEventArgs>)>());
+            }
 
-        //        callback?.Invoke();
-        //    };
-        //}
+            this.joystickButtonEvents[screenId].Add((eventArgs, callback));
+        }
     }
 }

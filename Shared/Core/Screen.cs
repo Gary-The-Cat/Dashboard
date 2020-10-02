@@ -42,6 +42,9 @@ namespace Shared.Core
         public void RegisterMouseClickCallback(MouseClickCallbackEventArgs eventArgs, Action<MouseClickEventArgs> callback) =>
             ParentApplication.EventService.RegisterMouseClickCallback(this.Id, eventArgs, callback);
 
+        public void RegisterJoystickCallback(JoystickCallbackEventArgs eventArgs, Action<JoystickEventArgs> callback) =>
+            ParentApplication.EventService.RegisterJoystickButtonCallback(this.Id, eventArgs, callback);
+
         public void RegisterMouseMoveCallback(Action<MoveMouseEventArgs> callback) =>
             ParentApplication.EventService.RegisterMouseMoveCallback(this.Id, callback);
 

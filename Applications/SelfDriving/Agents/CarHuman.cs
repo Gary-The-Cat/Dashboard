@@ -73,26 +73,26 @@ namespace SelfDriving.Agents
 
                 output.LeftTurnForce = Keyboard.IsKeyPressed(Keyboard.Key.Left) ? 1 : 0;
                 output.RightTurnForce = Keyboard.IsKeyPressed(Keyboard.Key.Right) ? 1 : 0;
+            }
 
-                if (captureState)
+            if (captureState)
+            {
+                if (timesinceLastMeasurement > frequencyMs)
                 {
-                    if (timesinceLastMeasurement > frequencyMs)
+                    timesinceLastMeasurement = 0;
+
+                    var outputMeasurement = new float[4];
+
+                    outputMeasurement[0] = output.Acceleration;
+                    outputMeasurement[3] = output.BreakingForce;
+                    outputMeasurement[1] = output.LeftTurnForce;
+                    outputMeasurement[2] = output.RightTurnForce;
+
+                    if (isCapturingInput)
                     {
-                        timesinceLastMeasurement = 0;
-
-                        var outputMeasurement = new float[4];
-
-                        outputMeasurement[0] = output.Acceleration;
-                        outputMeasurement[3] = output.BreakingForce;
-                        outputMeasurement[1] = output.LeftTurnForce;
-                        outputMeasurement[2] = output.RightTurnForce;
-
-                        if (isCapturingInput)
-                        {
-                            StateInputMeasurements.Add(rayCollisions);
-                            StateOutputMeasurements.Add(outputMeasurement);
-                            SamplesCaptured++;
-                        }
+                        StateInputMeasurements.Add(rayCollisions);
+                        StateOutputMeasurements.Add(outputMeasurement);
+                        SamplesCaptured++;
                     }
                 }
             }

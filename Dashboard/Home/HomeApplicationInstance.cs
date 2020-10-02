@@ -23,6 +23,8 @@ namespace Dashboard.Core
 
             this.applications = new List<ApplicationInstanceVisual>();
 
+            this.GoHome = () => setActiveApplication(this);
+
             var applicationTypes = ApplicationLoader.GetApplicationsInstances();
 
             // Load all the application instances
@@ -35,6 +37,7 @@ namespace Dashboard.Core
                 try
                 {
                     applicationInstance = (IApplicationInstance)Activator.CreateInstance(type, application);
+                    applicationInstance.GoHome = () => setActiveApplication(this);
                     applicationInstance.EventService = application.EventService;
                     applicationInstance.NotificationService = application.NotificaitonService;
                 }

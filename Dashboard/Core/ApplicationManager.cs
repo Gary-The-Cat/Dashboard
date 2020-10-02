@@ -71,7 +71,7 @@ namespace Dashboard.Core
             // etc to any of the games/simulations we make.
             if (e.Code == Keyboard.Key.Escape)
             {
-                SetActiveApplication(HomeApplication);
+                ActiveApplication.GoBack();
 
                 // We always reset the camera to the default view
                 Window.SetView(application.GetDefaultView());

@@ -39,6 +39,12 @@ namespace Shared.Interfaces
         // Prepare the application to no longer be running, and unload / cleanup as required
         public void Stop();
 
+        // The user has pressed the global 'back' key.
+        public Action GoBack { get; set; }
+
+        // The user has pressed the global 'back' key.
+        public Action GoHome { get; set; }
+
         // Recover the application from the exception thrown, return true if recovered, false if unable to recover.
         public bool OnException();
 

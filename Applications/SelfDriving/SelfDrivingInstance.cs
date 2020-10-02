@@ -31,15 +31,21 @@ namespace SelfDriving
 
         public RectangleShape Thumbnail { get; set; }
 
+        public Screen MainScreen { get; set; }
+
         public new void Initialize()
         {
-            AddScreen(new SelfDrivingHomeScreen(Application, this));
+            MainScreen = new SelfDrivingHomeScreen(Application, this);
+
+            AddScreen(MainScreen);
 
             base.Initialize();
         }
 
         public new void Start()
         {
+            MainScreen.SetActive();
+
             base.Start();
         }
     }

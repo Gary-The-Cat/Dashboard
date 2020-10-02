@@ -22,7 +22,7 @@ namespace SelfDriving.Screens.HumanAssistedTraining
         private RacingSimulationVisualization simulationVisualization;
         private IApplication application;
         private IApplicationInstance applicationInstance;
-        private Action returnToTrainScreen;
+        private Action goBack;
         private Button backButton;
 
         public SelfDrivingTestScreen(
@@ -33,18 +33,18 @@ namespace SelfDriving.Screens.HumanAssistedTraining
         {
             this.application = application;
             this.applicationInstance = applicationInstance;
-            this.returnToTrainScreen = returnToTrainScreen;
+            this.goBack = () =>
+            {
+                SetInactive();
+                returnToTrainScreen();
+            };
 
             random = new Random();
 
             backButton = new Button(
                 "Back",
                 new Vector2f(20, 20),
-                () => 
-                {
-                    SetInactive();
-                    returnToTrainScreen?.Invoke();
-                },
+                goBack,
                 HorizontalAlignment.Left);
 
             RegisterMouseClickCallback(new MouseClickCallbackEventArgs(SFML.Window.Mouse.Button.Left), OnMouseClick);
@@ -97,6 +97,13 @@ namespace SelfDriving.Screens.HumanAssistedTraining
         private void OnMouseClick(MouseClickEventArgs obj)
         {
             backButton.TryClick(obj);
+        }
+
+        public override void SetActive()
+        {
+            base.SetActive();
+
+            applicationInstance.GoBack = goBack;
         }
     }
 }

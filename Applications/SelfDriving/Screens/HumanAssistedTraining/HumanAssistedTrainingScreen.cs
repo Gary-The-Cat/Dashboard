@@ -15,7 +15,6 @@ using Shared.NeuralNetworks;
 using Shared.Notifications;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 
@@ -39,14 +38,17 @@ namespace SelfDriving.Screens.HumanAssistedTraining
 
         private IApplication application;
         private IApplicationInstance applicationInstance;
+        private Screen parentScreen;
 
         public HumanAssistedTrainingScreen(
             IApplication application,
-            IApplicationInstance applicationInstance) 
+            IApplicationInstance applicationInstance,
+            Screen parentScreen) 
             : base(application.Configuration, applicationInstance)
         {
             this.application = application;
             this.applicationInstance = applicationInstance;
+            this.parentScreen = parentScreen;
 
             racingSimulation = new RacingSimulation(application);
             racingSimulationVisualization = new RacingSimulationVisualization(application, applicationInstance, racingSimulation);
@@ -167,6 +169,7 @@ namespace SelfDriving.Screens.HumanAssistedTraining
             applicationInstance.AddScreen(selfDrivingTestScreen);
 
             selfDrivingTestScreen.Start();
+            selfDrivingTestScreen.SetActive();
         }
 
         private bool EnsureNetworkExists()
@@ -221,22 +224,22 @@ namespace SelfDriving.Screens.HumanAssistedTraining
 
             for (int i = 0; i < inputData.Count; i++)
             {
-                if (expectedOutputData[i][0] == 1)
+                if (expectedOutputData[i][0] > 0)
                 {
                     accellerateData.Add((inputData[i], expectedOutputData[i]));
                 }
 
-                if (expectedOutputData[i][1] == 1)
+                if (expectedOutputData[i][1] > 0)
                 {
                     turnLeftData.Add((inputData[i], expectedOutputData[i]));
                 }
 
-                if (expectedOutputData[i][2] == 1)
+                if (expectedOutputData[i][2] > 0)
                 {
                     turnRightData.Add((inputData[i], expectedOutputData[i]));
                 }
 
-                if (expectedOutputData[i][3] == 1)
+                if (expectedOutputData[i][3] > 0)
                 {
                     brakeData.Add((inputData[i], expectedOutputData[i]));
                 }
@@ -295,7 +298,7 @@ namespace SelfDriving.Screens.HumanAssistedTraining
             RegisterKeyboardCallback(new KeyPressCallbackEventArgs(Keyboard.Key.R), ResetSimulation);
             RegisterKeyboardCallback(new KeyPressCallbackEventArgs(Keyboard.Key.M), SetTrackSelection);
             RegisterMouseClickCallback(new MouseClickCallbackEventArgs(Mouse.Button.Left), OnMousePress);
-            //RegisterJoystickCallback(application.Window, 7, ResetSimulation);
+            RegisterJoystickCallback(new JoystickCallbackEventArgs(7), ResetSimulation);
         }
 
         private void OnTrackSelected(Track track)
@@ -322,7 +325,7 @@ namespace SelfDriving.Screens.HumanAssistedTraining
             this.gameState = GameState.TrackSelection;
         }
 
-        private void ResetSimulation(KeyboardEventArgs args)
+        private void ResetSimulation(object args)
         {
             racingSimulation.Reset();
             racingSimulationVisualization.Reset();
@@ -363,6 +366,21 @@ namespace SelfDriving.Screens.HumanAssistedTraining
             base.SetActive();
 
             trackSelection.SetActive();
+
+            applicationInstance.GoBack = () =>
+            {
+                if(this.gameState == GameState.TrackSelection)
+                {
+                    this.SetInactive();
+                    this.parentScreen.SetActive();
+                }
+                else
+                {
+                    this.gameState = GameState.TrackSelection;
+                    this.trackSelection.SetActive();
+                    this.racingSimulationVisualization.SetInactive();
+                }
+            };
         }
 
         public override void SetInactive()

@@ -19,5 +19,10 @@ namespace Shared.Interfaces
            Guid screenId,
            KeyPressCallbackEventArgs eventArgs,
            Action<KeyboardEventArgs> callback);
+
+        public void RegisterJoystickButtonCallback(
+           Guid screenId,
+           JoystickCallbackEventArgs eventArgs,
+           Action<JoystickEventArgs> callback);
     }
 }

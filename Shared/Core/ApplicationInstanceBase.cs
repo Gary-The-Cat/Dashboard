@@ -12,6 +12,10 @@ namespace Shared.Core
         {
             Id = Guid.NewGuid();
             ScreenManager = new ScreenManager();
+            GoBack = () =>
+            {
+                GoHome();
+            };
         }
 
         public virtual void Stop()
@@ -56,6 +60,10 @@ namespace Shared.Core
         {
             ScreenManager.OnRender(target);
         }
+
+        public Action GoBack { get; set; }
+
+        public Action GoHome { get; set; }
 
         public void AddScreen(Screen screen) => ScreenManager.AddScreen(screen);
 

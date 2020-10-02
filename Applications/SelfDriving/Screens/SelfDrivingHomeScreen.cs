@@ -54,21 +54,31 @@ namespace SelfDriving.Screens
 
         private void CreateModeScreens()
         {
-            humanAssistedTrainingScreen = new HumanAssistedTrainingScreen(application, ParentApplication);
+            humanAssistedTrainingScreen = new HumanAssistedTrainingScreen(application, ParentApplication, this);
             ParentApplication.AddScreen(humanAssistedTrainingScreen);
             humanAssistedTrainingScreen.SetInactive();
 
-            mapMakingScreen = new MapMakingScreen(application, ParentApplication);
+            mapMakingScreen = new MapMakingScreen(application, ParentApplication, this);
             ParentApplication.AddScreen(mapMakingScreen);
             mapMakingScreen.SetInactive();
 
-            selfTrainingScreen = new SelfTrainingScreen(application, ParentApplication);
+            selfTrainingScreen = new SelfTrainingScreen(application, ParentApplication, this);
             ParentApplication.AddScreen(selfTrainingScreen);
             selfTrainingScreen.SetInactive();
 
-            raceScreen = new RaceScreen(application, ParentApplication);
+            raceScreen = new RaceScreen(application, ParentApplication, this);
             ParentApplication.AddScreen(raceScreen);
             raceScreen.SetInactive();
+        }
+
+        private void Back()
+        {
+            humanAssistedTrainingScreen.SetInactive();
+            mapMakingScreen.SetInactive();
+            selfTrainingScreen.SetInactive();
+            raceScreen.SetInactive();
+
+            this.SetActive();
         }
 
         private MenuItem GetRaceMenuItem()
@@ -150,6 +160,17 @@ namespace SelfDriving.Screens
         {
             SetInactive();
             screen.SetActive();
+        }
+
+        public override void SetActive()
+        {
+            base.SetActive();
+
+            applicationInstance.GoBack = () =>
+            {
+                this.SetInactive();
+                this.applicationInstance.GoHome();
+            };
         }
     }
 }

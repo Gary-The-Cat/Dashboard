@@ -24,6 +24,7 @@ namespace Shared.NeuralNetworks
             var inputNodes = inputData.First().Length;
             var outputNodes = expectedOutputData.First().Length;
 
+
             var innerLayers = 2;
             var hiddenLayerDepth = 16;
 

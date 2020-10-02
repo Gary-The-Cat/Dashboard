@@ -13,16 +13,19 @@ namespace SelfDriving.Screens.MapMaker
         private MapMakerState state;
         private MapMakerHudScreen mapEditorHudScreen;
         private MapMakerWorldScreen mapEditorWorldScreen;
+        private Screen parentScreen;
 
         private TrackSelectionScreen trackSelection;
 
         public MapMakingScreen(
             IApplication application,
-            IApplicationInstance applicationInstance) 
+            IApplicationInstance applicationInstance,
+            Screen parentScreen) 
             : base(application.Configuration, applicationInstance)
         {
             this.application = application;
             this.applicationInstance = applicationInstance;
+            this.parentScreen = parentScreen;
             this.state = MapMakerState.TrackSelection;
 
             trackSelection = new TrackSelectionScreen(
@@ -44,6 +47,8 @@ namespace SelfDriving.Screens.MapMaker
         {
             SetInactive();
 
+            this.state = MapMakerState.TrackEditor;
+
             var sharedContainer = new MapMakerDataContainer();
 
             mapEditorWorldScreen = new MapMakerWorldScreen(application, applicationInstance, sharedContainer);
@@ -61,6 +66,23 @@ namespace SelfDriving.Screens.MapMaker
         public override void SetActive()
         {
             base.SetActive();
+
+            this.applicationInstance.GoBack = () =>
+            {
+                if(this.state == MapMakerState.TrackSelection)
+                {
+                    this.SetInactive();
+                    this.parentScreen.SetActive();
+                }
+                else
+                {
+                    this.state = MapMakerState.TrackSelection;
+
+                    mapEditorWorldScreen.SetInactive();
+                    mapEditorHudScreen.SetInactive();
+                    trackSelection.SetActive();
+                }
+            };
 
             trackSelection.SetActive();
         }
