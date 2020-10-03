@@ -4,6 +4,7 @@ using SelfDriving.Shared;
 using SFML.Graphics;
 using SFML.System;
 using Shared.Core;
+using Shared.Core.Hierarchy;
 using Shared.Interfaces;
 using System.IO;
 
@@ -11,7 +12,7 @@ namespace SelfDriving
 {
     public class SelfDrivingInstance : ApplicationInstanceBase, IApplicationInstance
     {
-        public SelfDrivingInstance(IApplication application)
+        public SelfDrivingInstance(IApplication application) : base(application)
         {
             this.Application = application;
 
@@ -37,7 +38,11 @@ namespace SelfDriving
         {
             MainScreen = new SelfDrivingHomeScreen(Application, this);
 
-            AddScreen(MainScreen);
+            AddChildScreen(MainScreen, null);
+
+            MainScreen.InitializeScreen();
+
+            SetActiveScreen(MainScreen);
 
             base.Initialize();
         }

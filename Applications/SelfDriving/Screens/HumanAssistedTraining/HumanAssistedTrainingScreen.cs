@@ -58,10 +58,6 @@ namespace SelfDriving.Screens.HumanAssistedTraining
                 applicationInstance,
                 "Resources/Tracks");
 
-            trackSelection.SetInactive();
-
-            AddChildScreen(trackSelection);
-
             buttons = new List<Button>();
 
             RegisterCallbacks();
@@ -166,7 +162,7 @@ namespace SelfDriving.Screens.HumanAssistedTraining
 
             selfDrivingTestScreen.Initialize(currentTrack, network);
 
-            applicationInstance.AddScreen(selfDrivingTestScreen);
+            applicationInstance.AddChildScreen(selfDrivingTestScreen, this);
 
             selfDrivingTestScreen.Start();
             selfDrivingTestScreen.SetActive();
@@ -359,35 +355,6 @@ namespace SelfDriving.Screens.HumanAssistedTraining
                     buttons.ForEach(b => b.OnRender(target));
                     break;
             }
-        }
-
-        public override void SetActive()
-        {
-            base.SetActive();
-
-            trackSelection.SetActive();
-
-            applicationInstance.GoBack = () =>
-            {
-                if(this.gameState == GameState.TrackSelection)
-                {
-                    this.SetInactive();
-                    this.parentScreen.SetActive();
-                }
-                else
-                {
-                    this.gameState = GameState.TrackSelection;
-                    this.trackSelection.SetActive();
-                    this.racingSimulationVisualization.SetInactive();
-                }
-            };
-        }
-
-        public override void SetInactive()
-        {
-            base.SetInactive();
-
-            trackSelection.SetInactive();
         }
     }
 }

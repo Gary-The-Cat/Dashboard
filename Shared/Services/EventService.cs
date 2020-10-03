@@ -15,6 +15,7 @@ namespace Shared.Services
         private Dictionary<Guid, List<(JoystickCallbackEventArgs args, Action<JoystickEventArgs> callback)>> joystickButtonEvents;
         private Dictionary<Guid, List<(MouseClickCallbackEventArgs args, Action<MouseClickEventArgs> callback)>> mouseClickEvents;
         private Dictionary<Guid, List<Action<MoveMouseEventArgs>>> mouseMoveEvents;
+        private Dictionary<Guid, List<Action<MouseWheelScrolledEventArgs>>> mouseScrollEvents;
 
         public EventService(
             Window window, 
@@ -25,11 +26,13 @@ namespace Shared.Services
             this.joystickButtonEvents = new Dictionary<Guid, List<(JoystickCallbackEventArgs args, Action<JoystickEventArgs> callback)>>();
             this.mouseClickEvents = new Dictionary<Guid, List<(MouseClickCallbackEventArgs args, Action<MouseClickEventArgs> callback)>>();
             this.mouseMoveEvents = new Dictionary<Guid, List<Action<MoveMouseEventArgs>>>();
+            this.mouseScrollEvents = new Dictionary<Guid, List<Action<MouseWheelScrolledEventArgs>>>();
 
             this.InitializeKeyboardListener(window);
             this.InitializeJoystickButtonListener(window);
             this.InitializeMouseClickListener(window);
             this.InitializeMouseMoveListener(window);
+            this.InitializeMouseScrollListener(window);
         }
 
         private void InitializeKeyboardListener(Window window)
@@ -40,42 +43,32 @@ namespace Shared.Services
                 var activeApplication = getActiveApplication();
 
                 // Iterate over each of the currently active screens in the application & perform any callbacks
-                var screenIds = activeApplication.ScreenManager.GetScreenIds();
+                var screenId = activeApplication.ScreenManager.ActiveScreen.Id;
 
-                // Check for handling top down (drawn last first, so reversed from the screen Ids list)
-                foreach (var screen in screenIds.Reverse())
+                // This screen is not active, skip it
+                if (!activeApplication.ScreenManager.IsScreenActive(screenId))
                 {
-                    // The event has been handled, we should stop
-                    if (keyboardEventArgs.IsHandled)
-                    {
-                        break;
-                    }
+                    return;
+                }
 
-                    // This screen is not active, skip it
-                    if (!activeApplication.ScreenManager.IsScreenActive(screen))
+                // This screen is active but there are no events registered for this screen
+                if (!keyPressEvents.ContainsKey(screenId))
+                {
+                    return;
+                }
+
+                // There are events, and this screen is active, loop through each of its events and call them
+                foreach (var keyboardEvent in keyPressEvents[screenId])
+                {
+                    // If the event does not match the event arguments
+                    if (e.Code != keyboardEvent.args.Key || 
+                        keyboardEvent.args.IsCtrlModifierRequired != e.Control || 
+                        keyboardEvent.args.IsShiftModifierRequired != e.Shift)
                     {
                         continue;
                     }
 
-                    // This screen is active but there are no events registered for this screen
-                    if (!keyPressEvents.ContainsKey(screen))
-                    {
-                        continue;
-                    }
-
-                    // There are events, and this screen is active, loop through each of its events and call them
-                    foreach (var keyboardEvent in keyPressEvents[screen])
-                    {
-                        // If the event does not match the event arguments
-                        if (e.Code != keyboardEvent.args.Key || 
-                            keyboardEvent.args.IsCtrlModifierRequired != e.Control || 
-                            keyboardEvent.args.IsShiftModifierRequired != e.Shift)
-                        {
-                            continue;
-                        }
-
-                        keyboardEvent.callback?.Invoke(keyboardEventArgs);
-                    }
+                    keyboardEvent.callback?.Invoke(keyboardEventArgs);
                 }
             };
         }
@@ -88,40 +81,30 @@ namespace Shared.Services
                 var activeApplication = getActiveApplication();
 
                 // Iterate over each of the currently active screens in the application & perform any callbacks
-                var screenIds = activeApplication.ScreenManager.GetScreenIds();
+                var screenId = activeApplication.ScreenManager.ActiveScreen.Id;
 
-                // Check for handling top down (drawn last first, so reversed from the screen Ids list)
-                foreach (var screen in screenIds.Reverse())
+                // The screen is not active
+                if (!activeApplication.ScreenManager.IsScreenActive(screenId))
                 {
-                    // The event has been handled, we should stop
-                    if (mouseEventArgs.IsHandled)
-                    {
-                        break;
-                    }
+                    return;
+                }
 
-                    // The screen is not active
-                    if (!activeApplication.ScreenManager.IsScreenActive(screen))
+                // There are no events set up for this screen
+                if (!mouseClickEvents.ContainsKey(screenId))
+                {
+                    return;
+                }
+
+                // There are events, and this screen is active, loop through each of its events and call them
+                foreach (var mouseEvent in mouseClickEvents[screenId])
+                {
+                    // If the event does not match the event arguments
+                    if (e.Button != mouseEvent.args.Button)
                     {
                         continue;
                     }
 
-                    // There are no events set up for this screen
-                    if (!mouseClickEvents.ContainsKey(screen))
-                    {
-                        continue;
-                    }
-
-                    // There are events, and this screen is active, loop through each of its events and call them
-                    foreach (var mouseEvent in mouseClickEvents[screen])
-                    {
-                        // If the event does not match the event arguments
-                        if (e.Button != mouseEvent.args.Button)
-                        {
-                            continue;
-                        }
-
-                        mouseEvent.callback?.Invoke(mouseEventArgs);
-                    }
+                    mouseEvent.callback?.Invoke(mouseEventArgs);
                 }
             };
         }
@@ -135,34 +118,54 @@ namespace Shared.Services
                 var activeApplication = getActiveApplication();
 
                 // Iterate over each of the currently active screens in the application & perform any callbacks
-                var screenIds = activeApplication.ScreenManager.GetScreenIds();
+                var screenId = activeApplication.ScreenManager.ActiveScreen.Id;
 
-                // Check for handling top down (drawn last first, so reversed from the screen Ids list)
-                foreach (var screen in screenIds.Reverse())
+                // The screen is not active
+                if (!activeApplication.ScreenManager.IsScreenActive(screenId))
                 {
-                    // The event has been handled, we should stop
-                    if (mouseMoveEventArgs.IsHandled)
-                    {
-                        break;
-                    }
+                    return;
+                }
 
-                    // The screen is not active
-                    if (!activeApplication.ScreenManager.IsScreenActive(screen))
-                    {
-                        continue;
-                    }
+                // There are no events set up for this screen
+                if (!mouseMoveEvents.ContainsKey(screenId))
+                {
+                    return;
+                }
 
-                    // There are no events set up for this screen
-                    if (!mouseMoveEvents.ContainsKey(screen))
-                    {
-                        continue;
-                    }
+                // There are events, and this screen is active, loop through each of its events and call them
+                foreach (var mouseEvent in mouseMoveEvents[screenId])
+                {
+                    mouseEvent?.Invoke(mouseMoveEventArgs);
+                }
+            };
+        }
 
-                    // There are events, and this screen is active, loop through each of its events and call them
-                    foreach (var mouseEvent in mouseMoveEvents[screen])
-                    {
-                        mouseEvent?.Invoke(mouseMoveEventArgs);
-                    }
+        private void InitializeMouseScrollListener(Window window)
+        {
+            window.MouseWheelScrolled += (_, e) =>
+            {
+                var mouseScrolledEventArgs = new MouseWheelScrolledEventArgs(e);
+                var activeApplication = getActiveApplication();
+
+                // Iterate over each of the currently active screens in the application & perform any callbacks
+                var screenId = activeApplication.ScreenManager.ActiveScreen.Id;
+
+                // The screen is not active
+                if (!activeApplication.ScreenManager.IsScreenActive(screenId))
+                {
+                    return;
+                }
+
+                // There are no events set up for this screen
+                if (!mouseMoveEvents.ContainsKey(screenId))
+                {
+                    return;
+                }
+
+                // There are events, and this screen is active, loop through each of its events and call them
+                foreach (var mouseEvent in mouseScrollEvents[screenId])
+                {
+                    mouseEvent?.Invoke(mouseScrolledEventArgs);
                 }
             };
         }
@@ -175,40 +178,30 @@ namespace Shared.Services
                 var activeApplication = getActiveApplication();
 
                 // Iterate over each of the currently active screens in the application & perform any callbacks
-                var screenIds = activeApplication.ScreenManager.GetScreenIds();
+                var screenId = activeApplication.ScreenManager.ActiveScreen.Id;
 
-                // Check for handling top down (drawn last first, so reversed from the screen Ids list)
-                foreach (var screen in screenIds.Reverse())
+                // The screen is not active
+                if (!activeApplication.ScreenManager.IsScreenActive(screenId))
                 {
-                    // The event has been handled, we should stop
-                    if (joystickEventArgs.IsHandled)
-                    {
-                        break;
-                    }
+                    return;
+                }
 
-                    // The screen is not active
-                    if (!activeApplication.ScreenManager.IsScreenActive(screen))
+                // There are no events set up for this screen
+                if (!joystickButtonEvents.ContainsKey(screenId))
+                {
+                    return;
+                }
+
+                // There are events, and this screen is active, loop through each of its events and call them
+                foreach (var joystickButtonEvent in joystickButtonEvents[screenId])
+                {
+                    // If the event does not match the event arguments
+                    if (e.Button != joystickButtonEvent.args.Key)
                     {
                         continue;
                     }
 
-                    // There are no events set up for this screen
-                    if (!joystickButtonEvents.ContainsKey(screen))
-                    {
-                        continue;
-                    }
-
-                    // There are events, and this screen is active, loop through each of its events and call them
-                    foreach (var joystickButtonEvent in joystickButtonEvents[screen])
-                    {
-                        // If the event does not match the event arguments
-                        if (e.Button != joystickButtonEvent.args.Key)
-                        {
-                            continue;
-                        }
-
-                        joystickButtonEvent.callback?.Invoke(joystickEventArgs);
-                    }
+                    joystickButtonEvent.callback?.Invoke(joystickEventArgs);
                 }
             };
         }
@@ -249,7 +242,18 @@ namespace Shared.Services
             }
 
             this.mouseMoveEvents[screenId].Add(callback);
+        }
 
+        public void RegisterMouseWheelScrollCallback(
+            Guid screenId,
+            Action<MouseWheelScrolledEventArgs> callback)
+        {
+            if (!this.mouseScrollEvents.ContainsKey(screenId))
+            {
+                this.mouseScrollEvents.Add(screenId, new List<Action<MouseWheelScrolledEventArgs>>());
+            }
+
+            this.mouseScrollEvents[screenId].Add(callback);
         }
 
         public void RegisterJoystickButtonCallback(Guid screenId, JoystickCallbackEventArgs eventArgs, Action<JoystickEventArgs> callback)

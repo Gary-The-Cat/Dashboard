@@ -37,11 +37,9 @@ namespace Shared.Menus
             this.grid = new IMenuItem[1,1];
 
             this.applicationInstance = applicationInstance;
-
-            RegisterMouseClickCallback(new Events.CallbackArgs.MouseClickCallbackEventArgs(Mouse.Button.Left), OnMousePress);
         }
 
-        private void OnMousePress(MouseClickEventArgs args)
+        public void OnMousePress(MouseClickEventArgs args)
         {
             var relativePosition = new Vector2f(args.Args.X, args.Args.Y) - position;
             (int x, int y)? gridPosition = GetGridPosition(relativePosition);

@@ -1,6 +1,7 @@
 ﻿using SFML.Graphics;
 using SFML.System;
 using Shared.Core;
+using Shared.Core.Hierarchy;
 using System;
 
 namespace Shared.Interfaces
@@ -52,7 +53,9 @@ namespace Shared.Interfaces
 
         public void OnRender(RenderTarget target);
 
-        public void AddScreen(Screen screen);
+        public void AddChildScreen(Screen screen, Screen parentScreen);
+
+        public void SetActiveScreen(Screen screen);
 
         public void RemoveScreen(Screen screen);
 

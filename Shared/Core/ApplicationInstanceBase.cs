@@ -1,5 +1,6 @@
 ﻿using SFML.Graphics;
 using SFML.System;
+using Shared.Core.Hierarchy;
 using Shared.Interfaces;
 using System;
 using System.Diagnostics;
@@ -8,14 +9,25 @@ namespace Shared.Core
 {
     public class ApplicationInstanceBase
     {
-        public ApplicationInstanceBase()
+        public ApplicationInstanceBase(IApplication application)
         {
             Id = Guid.NewGuid();
             ScreenManager = new ScreenManager();
+
+            this.GoHome = () => application.ApplicationManager.GoHome();
+
             GoBack = () =>
             {
-                GoHome();
+                if(this.ScreenManager.CurrentLayer > 0)
+                {
+                    this.ScreenManager.GoBack();
+                }
+                else
+                {
+                    application.ApplicationManager.GoHome();
+                }
             };
+
         }
 
         public virtual void Stop()
@@ -65,7 +77,9 @@ namespace Shared.Core
 
         public Action GoHome { get; set; }
 
-        public void AddScreen(Screen screen) => ScreenManager.AddScreen(screen);
+        public void AddChildScreen(Screen screen, Screen parentScreen) => ScreenManager.AddChildScreen(screen, parentScreen);
+
+        public void SetActiveScreen(Screen screen) => ScreenManager.SetActiveScreen(screen);
 
         public void RemoveScreen(Screen screen) => ScreenManager.RemoveScreen(screen);
 

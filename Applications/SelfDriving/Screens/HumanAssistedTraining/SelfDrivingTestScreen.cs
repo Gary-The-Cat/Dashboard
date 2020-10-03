@@ -22,7 +22,6 @@ namespace SelfDriving.Screens.HumanAssistedTraining
         private RacingSimulationVisualization simulationVisualization;
         private IApplication application;
         private IApplicationInstance applicationInstance;
-        private Action goBack;
         private Button backButton;
 
         public SelfDrivingTestScreen(
@@ -33,7 +32,8 @@ namespace SelfDriving.Screens.HumanAssistedTraining
         {
             this.application = application;
             this.applicationInstance = applicationInstance;
-            this.goBack = () =>
+
+            Action goBack = () =>
             {
                 SetInactive();
                 returnToTrainScreen();
@@ -102,8 +102,6 @@ namespace SelfDriving.Screens.HumanAssistedTraining
         public override void SetActive()
         {
             base.SetActive();
-
-            applicationInstance.GoBack = goBack;
         }
     }
 }

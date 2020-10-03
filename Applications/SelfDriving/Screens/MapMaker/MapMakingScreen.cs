@@ -2,6 +2,7 @@
 using SelfDriving.Shared;
 using SFML.Graphics;
 using Shared.Core;
+using Shared.Core.Hierarchy;
 using Shared.Interfaces;
 
 namespace SelfDriving.Screens.MapMaker
@@ -54,44 +55,16 @@ namespace SelfDriving.Screens.MapMaker
             mapEditorWorldScreen = new MapMakerWorldScreen(application, applicationInstance, sharedContainer);
             mapEditorHudScreen = new MapMakerHudScreen(application, applicationInstance, sharedContainer);
 
-            applicationInstance.AddScreen(mapEditorHudScreen);
-            applicationInstance.AddScreen(mapEditorWorldScreen);
+            var stackedScreen = new StackedScreen(application.Configuration, applicationInstance);
+            stackedScreen.AddScreen(mapEditorWorldScreen);
+            stackedScreen.AddScreen(mapEditorHudScreen);
+
+            applicationInstance.AddChildScreen(stackedScreen, this);
 
             mapEditorWorldScreen.Start();
             mapEditorHudScreen.Start();
 
             mapEditorWorldScreen.Initialize(track);
-        }
-
-        public override void SetActive()
-        {
-            base.SetActive();
-
-            this.applicationInstance.GoBack = () =>
-            {
-                if(this.state == MapMakerState.TrackSelection)
-                {
-                    this.SetInactive();
-                    this.parentScreen.SetActive();
-                }
-                else
-                {
-                    this.state = MapMakerState.TrackSelection;
-
-                    mapEditorWorldScreen.SetInactive();
-                    mapEditorHudScreen.SetInactive();
-                    trackSelection.SetActive();
-                }
-            };
-
-            trackSelection.SetActive();
-        }
-
-        public override void SetInactive()
-        {
-            base.SetInactive();
-
-            trackSelection.SetInactive();
         }
     }
 }

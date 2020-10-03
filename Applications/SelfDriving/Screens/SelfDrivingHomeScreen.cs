@@ -2,7 +2,9 @@
 using SelfDriving.Screens.MapMaker;
 using SFML.Graphics;
 using SFML.System;
+using SFML.Window;
 using Shared.Core;
+using Shared.Events.CallbackArgs;
 using Shared.Interfaces;
 using Shared.Menus;
 
@@ -25,12 +27,15 @@ namespace SelfDriving.Screens
         {
             this.application = application;
             this.applicationInstance = applicationInstance;
+        }
+
+        public override void InitializeScreen()
+        {
+            base.InitializeScreen();
 
             ConfigureGrid();
 
-            applicationInstance.AddScreen(grid);
-
-            CreateModeScreens();
+            //CreateModeScreens();
         }
 
         private void ConfigureGrid()
@@ -40,7 +45,7 @@ namespace SelfDriving.Screens
             grid.AddRow();
 
             var selfTrainingMenuItem = GetSelfTrainingMenuItem();
-            var manualTrainingMenuItem = GetManualTrainingMenuItem();
+            var manualTrainingMenuItem = GetHumanTrainingMenuItem();
             var raceMenuItem = GetRaceMenuItem();
             var mapMakingMenuItem = GetMapMakingMenuItem();
 
@@ -49,36 +54,18 @@ namespace SelfDriving.Screens
             grid.AddMenuItem(1, 0, raceMenuItem);
             grid.AddMenuItem(1, 1, mapMakingMenuItem);
 
-            AddChildScreen(grid);
+            RegisterMouseClickCallback(new MouseClickCallbackEventArgs(Mouse.Button.Left), grid.OnMousePress);
         }
 
         private void CreateModeScreens()
         {
-            humanAssistedTrainingScreen = new HumanAssistedTrainingScreen(application, ParentApplication, this);
-            ParentApplication.AddScreen(humanAssistedTrainingScreen);
-            humanAssistedTrainingScreen.SetInactive();
-
-            mapMakingScreen = new MapMakingScreen(application, ParentApplication, this);
-            ParentApplication.AddScreen(mapMakingScreen);
-            mapMakingScreen.SetInactive();
-
             selfTrainingScreen = new SelfTrainingScreen(application, ParentApplication, this);
-            ParentApplication.AddScreen(selfTrainingScreen);
+            ParentApplication.AddChildScreen(selfTrainingScreen, this);
             selfTrainingScreen.SetInactive();
 
             raceScreen = new RaceScreen(application, ParentApplication, this);
-            ParentApplication.AddScreen(raceScreen);
+            ParentApplication.AddChildScreen(raceScreen, this);
             raceScreen.SetInactive();
-        }
-
-        private void Back()
-        {
-            humanAssistedTrainingScreen.SetInactive();
-            mapMakingScreen.SetInactive();
-            selfTrainingScreen.SetInactive();
-            raceScreen.SetInactive();
-
-            this.SetActive();
         }
 
         private MenuItem GetRaceMenuItem()
@@ -93,13 +80,12 @@ namespace SelfDriving.Screens
             };
             raceMenuItem.OnClick = () =>
             {
-                SetActiveScreen(raceScreen);
             };
 
             return raceMenuItem;
         }
 
-        private MenuItem GetManualTrainingMenuItem()
+        private MenuItem GetHumanTrainingMenuItem()
         {
             var humanAssistedMenuItem = new MenuItem("HumanAssisted");
             var humanAssistedTexture = new Texture(new Image("Resources/HumanAssistedDriving.png"));
@@ -111,7 +97,15 @@ namespace SelfDriving.Screens
             };
             humanAssistedMenuItem.OnClick = () =>
             {
-                SetActiveScreen(humanAssistedTrainingScreen);
+                if(humanAssistedTrainingScreen == null)
+                {
+                    humanAssistedTrainingScreen = new HumanAssistedTrainingScreen(application, ParentApplication, this);
+                    ParentApplication.AddChildScreen(humanAssistedTrainingScreen, this);
+                }
+                else
+                {
+                    ParentApplication.SetActiveScreen(humanAssistedTrainingScreen);
+                }
             };
 
             return humanAssistedMenuItem;
@@ -131,7 +125,6 @@ namespace SelfDriving.Screens
 
             selfTrainingMenuItem.OnClick = () =>
             {
-                SetActiveScreen(selfTrainingScreen);
             };
 
             return selfTrainingMenuItem;
@@ -150,27 +143,32 @@ namespace SelfDriving.Screens
 
             mapMakerMenuItem.OnClick = () =>
             {
-                SetActiveScreen(mapMakingScreen);
+                if(mapMakingScreen == null)
+                {
+                    mapMakingScreen = new MapMakingScreen(application, ParentApplication, this);
+                    ParentApplication.AddChildScreen(mapMakingScreen, this);
+                }
+                else
+                {
+                    ParentApplication.SetActiveScreen(mapMakingScreen);
+                }
             };
 
             return mapMakerMenuItem;
         }
 
-        public void SetActiveScreen(Screen screen)
+        public override void OnUpdate(float deltaT)
         {
-            SetInactive();
-            screen.SetActive();
+            base.OnUpdate(deltaT);
+
+            grid.OnUpdate(deltaT);
         }
 
-        public override void SetActive()
+        public override void OnRender(RenderTarget target)
         {
-            base.SetActive();
+            base.OnRender(target);
 
-            applicationInstance.GoBack = () =>
-            {
-                this.SetInactive();
-                this.applicationInstance.GoHome();
-            };
+            grid.OnRender(target);
         }
     }
 }

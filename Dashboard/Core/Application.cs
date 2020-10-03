@@ -44,7 +44,7 @@ namespace Dashboard.Core
 
             AppManager = new ApplicationManager(this);
 
-            AppManager.HomeApplication = new HomeApplicationInstance(this, AppManager.SetActiveApplication);
+            AppManager.HomeApplication = new HomeApplicationInstance(this);
 
             AppManager.HomeApplication.EventService = EventService;
 

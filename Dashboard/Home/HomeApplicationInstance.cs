@@ -13,17 +13,13 @@ namespace Dashboard.Core
     {
         private List<ApplicationInstanceVisual> applications;
 
-        private Action<IApplicationInstance> setActiveApplication;
-
-        public HomeApplicationInstance(IApplication application, Action<IApplicationInstance> setActiveApplication)
+        public HomeApplicationInstance(IApplication application) : base(application)
         {
             this.Application = application;
 
-            this.setActiveApplication = setActiveApplication;
-
             this.applications = new List<ApplicationInstanceVisual>();
 
-            this.GoHome = () => setActiveApplication(this);
+            this.GoHome = () => application.ApplicationManager.GoHome();
 
             var applicationTypes = ApplicationLoader.GetApplicationsInstances();
 
@@ -37,7 +33,6 @@ namespace Dashboard.Core
                 try
                 {
                     applicationInstance = (IApplicationInstance)Activator.CreateInstance(type, application);
-                    applicationInstance.GoHome = () => setActiveApplication(this);
                     applicationInstance.EventService = application.EventService;
                     applicationInstance.NotificationService = application.NotificaitonService;
                 }
@@ -74,13 +69,13 @@ namespace Dashboard.Core
 
         public RectangleShape Thumbnail { get; set; }
 
-        public void AddScreen(Screen screen) => ScreenManager.AddScreen(screen);
-
-        public void RemoveScreen(Screen screen) => ScreenManager.RemoveScreen(screen);
-
         public new void Initialize()
         {
-            AddScreen(new HomeScreen(Application, this, this.setActiveApplication, applications));
+            var homeScreen = new HomeScreen(Application, this, applications);
+
+            AddChildScreen(homeScreen, null);
+
+            SetActiveScreen(homeScreen);
 
             base.Initialize();
         }

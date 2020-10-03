@@ -1,8 +1,7 @@
 ﻿using SFML.Graphics;
 using SFML.Window;
-using Shared.Core;
+using Shared.Core.Hierarchy;
 using Shared.Interfaces;
-using System;
 
 namespace Dashboard.Core
 {
@@ -60,7 +59,6 @@ namespace Dashboard.Core
                 // Every time an application becomes active, we call start, regardless of initialization status.
                 ActiveApplication.Start();
             }
-
         }
 
         private void OnKeyPressed(object sender, KeyEventArgs e)
@@ -76,6 +74,11 @@ namespace Dashboard.Core
                 // We always reset the camera to the default view
                 Window.SetView(application.GetDefaultView());
             }
+        }
+
+        public void GoHome()
+        {
+            ActiveApplication = HomeApplication;
         }
     }
 }

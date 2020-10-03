@@ -11,6 +11,10 @@ namespace Shared.Interfaces
             MouseClickCallbackEventArgs eventArgs,
             Action<MouseClickEventArgs> callback);
 
+        public void RegisterMouseWheelScrollCallback(
+            Guid screenId,
+            Action<MouseWheelScrolledEventArgs> callback);
+
         public void RegisterMouseMoveCallback(
             Guid screenId,
             Action<MoveMouseEventArgs> callback);

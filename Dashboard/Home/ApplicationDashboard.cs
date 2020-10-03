@@ -28,27 +28,28 @@ namespace Dashboard.Home
         private RectangleShape leftVisual;
         private RectangleShape rightVisual;
         private RectangleShape selectedVisual;
-        private Action<IApplicationInstance> setActiveApplication;
+        private IApplicationManager applicationManager;
 
         public ApplicationDashboard(
             List<ApplicationInstanceVisual> applications,
-            Action<IApplicationInstance> setActiveApplication, 
-            IApplication application)
+            IApplication application,
+            Screen parent)
         {
             defaultFont = new Font("Resources\\font.ttf");
             selectedIconSize = new Vector2u(300, 300);
             nonSelectedIconSize = new Vector2u(220, 220);
             this.applications = applications;
+            this.applicationManager = application.ApplicationManager;
             this.size = application.Window.Size;
             this.UpdateSizingAndSpacing();
-            this.setActiveApplication = setActiveApplication;
 
             Texture blueprint = new Texture(CreateBlueprint(size.X, size.Y));
             background = new Sprite(blueprint);
 
-            application.Window.KeyPressed += KeyPressed;
-            application.Window.MouseWheelScrolled += OnMouseMove;
-            application.Window.MouseButtonPressed += OnMouseClick;
+            parent.RegisterKeyboardCallback(new KeyPressCallbackEventArgs(Keyboard.Key.Left), LeftKeyPressed);
+            parent.RegisterKeyboardCallback(new KeyPressCallbackEventArgs(Keyboard.Key.Right), RightKeyPressed);
+            parent.RegisterMouseClickCallback(new MouseClickCallbackEventArgs(Mouse.Button.Left), OnMouseClick);
+            parent.RegisterMouseWheelScrollCallback(OnMouseWheelMove);
 
             IsActive = true;
 
@@ -57,14 +58,9 @@ namespace Dashboard.Home
             rightVisual = new RectangleShape(new Vector2f(nonSelectedIconSize.X, nonSelectedIconSize.Y));
         }
 
-        private void OnMouseMove(object sender, MouseWheelScrollEventArgs e)
+        private void OnMouseWheelMove(MouseWheelScrolledEventArgs eventArgs)
         {
-            if (!IsActive)
-            {
-                return;
-            }
-
-            if (e.Delta < 0)
+            if (eventArgs.Args.Delta < 0)
             {
                 selectedApplicationIndex -= 1;
                 if (selectedApplicationIndex < 0)
@@ -82,54 +78,40 @@ namespace Dashboard.Home
             }
         }
 
-        private void OnMouseClick(object sender, MouseButtonEventArgs e)
+        private void LeftKeyPressed(KeyboardEventArgs _)
         {
-            if (!IsActive)
+            selectedApplicationIndex -= 1;
+            if (selectedApplicationIndex < 0)
             {
-                return;
-            }
-
-            if (selectedVisual.GetGlobalBounds().Contains(e.X, e.Y))
-            {
-                setActiveApplication(applications[GetSelectedApplicationIndex()].ApplicationInstance);
-            }
-
-            if (leftVisual.GetGlobalBounds().Contains(e.X, e.Y))
-            {
-                setActiveApplication(applications[GetLeftApplicationIndex()].ApplicationInstance);
-            }
-
-            if (rightVisual.GetGlobalBounds().Contains(e.X, e.Y))
-            {
-                setActiveApplication(applications[GetRightApplicationIndex()].ApplicationInstance);
+                selectedApplicationIndex = applications.Count - 1;
             }
         }
 
-        private void KeyPressed(object sender, KeyEventArgs e)
+        private void RightKeyPressed(KeyboardEventArgs _)
         {
-            if (!IsActive)
+            selectedApplicationIndex += 1;
+            if (selectedApplicationIndex >= applications.Count)
             {
-                return;
+                selectedApplicationIndex = 0;
+            }
+        }
+
+        private void OnMouseClick(MouseClickEventArgs eventArgs)
+        {
+            if (selectedVisual.GetGlobalBounds().Contains(eventArgs.Args.X, eventArgs.Args.Y))
+            {
+                applicationManager.SetActiveApplication(applications[GetSelectedApplicationIndex()].ApplicationInstance);
             }
 
-            if(e.Code == Keyboard.Key.Left)
+            if (leftVisual.GetGlobalBounds().Contains(eventArgs.Args.X, eventArgs.Args.Y))
             {
-                selectedApplicationIndex -= 1;
-                if(selectedApplicationIndex < 0)
-                {
-                    selectedApplicationIndex = applications.Count - 1;
-                }
-            }
-            else if (e.Code == Keyboard.Key.Right)
-            {
-                selectedApplicationIndex += 1;
-                if (selectedApplicationIndex >= applications.Count)
-                {
-                    selectedApplicationIndex = 0;
-                }
+                applicationManager.SetActiveApplication(applications[GetLeftApplicationIndex()].ApplicationInstance);
             }
 
-            // Note this should start an animated transition using the tween/easings code.
+            if (rightVisual.GetGlobalBounds().Contains(eventArgs.Args.X, eventArgs.Args.Y))
+            {
+                applicationManager.SetActiveApplication(applications[GetRightApplicationIndex()].ApplicationInstance);
+            }
         }
 
         public void Update(float deltaT)

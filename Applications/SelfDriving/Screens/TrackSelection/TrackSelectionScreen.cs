@@ -26,15 +26,10 @@ namespace SelfDriving.Screens.TrackSelection
             string trackDirectory) : base(configuration, application)
         {
             grid = new GridScreen(configuration, application);
-            grid.SetInactive();
-
-            AddChildScreen(grid);
 
             tracks = TrackHelper.LoadTrackFiles(trackDirectory);
 
             PopulateTrackVisuals();
-
-            application.AddScreen(grid);
         }
 
         public void InsertTrack(Track track, int index)
@@ -129,6 +124,13 @@ namespace SelfDriving.Screens.TrackSelection
             {
                 return null;
             }
+        }
+
+        public override void OnUpdate(float deltaT)
+        {
+            base.OnUpdate(deltaT);
+
+            grid.OnUpdate(deltaT);
         }
 
         public override void OnRender(RenderTarget target)

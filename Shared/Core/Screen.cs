@@ -25,13 +25,10 @@ namespace Shared.Core
 
         public IApplicationInstance ParentApplication { get; set; }
 
-        private List<Screen> childScreens;
-
         public Screen(ScreenConfiguration configuration, IApplicationInstance applicationInstance)
         {
             Camera = new Camera(configuration);
             ParentApplication = applicationInstance;
-            childScreens = new List<Screen>();
 
             IsUpdate = true;
             IsDraw = true;
@@ -48,13 +45,11 @@ namespace Shared.Core
         public void RegisterMouseMoveCallback(Action<MoveMouseEventArgs> callback) =>
             ParentApplication.EventService.RegisterMouseMoveCallback(this.Id, callback);
 
+        public void RegisterMouseWheelScrollCallback(Action<MouseWheelScrolledEventArgs> callback) =>
+            ParentApplication.EventService.RegisterMouseWheelScrollCallback(this.Id, callback);
+
         public void RegisterKeyboardCallback(KeyPressCallbackEventArgs eventArgs, Action<KeyboardEventArgs> callback) =>
             ParentApplication.EventService.RegisterKeyboardCallback(this.Id, eventArgs, callback);
-
-        public void AddChildScreen(Screen childScreen)
-        {
-            childScreens.Add(childScreen);
-        }
 
         public virtual void OnUpdate(float deltaT)
         {
@@ -90,16 +85,12 @@ namespace Shared.Core
         {
             IsUpdate = false;
             IsDraw = false;
-
-            childScreens.ForEach(s => s.SetInactive());
         }
 
         public virtual void SetActive()
         {
             IsUpdate = true;
             IsDraw = true;
-
-            childScreens.ForEach(s => s.SetActive());
         }
 
         public void SetUpdateInactive()
