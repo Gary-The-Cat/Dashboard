@@ -3,7 +3,7 @@ using SFML.System;
 
 namespace SelfDriving.Interfaces
 {
-    public interface ICarAI
+    public interface ICarController
     {
         void Initalize(CarConfiguration configuration);
 

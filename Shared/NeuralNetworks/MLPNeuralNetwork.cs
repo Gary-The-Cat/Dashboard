@@ -94,7 +94,7 @@ namespace Shared.NeuralNetworks
 
                     if (j % 100 == 0)
                     {
-                        reportProgress?.Invoke(j, totalSteps);
+                        reportProgress?.Invoke(j + (i * inputData.Count), totalSteps);
                     }
                 }
             }

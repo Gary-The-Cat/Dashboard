@@ -2,9 +2,6 @@
 using SFML.System;
 using Shared.Core;
 using Shared.Interfaces;
-using Shared.Maths;
-using System;
-using System.Diagnostics;
 
 namespace EasingDemo.Screens
 {
@@ -15,7 +12,7 @@ namespace EasingDemo.Screens
         public EasingDemoScreen(
             IApplication application, 
             IApplicationInstance applicationInstance,
-            Color color) : base(application.Configuration, applicationInstance)
+            Color color) : base(application, applicationInstance)
         {
             var size = application.Window.Size;
 
@@ -27,35 +24,11 @@ namespace EasingDemo.Screens
                 Scale = new Vector2f(0,0),
                 FillColor = color
             };
-
-            //_ = new EasingWorker(
-            //    Easings.EaseInOutCirc,
-            //    a => 
-            //    {
-            //        sprite.Scale = new Vector2f((float)a, (float)a);
-            //    }, 
-            //    durationMillis: 2000,
-            //    maxValue: 2);
-        }
-
-        public void OnEnter()
-        {
-            Debug.WriteLine("EasingDemoScreen: Enter");
-        }
-
-        public override void OnUpdate(float dt)
-        {
-
         }
 
         public override void OnRender(RenderTarget target)
         {
             target.Draw(sprite);
-        }
-
-        public void OnExit()
-        {
-            Console.WriteLine("EasingDemoScreen: Exit");
         }
     }
 }

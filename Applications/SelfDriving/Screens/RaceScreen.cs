@@ -11,7 +11,7 @@ namespace SelfDriving.Screens
         public RaceScreen(
             IApplication application,
             IApplicationInstance applicationInstance,
-            Screen parentScreen) : base(application.Configuration, applicationInstance)
+            Screen parentScreen) : base(application, applicationInstance)
         {
 
         }

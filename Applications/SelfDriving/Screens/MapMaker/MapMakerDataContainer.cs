@@ -139,6 +139,13 @@ namespace SelfDriving.Screens.MapMaker
             return (nearestPoint, closestDistance);
         }
 
+        public void Clear()
+        {
+            trackSegments.Clear();
+            StartPosition = new Vector2f();
+            EditState = MapEditState.DrawingLines;
+        }
+
         public (Guid?, double) GetNearestLine(Vector2f point, bool isDrawing)
         {
             Guid? nearestPoint = null;

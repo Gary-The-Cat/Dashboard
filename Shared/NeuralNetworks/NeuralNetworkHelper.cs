@@ -46,5 +46,58 @@ namespace Shared.NeuralNetworks
 
             return network;
         }
+
+        public static (List<float[]>, List<float[]>) ReduceDataset(List<float[]> inputData, List<float[]> expectedOutputData)
+        {
+            var accellerateData = new List<(float[], float[])>();
+            var brakeData = new List<(float[], float[])>();
+            var turnLeftData = new List<(float[], float[])>();
+            var turnRightData = new List<(float[], float[])>();
+
+            for (int i = 0; i < inputData.Count; i++)
+            {
+                if (expectedOutputData[i][0] > 0)
+                {
+                    accellerateData.Add((inputData[i], expectedOutputData[i]));
+                }
+
+                if (expectedOutputData[i][1] > 0)
+                {
+                    turnLeftData.Add((inputData[i], expectedOutputData[i]));
+                }
+
+                if (expectedOutputData[i][2] > 0)
+                {
+                    turnRightData.Add((inputData[i], expectedOutputData[i]));
+                }
+
+                if (expectedOutputData[i][3] > 0)
+                {
+                    brakeData.Add((inputData[i], expectedOutputData[i]));
+                }
+            }
+
+            var minCount = Math.Min(Math.Min(
+                accellerateData.Count(),
+                turnLeftData.Count()),
+                turnRightData.Count());
+
+            var resultInputData = new List<float[]>();
+            var resultExpectedOutputData = new List<float[]>();
+
+            for (int i = 0; i < minCount; i++)
+            {
+                resultInputData.Add(accellerateData[i].Item1);
+                resultExpectedOutputData.Add(accellerateData[i].Item2);
+
+                resultInputData.Add(turnLeftData[i].Item1);
+                resultExpectedOutputData.Add(turnLeftData[i].Item2);
+
+                resultInputData.Add(turnRightData[i].Item1);
+                resultExpectedOutputData.Add(turnRightData[i].Item2);
+            }
+
+            return (resultInputData, resultExpectedOutputData);
+        }
     }
 }

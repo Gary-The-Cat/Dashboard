@@ -8,10 +8,8 @@ namespace RockSlinger
 {
     public class RockSlingerInstance : ApplicationInstanceBase, IApplicationInstance
     {
-        public RockSlingerInstance(IApplication application)
+        public RockSlingerInstance(IApplication application) : base(application)
         {
-            this.Application = application;
-
             Texture texture = new Texture(new Image("Resources\\RockSlinger.png"));
             texture.GenerateMipmap();
             texture.Smooth = true;
@@ -22,28 +20,13 @@ namespace RockSlinger
             };
         }
 
-        public IApplication Application { get; set; }
-
         public string DisplayName => "Rock Slinger";
-
-        public RectangleShape Thumbnail { get; set; }
-
-        public void AddScreen(Screen screen) => ScreenManager.AddScreen(screen);
-
-        public void RemoveScreen(Screen screen) => ScreenManager.RemoveScreen(screen);
 
         public new void Initialize()
         {
-            AddScreen(new LevelEditorScreen(Application, this));
+            AddChildScreen(new LevelEditorScreen(Application, this), null);
 
             base.Initialize();
-        }
-
-        public new void Start()
-        {
-            base.Start();
-
-            Application.Window.SetMouseCursorVisible(true);
         }
     }
 }

@@ -28,7 +28,7 @@ namespace Dashboard.Screens
         public HomeScreen(
             IApplication application,
             IApplicationInstance applicationInstance,
-            List<ApplicationInstanceVisual> applicationInstances) : base(application.Configuration, applicationInstance)
+            List<ApplicationInstanceVisual> applicationInstances) : base(application, applicationInstance)
         {
             this.application = application;
             this.applicationInstance = applicationInstance;

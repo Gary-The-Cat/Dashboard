@@ -1,7 +1,7 @@
 ﻿using SFML.Graphics;
 using Shared.Interfaces;
-using Shared.ScreenConfig;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Shared.Core.Hierarchy
 {
@@ -9,15 +9,27 @@ namespace Shared.Core.Hierarchy
     {
         private List<Screen> screens;
 
-        public StackedScreen(ScreenConfiguration configuration, IApplicationInstance applicationInstance) 
-            : base(configuration, applicationInstance)
+        public IEnumerable<Screen> ReversedScreens => screens.AsEnumerable().Reverse();
+
+        public StackedScreen(IApplication application, IApplicationInstance applicationInstance) 
+            : base(application, applicationInstance)
         {
             screens = new List<Screen>();
         }
 
         public void AddScreen(Screen screen)
         {
+            // Set the Id for the stacked/container for this screen
+            screen.StackedParentId = this.Id;
+
             screens.Add(screen);
+        }
+
+        public override void InitializeScreen()
+        {
+            base.InitializeScreen();
+
+            screens.ForEach(screen => screen.InitializeScreen());
         }
 
         public override void OnUpdate(float deltaT)

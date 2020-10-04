@@ -27,7 +27,7 @@ namespace SelfDriving.Screens.MapMaker
             IApplication application, 
             IApplicationInstance applicationInstance,
             MapMakerDataContainer sharedContainer) 
-            : base(application.Configuration, applicationInstance)
+            : base(application, applicationInstance)
         {
             this.application = application;
 

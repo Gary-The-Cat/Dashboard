@@ -10,7 +10,6 @@ using Shared.NeuralNetworks;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 
 namespace DigitRecognition.Screens
@@ -29,14 +28,11 @@ namespace DigitRecognition.Screens
         private RectangleShape[,] imageCanvas;
         private Text feedbackText;
 
-        private IApplication application;
-
         public DigitRecognitionScreen(
             IApplication application,
             IApplicationInstance applicationInstance)
-            : base(application.Configuration, applicationInstance)
+            : base(application, applicationInstance)
         {
-            this.application = application;
 
             var currentDirectory = Directory.GetCurrentDirectory();
             var imagePath = Path.Combine(currentDirectory, "Resources", "train-images.idx3-ubyte");
@@ -104,7 +100,7 @@ namespace DigitRecognition.Screens
             var canvas = new RectangleShape[ImageWidth, ImageHeight];
 
             var canvasSize = PixelSize * ImageHeight;
-            var remainingSpace = application.Window.Size.Y - canvasSize;
+            var remainingSpace = Application.Window.Size.Y - canvasSize;
             var offset = new Vector2f(remainingSpace / 2, remainingSpace / 2);
             var pixelSize = new Vector2f(PixelSize, PixelSize);
 

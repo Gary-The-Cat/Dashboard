@@ -8,10 +8,8 @@ namespace MazeSolver
 {
     public class MazeSolverInstance : ApplicationInstanceBase, IApplicationInstance
     {
-        public MazeSolverInstance(IApplication application)
+        public MazeSolverInstance(IApplication application) : base(application)
         {
-            this.Application = application;
-
             var texture = new Texture(new Image("Resources\\MazeSolver.png"));
             texture.GenerateMipmap();
             texture.Smooth = true;
@@ -22,26 +20,13 @@ namespace MazeSolver
             };
         }
 
-        public IApplication Application { get; set; }
-
         public string DisplayName => "Maze Solver";
-
-        public RectangleShape Thumbnail { get; set; }
-
-        public void AddScreen(Screen screen) => ScreenManager.AddScreen(screen);
-
-        public void RemoveScreen(Screen screen) => ScreenManager.RemoveScreen(screen);
 
         public new void Initialize()
         {
-            AddScreen(new MazeSolverScreen(Application, this));
+            AddChildScreen(new MazeSolverScreen(Application, this), null);
 
             base.Initialize();
-        }
-
-        public new void Start()
-        {
-            base.Start();
         }
     }
 }

@@ -3,15 +3,17 @@ using Shared.CameraTools;
 using Shared.Events.CallbackArgs;
 using Shared.Events.EventArgs;
 using Shared.Interfaces;
-using Shared.ScreenConfig;
 using System;
-using System.Collections.Generic;
 
 namespace Shared.Core
 {
     public class Screen
     {
         public Guid Id { get; set; }
+
+        public Guid StackedParentId { get; set; }
+
+        public bool IsStackedChild => StackedParentId != default;
 
         public Camera Camera { get; set; }
 
@@ -23,12 +25,15 @@ namespace Shared.Core
 
         public bool IsApplicationActive { get; set; }
 
+        public IApplication Application { get; set; }
+
         public IApplicationInstance ParentApplication { get; set; }
 
-        public Screen(ScreenConfiguration configuration, IApplicationInstance applicationInstance)
+        public Screen(IApplication application, IApplicationInstance applicationInstance)
         {
-            Camera = new Camera(configuration);
+            Camera = new Camera(application.Configuration);
             ParentApplication = applicationInstance;
+            Application = application;
 
             IsUpdate = true;
             IsDraw = true;

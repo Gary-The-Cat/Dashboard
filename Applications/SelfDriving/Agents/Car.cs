@@ -18,7 +18,7 @@ namespace SelfDriving.Agents
     {
         public Guid Id { get; }
 
-        public ICarAI Controller { get; private set; }
+        public ICarController Controller { get; private set; }
 
         public CarConfiguration Configuration { get; }
 
@@ -54,7 +54,7 @@ namespace SelfDriving.Agents
 
         public List<LineSegment> Raycasts { get; private set; }
 
-        public Car(ICarAI controller)
+        public Car(ICarController controller)
         {
             this.Id = Guid.NewGuid();
 

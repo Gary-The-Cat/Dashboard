@@ -8,10 +8,8 @@ namespace DigitRecognition
 {
     public class DigitRecognitionInstance : ApplicationInstanceBase, IApplicationInstance
     {
-        public DigitRecognitionInstance(IApplication application)
+        public DigitRecognitionInstance(IApplication application) : base(application)
         {
-            this.Application = application;
-
             Texture texture = new Texture(new Image("Resources\\DigitRecognition.png"));
             texture.GenerateMipmap();
             texture.Smooth = true;
@@ -22,26 +20,13 @@ namespace DigitRecognition
             };
         }
 
-        public IApplication Application { get; set; }
-
         public string DisplayName => "Digit Recognition";
-
-        public RectangleShape Thumbnail { get; set; }
-
-        public void AddScreen(Screen screen) => ScreenManager.AddScreen(screen);
-
-        public void RemoveScreen(Screen screen) => ScreenManager.RemoveScreen(screen);
 
         public new void Initialize()
         {
-            AddScreen(new DigitRecognitionScreen(Application, this));
+            AddChildScreen(new DigitRecognitionScreen(Application, this), null);
 
             base.Initialize();
-        }
-
-        public new void Start()
-        {
-            base.Start();
         }
     }
 }

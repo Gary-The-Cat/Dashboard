@@ -18,7 +18,7 @@ namespace CameraCapture.Screens
         public CameraCaptreScreen(
             IApplication application,
             IApplicationInstance applicationInstance) 
-            : base(application.Configuration, applicationInstance)
+            : base(application, applicationInstance)
         {
             var size = new Vector2f(application.Window.Size.X, application.Window.Size.Y);
 

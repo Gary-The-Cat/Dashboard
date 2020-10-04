@@ -2,7 +2,6 @@ using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using Shared.CameraTools;
-using Shared.Events;
 using Shared.Interfaces;
 using Shared.Notifications;
 using Shared.ScreenConfig;

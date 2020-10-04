@@ -15,8 +15,6 @@ namespace Dashboard.Core
 
         public HomeApplicationInstance(IApplication application) : base(application)
         {
-            this.Application = application;
-
             this.applications = new List<ApplicationInstanceVisual>();
 
             this.GoHome = () => application.ApplicationManager.GoHome();
@@ -63,11 +61,7 @@ namespace Dashboard.Core
             }
         }
 
-        public IApplication Application { get; set; }
-
         public string DisplayName => "Home";
-
-        public RectangleShape Thumbnail { get; set; }
 
         public new void Initialize()
         {

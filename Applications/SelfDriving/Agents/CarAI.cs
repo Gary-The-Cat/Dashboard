@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace SelfDriving.Agents
 {
-    public class CarAI : ICarAI, IIndividual
+    public class CarAI : ICarController, IIndividual
     {
         private int InputNodes => this.networkStructure[0];
 

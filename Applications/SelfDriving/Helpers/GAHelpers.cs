@@ -34,7 +34,7 @@ namespace SelfDriving.Helpers
                 offsprintWeights.Add(i < crossoverPosition ? motherWeights[i] : fatherWeights[i]);
             }
 
-            var offspring = new CarAI(new int[] { 12, 12, 12, 4 }, random, offsprintWeights);
+            var offspring = new CarAI(mother.Network.GetStructure(), random, offsprintWeights);
 
             offspring.Initalize(((CarAI)mother).Configuration);
 

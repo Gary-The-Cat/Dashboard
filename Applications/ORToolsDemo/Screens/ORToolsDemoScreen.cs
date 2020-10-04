@@ -17,7 +17,7 @@ namespace ORToolsDemo.Screens
         public ORToolsDemoScreen(
             IApplication application,
             IApplicationInstance applicationInstance) 
-            : base(application.Configuration, applicationInstance)
+            : base(application, applicationInstance)
         {
             graph = new CartesianGraph(application.Window.Size, new Vector2u(20, 10) * 2);
             graph.SetAxisCentred(true);

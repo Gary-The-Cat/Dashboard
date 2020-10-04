@@ -8,10 +8,8 @@ namespace CameraCapture
 {
     public class CameraCaptureInstance : ApplicationInstanceBase, IApplicationInstance
     {
-        public CameraCaptureInstance(IApplication application)
+        public CameraCaptureInstance(IApplication application) : base(application)
         {
-            this.Application = application;
-
             Texture texture = new Texture(new Image("Resources\\CameraCapture.png"));
             texture.GenerateMipmap();
             texture.Smooth = true;
@@ -22,19 +20,11 @@ namespace CameraCapture
             };
         }
 
-        public IApplication Application { get; set; }
-
         public string DisplayName => "Camera Capture";
-
-        public RectangleShape Thumbnail { get; set; }
-
-        public void AddScreen(Screen screen) => ScreenManager.AddScreen(screen);
-
-        public void RemoveScreen(Screen screen) => ScreenManager.RemoveScreen(screen);
 
         public new void Initialize()
         {
-            AddScreen(new CameraCaptreScreen(Application, this));
+            AddChildScreen(new CameraCaptreScreen(Application, this), null);
 
             base.Initialize();
         }

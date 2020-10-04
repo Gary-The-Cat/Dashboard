@@ -1,14 +1,12 @@
 ﻿using SelfDriving.Agents;
 using SFML.Graphics;
 using Shared.CameraTools;
-using Shared.Core;
-using Shared.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SelfDriving.Shared
+namespace SelfDriving.Shared.RaceSimulation
 {
-    public class RacingSimulationVisualization : Screen
+    public class RacingSimulationVisualization
     {
         private List<CarVisual> carVisuals;
 
@@ -21,17 +19,14 @@ namespace SelfDriving.Shared
         private CarVisual TrackedCar => carVisuals.Where(c => c.IsRunning).OrderByDescending(c => c.TotalDistance).FirstOrDefault();
 
         public RacingSimulationVisualization(
-            IApplication application,
-            IApplicationInstance applicationInstance,
-            RacingSimulation simulation) 
-            : base(application.Configuration, applicationInstance)
+            RacingSimulationLogic simulation)
         {
             this.camera = new Camera(simulation.application.Configuration);
 
             this.carVisuals = new List<CarVisual>();
         }
 
-        public override void OnUpdate(float dt)
+        public void OnUpdate(float dt)
         {
             if (!IsRunning)
             {
@@ -45,7 +40,7 @@ namespace SelfDriving.Shared
             camera.Update(dt);
         }
 
-        public override void OnRender(RenderTarget target)
+        public void OnRender(RenderTarget target)
         {
             target.SetView(camera.GetView());
 

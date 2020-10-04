@@ -41,7 +41,7 @@ namespace MazeSolver.Screens
         public MazeSolverScreen(
             IApplication application,
             IApplicationInstance applicationInstance) 
-            :  base(application.Configuration, applicationInstance)
+            :  base(application, applicationInstance)
         {
             var size = new Vector2f(application.Window.Size.X, application.Window.Size.Y);
             isSolvingMaze = false;

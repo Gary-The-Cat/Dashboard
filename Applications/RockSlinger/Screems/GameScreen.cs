@@ -19,19 +19,14 @@ namespace RockSlinger.Screems
         public Vertex[] dirt;
         public Vertex[] grass;
         public Vertex[] background;
-        private ScreenConfiguration Configuration { get; set; }
 
-        private IApplication Application { get; set; }
+        private ScreenConfiguration Configuration => Application.Configuration;
 
         public GameScreen(
             IApplication application,
             IApplicationInstance applicationInstance) 
-            : base(application.Configuration, applicationInstance)
+            : base(application, applicationInstance)
         {
-            this.Application = application;
-
-            this.Configuration = application.Configuration;
-
             entities = new List<Drawable>();
 
             var dirtBottom = new Color(0x62, 0x43, 0x32);

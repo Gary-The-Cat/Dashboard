@@ -3,19 +3,17 @@ using SelfDriving.Interfaces;
 using Shared.Interfaces;
 using System.Collections.Generic;
 
-namespace SelfDriving.Shared
+namespace SelfDriving.Shared.RaceSimulation
 {
-    public class RacingSimulation
+    public class RacingSimulationLogic
     {
         internal IApplication application;
-
-        private RacingSimulationVisualization visualization;
 
         private List<Car> cars;
 
         private Track track;
 
-        public RacingSimulation(IApplication application)
+        public RacingSimulationLogic(IApplication application)
         {
             this.application = application;
 
@@ -46,21 +44,27 @@ namespace SelfDriving.Shared
             this.track = track;
         }
 
-        public void InitializeCars(IEnumerable<ICarAI> carAIs)
+        public void SetCars(IEnumerable<ICarController> carControllers)
         {
             this.cars.Clear();
 
-            foreach(var carAI in carAIs)
+            foreach (var carController in carControllers)
             {
                 // Create our car 
-                var car = new Car(carAI);
-
-                // Set the car to its initial state
-                car.SetCarStartState(track);
-                car.ResetCar();
+                var car = new Car(carController);
 
                 // Add the car to our local collection
                 this.cars.Add(car);
+            }
+        }
+
+        public void ResetCars()
+        {
+            foreach (var car in cars)
+            {
+                // Set the car to its initial state
+                car.SetCarStartState(track);
+                car.ResetCar();
             }
         }
     }

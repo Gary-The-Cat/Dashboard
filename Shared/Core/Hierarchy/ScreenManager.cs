@@ -34,14 +34,22 @@ namespace Shared.Core.Hierarchy
         public void AddChildScreen(Screen screen, Screen parentScreen)
         {
             int layerId = 0;
+
+            Screen adjustedParentScreen = parentScreen;
+
             if (parentScreen != null)
             {
-                if (!screenToLayerLookup.ContainsKey(parentScreen))
+                if (parentScreen.IsStackedChild)
+                {
+                    adjustedParentScreen = screenLookup[parentScreen.StackedParentId];
+                }
+
+                if (!screenToLayerLookup.ContainsKey(adjustedParentScreen))
                 {
                     throw new Exception("The parent screen cannot be found. Please ensure the parent screen has been added to the application before adding children.");
                 }
 
-                layerId = screenToLayerLookup[parentScreen] + 1;
+                layerId = screenToLayerLookup[adjustedParentScreen] + 1;
             }
 
             if (!layers.ContainsKey(layerId))
@@ -52,7 +60,7 @@ namespace Shared.Core.Hierarchy
             screenLookup.Add(screen.Id, screen);
             screenToLayerLookup.Add(screen, layerId);
             layers[layerId].AddScreen(screen);
-
+            screen.InitializeScreen();
             SetActiveScreen(screen);
         }
 
@@ -89,7 +97,7 @@ namespace Shared.Core.Hierarchy
 
         public void OnUpdate(float deltaT)
         {
-            
+            ActiveScreen.OnUpdate(deltaT);
         }
 
         public void OnRender(RenderTarget target)
@@ -127,11 +135,6 @@ namespace Shared.Core.Hierarchy
             //{
             //    screen.Start();
             //}
-        }
-
-        public bool IsScreenActive(Guid screenId)
-        {
-            return screenLookup[screenId].IsActive;
         }
 
         public IEnumerable<Guid> GetScreenIds()

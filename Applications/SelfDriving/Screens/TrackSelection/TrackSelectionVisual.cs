@@ -1,7 +1,7 @@
 ﻿using SelfDriving.Helpers;
 using SelfDriving.Shared;
 using SFML.Graphics;
-using Shared.Core;
+using Shared.Events.EventArgs;
 using Shared.Interfaces;
 using Shared.Menus;
 using Shared.ScreenConfig;
@@ -12,24 +12,29 @@ using System.Linq;
 
 namespace SelfDriving.Screens.TrackSelection
 {
-    public class TrackSelectionScreen : Screen
+    public class TrackSelectionVisual
     {
         private List<Track> tracks;
 
         private GridScreen grid;
 
-        public Action<Track> OnTrackSelected;
+        public Action<Track> OnTrackSelected { get; set; }
 
-        public TrackSelectionScreen(
+        public TrackSelectionVisual(
             ScreenConfiguration configuration,
             IApplicationInstance application,
-            string trackDirectory) : base(configuration, application)
+            string trackDirectory)
         {
             grid = new GridScreen(configuration, application);
 
             tracks = TrackHelper.LoadTrackFiles(trackDirectory);
 
             PopulateTrackVisuals();
+        }
+
+        public void OnMousePress(MouseClickEventArgs eventArgs)
+        {
+            grid.OnMousePress(eventArgs);
         }
 
         public void InsertTrack(Track track, int index)
@@ -86,7 +91,6 @@ namespace SelfDriving.Screens.TrackSelection
             trackVisual.OnClick = () =>
             {
                 this.OnTrackSelected?.Invoke(track);
-                grid.SetInactive();
             };
 
             return trackVisual;
@@ -103,7 +107,6 @@ namespace SelfDriving.Screens.TrackSelection
             trackVisual.OnClick = () =>
             {
                 this.OnTrackSelected?.Invoke(track);
-                grid.SetInactive();
             };
 
             return trackVisual;
@@ -126,14 +129,7 @@ namespace SelfDriving.Screens.TrackSelection
             }
         }
 
-        public override void OnUpdate(float deltaT)
-        {
-            base.OnUpdate(deltaT);
-
-            grid.OnUpdate(deltaT);
-        }
-
-        public override void OnRender(RenderTarget target)
+        public void OnRender(RenderTarget target)
         {
             grid.OnRender(target);
         }

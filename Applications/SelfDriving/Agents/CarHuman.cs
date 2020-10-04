@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace SelfDriving.Agents
 {
-    public class CarHuman : ICarAI
+    public class CarHuman : ICarController
     {
         private bool captureState;
 
@@ -43,6 +43,9 @@ namespace SelfDriving.Agents
 
             var controllerManager = new ControllerManager();
             gameController = controllerManager.GetController();
+
+            // Default the car configuration. Rarely ever changed, not even sure this needs to be exposed.
+            Configuration = new CarConfiguration();
         }
 
         public DrivingAction GetOutput(
@@ -168,14 +171,9 @@ namespace SelfDriving.Agents
             return isCapturingInput;
         }
 
-        public void StartCapture()
+        public void ToggleCapture()
         {
-            isCapturingInput = true;
-        }
-
-        public void StopCapture()
-        {
-            isCapturingInput = false;
+            isCapturingInput = !isCapturingInput;
         }
 
         public void ResetCapture()

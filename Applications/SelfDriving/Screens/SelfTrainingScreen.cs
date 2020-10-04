@@ -3,6 +3,7 @@ using SelfDriving.DataStructures;
 using SelfDriving.Helpers;
 using SelfDriving.Interfaces;
 using SelfDriving.Shared;
+using SelfDriving.Shared.RaceSimulation;
 using SFML.Graphics;
 using Shared.Core;
 using Shared.GeneticAlgorithms;
@@ -21,7 +22,7 @@ namespace SelfDriving.Screens
 
         private TrainState trainingState;
 
-        private RacingSimulation simulation;
+        private RacingSimulationLogic simulation;
 
         private RacingSimulationVisualization simulationVisualization;
 
@@ -42,9 +43,8 @@ namespace SelfDriving.Screens
         public SelfTrainingScreen(
             IApplication application, 
             IApplicationInstance applicationInstance,
-            Screen parentScreen,
             bool enableVisualization = true) 
-            : base(application.Configuration, applicationInstance)
+            : base(application, applicationInstance)
         {
             this.application = application;
             random = new Random();
@@ -68,11 +68,12 @@ namespace SelfDriving.Screens
             genericAlgorithm.SpawnPopulation();
 
             // Load the simulation
-            simulation = new RacingSimulation(application);
+            simulation = new RacingSimulationLogic(application);
             simulation.SetTrack(currentTrack);
 
             // Initialize the simulation
-            simulation.InitializeCars(genericAlgorithm.GetPopulation().Cast<ICarAI>());
+            simulation.SetCars(genericAlgorithm.GetPopulation().Cast<ICarController>());
+            simulation.ResetCars();
 
             // Add the metrics we will use to judge our cars fitness
             simulation.GetCars().ForEach(car => this.AddFitnessMetrics(car));
@@ -80,7 +81,7 @@ namespace SelfDriving.Screens
             // If the visualization is turned on, create it, set the track and add the cars.
             if (enableVisualization)
             {
-                simulationVisualization = new RacingSimulationVisualization(application, applicationInstance, simulation);
+                simulationVisualization = new RacingSimulationVisualization(simulation);
                 simulationVisualization.SetTrack(currentTrack);
                 simulationVisualization.InitializeCars(simulation.GetCars());
             }
@@ -142,7 +143,8 @@ namespace SelfDriving.Screens
             // Perform one generation of our GA
             genericAlgorithm.DoGeneration();
 
-            simulation.InitializeCars(genericAlgorithm.GetPopulation().Cast<ICarAI>());
+            simulation.SetCars(genericAlgorithm.GetPopulation().Cast<ICarController>());
+            simulation.ResetCars();
 
             // Add the metrics we will use to judge our cars fitness
             simulation.GetCars().ForEach(car => this.AddFitnessMetrics(car));

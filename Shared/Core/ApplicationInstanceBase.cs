@@ -13,6 +13,7 @@ namespace Shared.Core
         {
             Id = Guid.NewGuid();
             ScreenManager = new ScreenManager();
+            Application = application;
 
             this.GoHome = () => application.ApplicationManager.GoHome();
 
@@ -84,6 +85,10 @@ namespace Shared.Core
         public void RemoveScreen(Screen screen) => ScreenManager.RemoveScreen(screen);
 
         public Guid Id { get; set; }
+
+        public IApplication Application { get; set; }
+
+        public RectangleShape Thumbnail { get; set; }
 
         public Vector2f WindowSize { get; set; }
 

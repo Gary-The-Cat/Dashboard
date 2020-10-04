@@ -59,6 +59,6 @@ namespace Shared.Interfaces
 
         public void RemoveScreen(Screen screen);
 
-        public View GetDefaultView => Application.GetDefaultView();
+        public View DefaultView => Application.GetDefaultView();
     }
 }

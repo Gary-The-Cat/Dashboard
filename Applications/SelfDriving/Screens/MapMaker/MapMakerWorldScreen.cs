@@ -65,7 +65,7 @@ namespace SelfDriving.Screens.MapMaker
             IApplication application,
             IApplicationInstance applicationInstance,
             MapMakerDataContainer sharedContainer) 
-            : base(application.Configuration, applicationInstance)
+            : base(application, applicationInstance)
         {
             this.application = application;
             this.sharedContainer = sharedContainer;
@@ -139,6 +139,11 @@ namespace SelfDriving.Screens.MapMaker
 
         public void Initialize(Track track)
         {
+            sharedContainer.Clear();
+            isDrawing = false;
+            isMoving = false;
+            isPlacingStartPosition = false;
+
             foreach (var segment in track.Map)
             {
                 sharedContainer.AddSegment(segment.Start, segment.End, isTrack: true);
@@ -155,7 +160,7 @@ namespace SelfDriving.Screens.MapMaker
 
         public override void OnRender(RenderTarget target)
         {
-            base.OnRender(target);
+            target.SetView(Camera.GetView());
 
             target.Draw(carForScale);
 
@@ -173,6 +178,7 @@ namespace SelfDriving.Screens.MapMaker
         {
             base.OnUpdate(deltaT);
         }
+
         private void OnUndo(KeyboardEventArgs args)
         {
             commandManager.Undo();

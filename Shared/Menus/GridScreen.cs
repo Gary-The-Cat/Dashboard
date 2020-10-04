@@ -1,7 +1,5 @@
 ﻿using SFML.Graphics;
 using SFML.System;
-using SFML.Window;
-using Shared.Core;
 using Shared.Events.EventArgs;
 using Shared.Interfaces;
 using Shared.ScreenConfig;
@@ -9,7 +7,7 @@ using System;
 
 namespace Shared.Menus
 {
-    public class GridScreen : Screen
+    public class GridScreen
     {
         private const int MinPixelBuffer = 50;
 
@@ -26,7 +24,7 @@ namespace Shared.Menus
 
         public GridScreen(
             ScreenConfiguration configuration,
-            IApplicationInstance applicationInstance) : base (configuration, applicationInstance)
+            IApplicationInstance applicationInstance)
         {
             this.screenSize = new Vector2f(configuration.Width, configuration.Height);
 
@@ -140,9 +138,9 @@ namespace Shared.Menus
 
         public int NumRows => grid.GetLength(1);
 
-        public override void OnRender(RenderTarget target)
+        public void OnRender(RenderTarget target)
         {
-            target.SetView(applicationInstance.GetDefaultView);
+            target.SetView(applicationInstance.DefaultView);
 
             var size = GetFixedMaxSize();
 

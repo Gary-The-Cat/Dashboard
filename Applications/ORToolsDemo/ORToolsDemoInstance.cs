@@ -8,10 +8,8 @@ namespace ORToolsDemo
 {
     public class ORToolsDemoInstance : ApplicationInstanceBase, IApplicationInstance
     {
-        public ORToolsDemoInstance(IApplication application)
+        public ORToolsDemoInstance(IApplication application) : base(application)
         {
-            this.Application = application;
-
             Texture texture = new Texture(new Image("Resources\\ORTools.png"));
             texture.GenerateMipmap();
             texture.Smooth = true;
@@ -22,26 +20,13 @@ namespace ORToolsDemo
             };
         }
 
-        public IApplication Application { get; set; }
-
         public string DisplayName => "OR.Tools Demo";
-
-        public RectangleShape Thumbnail { get; set; }
-
-        public void AddScreen(Screen screen) => ScreenManager.AddScreen(screen);
-
-        public void RemoveScreen(Screen screen) => ScreenManager.RemoveScreen(screen);
 
         public new void Initialize()
         {
-            AddScreen(new ORToolsDemoScreen(Application, this));
+            AddChildScreen(new ORToolsDemoScreen(Application, this), null);
 
             base.Initialize();
-        }
-
-        public new void Start()
-        {
-            base.Start();
         }
     }
 }

@@ -7,10 +7,8 @@ namespace OrbitalMechanics
 {
     public class OrbitalMechanicsInstance : ApplicationInstanceBase, IApplicationInstance
     {
-        public OrbitalMechanicsInstance(IApplication application)
+        public OrbitalMechanicsInstance(IApplication application) : base(application)
         {
-            this.Application = application;
-
             Texture texture = new Texture(new Image("Resources\\OrbitalMechanics.png"));
             texture.GenerateMipmap();
             texture.Smooth = true;
@@ -21,28 +19,13 @@ namespace OrbitalMechanics
             };
         }
 
-        public IApplication Application { get; set; }
-
         public string DisplayName => "Orbital Mechanics";
-
-        public RectangleShape Thumbnail { get; set; }
-
-        public void AddScreen(Screen screen) => ScreenManager.AddScreen(screen);
-
-        public void RemoveScreen(Screen screen) => ScreenManager.RemoveScreen(screen);
 
         public new void Initialize()
         {
-            AddScreen(new OrbitalMechanicsScreen(Application, this));
+            AddChildScreen(new OrbitalMechanicsScreen(Application, this), null);
 
             base.Initialize();
-        }
-
-        public new void Start()
-        {
-            base.Start();
-
-            Application.Window.SetMouseCursorVisible(true);
         }
     }
 }

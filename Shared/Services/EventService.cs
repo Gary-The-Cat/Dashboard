@@ -1,4 +1,5 @@
 ﻿using SFML.Window;
+using Shared.Core.Hierarchy;
 using Shared.Events.CallbackArgs;
 using Shared.Events.EventArgs;
 using Shared.Interfaces;
@@ -43,34 +44,48 @@ namespace Shared.Services
                 var activeApplication = getActiveApplication();
 
                 // Iterate over each of the currently active screens in the application & perform any callbacks
-                var screenId = activeApplication.ScreenManager.ActiveScreen.Id;
+                var activeScreen = activeApplication.ScreenManager.ActiveScreen;
 
-                // This screen is not active, skip it
-                if (!activeApplication.ScreenManager.IsScreenActive(screenId))
+                if(activeScreen is StackedScreen stackedScreen)
                 {
-                    return;
-                }
-
-                // This screen is active but there are no events registered for this screen
-                if (!keyPressEvents.ContainsKey(screenId))
-                {
-                    return;
-                }
-
-                // There are events, and this screen is active, loop through each of its events and call them
-                foreach (var keyboardEvent in keyPressEvents[screenId])
-                {
-                    // If the event does not match the event arguments
-                    if (e.Code != keyboardEvent.args.Key || 
-                        keyboardEvent.args.IsCtrlModifierRequired != e.Control || 
-                        keyboardEvent.args.IsShiftModifierRequired != e.Shift)
+                    foreach (var screen in stackedScreen.ReversedScreens)
                     {
-                        continue;
-                    }
+                        ProcessKeyEvent(screen.Id, e, keyboardEventArgs);
 
-                    keyboardEvent.callback?.Invoke(keyboardEventArgs);
+                        if (keyboardEventArgs.IsHandled)
+                        {
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    ProcessKeyEvent(activeScreen.Id, e, keyboardEventArgs);
                 }
             };
+        }
+
+        private void ProcessKeyEvent(Guid screenId, KeyEventArgs e, KeyboardEventArgs keyboardEventArgs)
+        {
+            // This screen is active but there are no events registered for this screen
+            if (!keyPressEvents.ContainsKey(screenId))
+            {
+                return;
+            }
+
+            // There are events, and this screen is active, loop through each of its events and call them
+            foreach (var keyboardEvent in keyPressEvents[screenId])
+            {
+                // If the event does not match the event arguments
+                if (e.Code != keyboardEvent.args.Key ||
+                    keyboardEvent.args.IsCtrlModifierRequired != e.Control ||
+                    keyboardEvent.args.IsShiftModifierRequired != e.Shift)
+                {
+                    continue;
+                }
+
+                keyboardEvent.callback?.Invoke(keyboardEventArgs);
+            }
         }
 
         private void InitializeMouseClickListener(Window window)
@@ -81,32 +96,46 @@ namespace Shared.Services
                 var activeApplication = getActiveApplication();
 
                 // Iterate over each of the currently active screens in the application & perform any callbacks
-                var screenId = activeApplication.ScreenManager.ActiveScreen.Id;
+                var activeScreen = activeApplication.ScreenManager.ActiveScreen;                
 
-                // The screen is not active
-                if (!activeApplication.ScreenManager.IsScreenActive(screenId))
+                if (activeScreen is StackedScreen stackedScreen)
                 {
-                    return;
-                }
-
-                // There are no events set up for this screen
-                if (!mouseClickEvents.ContainsKey(screenId))
-                {
-                    return;
-                }
-
-                // There are events, and this screen is active, loop through each of its events and call them
-                foreach (var mouseEvent in mouseClickEvents[screenId])
-                {
-                    // If the event does not match the event arguments
-                    if (e.Button != mouseEvent.args.Button)
+                    foreach (var screen in stackedScreen.ReversedScreens)
                     {
-                        continue;
-                    }
+                        ProcessMouseClickEvent(screen.Id, e, mouseEventArgs);
 
-                    mouseEvent.callback?.Invoke(mouseEventArgs);
+                        if (mouseEventArgs.IsHandled)
+                        {
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    ProcessMouseClickEvent(activeScreen.Id, e, mouseEventArgs);
                 }
             };
+        }
+
+        private void ProcessMouseClickEvent(Guid screenId, MouseButtonEventArgs e, MouseClickEventArgs mouseEventArgs)
+        {
+            // There are no events set up for this screen
+            if (!mouseClickEvents.ContainsKey(screenId))
+            {
+                return;
+            }
+
+            // There are events, and this screen is active, loop through each of its events and call them
+            foreach (var mouseEvent in mouseClickEvents[screenId])
+            {
+                // If the event does not match the event arguments
+                if (e.Button != mouseEvent.args.Button)
+                {
+                    continue;
+                }
+
+                mouseEvent.callback?.Invoke(mouseEventArgs);
+            }
         }
 
 
@@ -118,26 +147,40 @@ namespace Shared.Services
                 var activeApplication = getActiveApplication();
 
                 // Iterate over each of the currently active screens in the application & perform any callbacks
-                var screenId = activeApplication.ScreenManager.ActiveScreen.Id;
+                var activeScreen = activeApplication.ScreenManager.ActiveScreen;
 
-                // The screen is not active
-                if (!activeApplication.ScreenManager.IsScreenActive(screenId))
+                if(activeScreen is StackedScreen stackedScreen)
                 {
-                    return;
+                    foreach (var screen in stackedScreen.ReversedScreens)
+                    {
+                        ProcessMouseMoveEvent(screen.Id, mouseMoveEventArgs);
+
+                        if (mouseMoveEventArgs.IsHandled)
+                        {
+                            break;
+                        }
+                    }
                 }
-
-                // There are no events set up for this screen
-                if (!mouseMoveEvents.ContainsKey(screenId))
+                else
                 {
-                    return;
-                }
-
-                // There are events, and this screen is active, loop through each of its events and call them
-                foreach (var mouseEvent in mouseMoveEvents[screenId])
-                {
-                    mouseEvent?.Invoke(mouseMoveEventArgs);
+                    ProcessMouseMoveEvent(activeScreen.Id, mouseMoveEventArgs);
                 }
             };
+        }
+
+        private void ProcessMouseMoveEvent(Guid screenId, MoveMouseEventArgs mouseMoveEventArgs)
+        {
+            // There are no events set up for this screen
+            if (!mouseMoveEvents.ContainsKey(screenId))
+            {
+                return;
+            }
+
+            // There are events, and this screen is active, loop through each of its events and call them
+            foreach (var mouseEvent in mouseMoveEvents[screenId])
+            {
+                mouseEvent?.Invoke(mouseMoveEventArgs);
+            }
         }
 
         private void InitializeMouseScrollListener(Window window)
@@ -148,26 +191,40 @@ namespace Shared.Services
                 var activeApplication = getActiveApplication();
 
                 // Iterate over each of the currently active screens in the application & perform any callbacks
-                var screenId = activeApplication.ScreenManager.ActiveScreen.Id;
+                var activeScreen = activeApplication.ScreenManager.ActiveScreen;
 
-                // The screen is not active
-                if (!activeApplication.ScreenManager.IsScreenActive(screenId))
+                if (activeScreen is StackedScreen stackedScreen)
                 {
-                    return;
+                    foreach (var screen in stackedScreen.ReversedScreens)
+                    {
+                        ProcessMouseScrollEvent(screen.Id, mouseScrolledEventArgs);
+
+                        if (mouseScrolledEventArgs.IsHandled)
+                        {
+                            break;
+                        }
+                    }
                 }
-
-                // There are no events set up for this screen
-                if (!mouseMoveEvents.ContainsKey(screenId))
+                else
                 {
-                    return;
-                }
-
-                // There are events, and this screen is active, loop through each of its events and call them
-                foreach (var mouseEvent in mouseScrollEvents[screenId])
-                {
-                    mouseEvent?.Invoke(mouseScrolledEventArgs);
+                    ProcessMouseScrollEvent(activeScreen.Id, mouseScrolledEventArgs);
                 }
             };
+        }
+
+        private void ProcessMouseScrollEvent(Guid screenId, MouseWheelScrolledEventArgs mouseScrolledEventArgs)
+        {
+            // There are no events set up for this screen
+            if (!mouseScrollEvents.ContainsKey(screenId))
+            {
+                return;
+            }
+
+            // There are events, and this screen is active, loop through each of its events and call them
+            foreach (var mouseEvent in mouseScrollEvents[screenId])
+            {
+                mouseEvent?.Invoke(mouseScrolledEventArgs);
+            }
         }
 
         private void InitializeJoystickButtonListener(Window window)
@@ -179,12 +236,6 @@ namespace Shared.Services
 
                 // Iterate over each of the currently active screens in the application & perform any callbacks
                 var screenId = activeApplication.ScreenManager.ActiveScreen.Id;
-
-                // The screen is not active
-                if (!activeApplication.ScreenManager.IsScreenActive(screenId))
-                {
-                    return;
-                }
 
                 // There are no events set up for this screen
                 if (!joystickButtonEvents.ContainsKey(screenId))
