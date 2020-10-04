@@ -3,9 +3,9 @@ using Shared.Core.Hierarchy;
 using Shared.Events.CallbackArgs;
 using Shared.Events.EventArgs;
 using Shared.Interfaces;
+using Shared.Interfaces.Services;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Shared.Services
 {

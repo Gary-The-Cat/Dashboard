@@ -1,13 +1,16 @@
+using Ninject;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using Shared.CameraTools;
 using Shared.Interfaces;
+using Shared.Interfaces.Services;
 using Shared.Notifications;
 using Shared.ScreenConfig;
 using Shared.Services;
 using System;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace Dashboard.Core
 {
@@ -23,7 +26,7 @@ namespace Dashboard.Core
 
         private ApplicationManager AppManager { get; set; }
 
-        private IApplicationInstance ActiveApplication => AppManager.ActiveApplication;
+        public IApplicationInstance ActiveApplication => AppManager.ActiveApplication;
 
         private IApplicationInstance HomeApplication => AppManager.HomeApplication;
 
@@ -31,15 +34,19 @@ namespace Dashboard.Core
 
         public INotificationService NotificaitonService { get; set; }
 
+        private StandardKernel kernel;
+
         public Application(RenderWindow window, ScreenConfiguration configuration)
         {
             this.window = window;
 
             Configuration = configuration;
 
-            EventService = new EventService(this.window, () => ActiveApplication);
+            ConfigureKernel();
 
-            NotificaitonService = new NotificationService(this);
+            NotificaitonService = kernel.Get<INotificationService>();
+
+            EventService = kernel.Get<IEventService>();
 
             AppManager = new ApplicationManager(this);
 
@@ -48,6 +55,28 @@ namespace Dashboard.Core
             AppManager.HomeApplication.EventService = EventService;
 
             AppManager.SetActiveApplication(HomeApplication);
+
+        }
+
+        private void ConfigureKernel()
+        {
+            Func<IApplicationInstance> getActiveApplication = () => ActiveApplication;
+            Func<View> getDefaultView = GetDefaultView;
+            Func<Vector2u> getWindowSize = () => window.Size;
+
+            kernel = new StandardKernel();
+            kernel.Load(Assembly.GetExecutingAssembly());
+
+            kernel.Bind<IEventService>().To<EventService>()
+                .InSingletonScope()
+                .WithConstructorArgument("window", window)
+                .WithConstructorArgument("getActiveApplication", getActiveApplication);
+
+            kernel.Bind<INotificationService>().To<NotificationService>()
+                .InSingletonScope()
+                .WithConstructorArgument("getDefaultView", getDefaultView)
+                .WithConstructorArgument("getWindowSize", getWindowSize);
+
         }
 
         public void Start()

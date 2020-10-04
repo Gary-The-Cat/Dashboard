@@ -1,7 +1,9 @@
-﻿using SFML.Graphics;
+﻿using Ninject;
+using SFML.Graphics;
 using SFML.System;
 using Shared.Core.Hierarchy;
 using Shared.Interfaces;
+using Shared.Interfaces.Services;
 using System;
 using System.Diagnostics;
 

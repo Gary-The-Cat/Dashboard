@@ -1,7 +1,7 @@
 ﻿using SFML.Graphics;
 using Shared.Notifications;
 
-namespace Shared.Interfaces
+namespace Shared.Interfaces.Services
 {
     public interface INotificationService
     {

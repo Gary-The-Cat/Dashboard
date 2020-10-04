@@ -1,5 +1,6 @@
 ﻿using SFML.Window;
 using Shared.Core;
+using Shared.Interfaces.Services;
 using Shared.ScreenConfig;
 
 namespace Shared.Interfaces
@@ -15,6 +16,8 @@ namespace Shared.Interfaces
         public IEventService EventService { get; set; }
 
         public INotificationService NotificaitonService { get; set; }
+
+        public IApplicationInstance ActiveApplication { get; }
 
         public SFML.Graphics.View GetDefaultView();
     }

@@ -1,6 +1,7 @@
 ﻿using SFML.Graphics;
 using SFML.System;
-using Shared.Interfaces;
+using Shared.Interfaces.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,14 +11,16 @@ namespace Shared.Notifications
     {
         private Dictionary<ScreenLocation, List<Toast>> toastLookup;
 
-        private IApplication application;
-
         private Vector2f toastBuffer = new Vector2f(20, 20);
 
-        public NotificationService(IApplication application)
-        {
-            this.application = application;
+        private Func<Vector2u> getWindowSize;
 
+        private Func<View> getDefaultView;
+
+        public NotificationService(Func<Vector2u> getWindowSize, Func<View> getDefaultView)
+        {
+            this.getWindowSize = getWindowSize;
+            this.getDefaultView = getDefaultView;
             toastLookup = new Dictionary<ScreenLocation, List<Toast>>();
             toastLookup.Add(ScreenLocation.BottomLeft, new List<Toast>());
             toastLookup.Add(ScreenLocation.BottomRight, new List<Toast>());
@@ -27,7 +30,7 @@ namespace Shared.Notifications
 
         public void OnRender(RenderTarget target)
         {
-            target.SetView(application.GetDefaultView());
+            target.SetView(getDefaultView());
             foreach (var toastVisuals in toastLookup.Values)
             {
                 foreach (var toastVisual in toastVisuals)
@@ -82,7 +85,7 @@ namespace Shared.Notifications
 
         private float GetYPositionFromIndex(ScreenLocation location, int index)
         {
-            var windowSize = application.Window.Size;
+            var windowSize = getWindowSize();
 
             switch (location)
             {
@@ -101,7 +104,7 @@ namespace Shared.Notifications
 
         private Vector2f GetEndPosition(ScreenLocation location, Vector2f size)
         {
-            var windowSize = application.Window.Size;
+            var windowSize = getWindowSize();
             var buffer = new Vector2f(20, 20);
             float x = 0;
             float y = 0;
@@ -131,7 +134,7 @@ namespace Shared.Notifications
 
         private Vector2f GetStartPosition(ScreenLocation location, Vector2f size)
         {
-            var windowSize = application.Window.Size;
+            var windowSize = getWindowSize();
             float x = 0;
             float y = 0;
 

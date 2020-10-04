@@ -1,6 +1,5 @@
 ﻿using SelfDriving.Screens.MapMaker;
 using SelfDriving.Screens.TrackSelection;
-using SelfDriving.Shared.RaceSimulation;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;

@@ -2,7 +2,7 @@
 using Shared.Events.EventArgs;
 using System;
 
-namespace Shared.Interfaces
+namespace Shared.Interfaces.Services
 {
     public interface IEventService
     {

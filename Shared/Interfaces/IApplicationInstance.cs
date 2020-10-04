@@ -2,6 +2,7 @@
 using SFML.System;
 using Shared.Core;
 using Shared.Core.Hierarchy;
+using Shared.Interfaces.Services;
 using System;
 
 namespace Shared.Interfaces
