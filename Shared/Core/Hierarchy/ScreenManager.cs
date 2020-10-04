@@ -89,9 +89,12 @@ namespace Shared.Core.Hierarchy
 
         public void OnResize(float width, float height)
         {
-            foreach (var screen in layers)
+            foreach (var kvp in layers)
             {
-                ////screen.Camera.ScaleToWindow(width, height);
+                foreach (var screen in kvp.Value.Screens)
+                {
+                    screen.Camera.ScaleToWindow(width, height);
+                }
             }
         }
 
@@ -103,44 +106,11 @@ namespace Shared.Core.Hierarchy
         public void OnRender(RenderTarget target)
         {
             ActiveScreen.OnRender(target);
-            //foreach (var screen in layers.Where(s => s.IsDraw))
-            //{
-            //    target.SetView(screen.Camera.GetView());
-            //    screen.OnRender(target);
-            //}
-        }
-
-        public void Suspend()
-        {
-            ActiveScreen.Suspend();
-            //foreach (var screen in layers.Where(s => s.IsUpdate))
-            //{
-            //    screen.Suspend();
-            //}
-        }
-
-        public void Resume()
-        {
-            ActiveScreen.Resume();
-            //foreach (var screen in layers.Where(s => s.IsUpdate))
-            //{
-            //    screen.Resume();
-            //}
         }
 
         public void Start()
         {
             ActiveScreen.Start();
-            //foreach (var screen in layers)
-            //{
-            //    screen.Start();
-            //}
-        }
-
-        public IEnumerable<Guid> GetScreenIds()
-        {
-            throw new NotImplementedException();
-            //return layers.Select(s => s.Id);
         }
     }
 }

@@ -17,14 +17,6 @@ namespace Shared.Core
 
         public Camera Camera { get; set; }
 
-        public bool IsActive => IsUpdate && IsApplicationActive;
-
-        public bool IsUpdate { get; set; }
-
-        public bool IsDraw { get; set; }
-
-        public bool IsApplicationActive { get; set; }
-
         public IApplication Application { get; set; }
 
         public IApplicationInstance ParentApplication { get; set; }
@@ -34,9 +26,6 @@ namespace Shared.Core
             Camera = new Camera(application.Configuration);
             ParentApplication = applicationInstance;
             Application = application;
-
-            IsUpdate = true;
-            IsDraw = true;
 
             Id = Guid.NewGuid();
         }
@@ -71,51 +60,9 @@ namespace Shared.Core
 
         }
 
-        public virtual void Suspend()
-        {
-            IsApplicationActive = false;
-        }
-
-        public virtual void Resume()
-        {
-            IsApplicationActive = true;
-        }
-
         public virtual void Start()
         {
-            IsApplicationActive = true;
-        }
 
-        public virtual void SetInactive()
-        {
-            IsUpdate = false;
-            IsDraw = false;
-        }
-
-        public virtual void SetActive()
-        {
-            IsUpdate = true;
-            IsDraw = true;
-        }
-
-        public void SetUpdateInactive()
-        {
-            IsUpdate = false;
-        }
-
-        public void SetDrawInactive()
-        {
-            IsDraw = false;
-        }
-
-        public void SetUpdateActive()
-        {
-            IsUpdate = true;
-        }
-
-        public void SetDrawActive()
-        {
-            IsDraw = true;
         }
     }
 }

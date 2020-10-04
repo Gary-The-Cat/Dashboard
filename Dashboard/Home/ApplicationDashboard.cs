@@ -60,7 +60,7 @@ namespace Dashboard.Home
 
         private void OnMouseWheelMove(MouseWheelScrolledEventArgs eventArgs)
         {
-            if (eventArgs.Args.Delta < 0)
+            if (eventArgs.Args.Delta > 0)
             {
                 selectedApplicationIndex -= 1;
                 if (selectedApplicationIndex < 0)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Shared.Core.Hierarchy
@@ -37,6 +38,8 @@ namespace Shared.Core.Hierarchy
         }
 
         private List<Screen> screens;
+
+        public IEnumerable<Screen> Screens => screens.AsEnumerable();
 
     }
 }

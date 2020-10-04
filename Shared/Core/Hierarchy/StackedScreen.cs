@@ -45,19 +45,5 @@ namespace Shared.Core.Hierarchy
 
             screens.ForEach(screen => screen.OnRender(target));
         }
-
-        public override void SetActive()
-        {
-            base.SetActive();
-
-            screens.ForEach(screen => screen.SetActive());
-        }
-
-        public override void SetInactive()
-        {
-            base.SetInactive();
-
-            screens.ForEach(screen => screen.SetInactive());
-        }
     }
 }

@@ -52,15 +52,5 @@ namespace Dashboard.Screens
         {
             this.applicationDashboard.Draw(target);
         }
-
-        public override void Suspend()
-        {
-            this.applicationDashboard.IsActive = false;
-        }
-
-        public override void Resume()
-        {
-            this.applicationDashboard.IsActive = true;
-        }
     }
 }

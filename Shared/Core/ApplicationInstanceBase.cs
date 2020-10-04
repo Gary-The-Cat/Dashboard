@@ -41,7 +41,6 @@ namespace Shared.Core
         {
             Debug.WriteLine($"Start: {GetType().Name}");
             this.IsActive = true;
-            ScreenManager.Resume();
         }
 
         public virtual void Initialize()
@@ -54,7 +53,6 @@ namespace Shared.Core
         public virtual void Suspend()
         {
             Debug.WriteLine($"Suspend: {GetType().Name}");
-            this.ScreenManager.Suspend();
             this.IsActive = false;
         }
 

@@ -87,10 +87,5 @@ namespace SelfDriving.Screens.HumanAssistedTraining
         {
             backButton.TryClick(obj);
         }
-
-        public override void SetActive()
-        {
-            base.SetActive();
-        }
     }
 }
