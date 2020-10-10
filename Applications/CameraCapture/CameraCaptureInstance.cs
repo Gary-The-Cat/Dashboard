@@ -1,15 +1,20 @@
 ﻿using CameraCapture.Screens;
+using Ninject;
 using SFML.Graphics;
 using Shared.Core;
 using Shared.Interfaces;
-using System;
+using Shared.Interfaces.Services;
 
 namespace CameraCapture
 {
     public class CameraCaptureInstance : ApplicationInstanceBase, IApplicationInstance
     {
-        public CameraCaptureInstance(IApplication application) : base(application)
+        private IApplicationService appService;
+
+        public CameraCaptureInstance(IApplicationService appService)
         {
+            this.appService = appService;
+
             Texture texture = new Texture(new Image("Resources\\CameraCapture.png"));
             texture.GenerateMipmap();
             texture.Smooth = true;
@@ -24,7 +29,8 @@ namespace CameraCapture
 
         public new void Initialize()
         {
-            AddChildScreen(new CameraCaptreScreen(Application, this), null);
+            var cameraCaptureScreen = appService.Kernel.Get<CameraCaptreScreen>();
+            AddChildScreen(cameraCaptureScreen);
 
             base.Initialize();
         }

@@ -1,4 +1,5 @@
-﻿using SelfDriving.Agents;
+﻿using Ninject;
+using SelfDriving.Agents;
 using SelfDriving.Shared.RaceSimulation;
 using SFML.Graphics;
 using SFML.System;
@@ -7,9 +8,11 @@ using Shared.Core;
 using Shared.Events.CallbackArgs;
 using Shared.Events.EventArgs;
 using Shared.Interfaces;
+using Shared.Interfaces.Services;
 using Shared.Menus;
 using Shared.NeuralNetworks;
 using Shared.Notifications;
+using Shared.ScreenConfig;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,18 +31,28 @@ namespace SelfDriving.Screens.HumanAssistedTraining
         private Button toggleCapture;
         private Button samplesCaptured;
 
+        private IApplicationManager appManager;
+        private INotificationService notificationService;
+        private IApplicationService appService;
+
         public HumanAssistedTrainingHudScreen(
-            IApplication application,
-            IApplicationInstance applicationInstance,
-            RacingSimulationScreen racingSimulationScreen) : base(application, applicationInstance)
+            IEventService eventService,
+            INotificationService notificationService,
+            IApplicationManager appManager,
+            IApplicationService appService,
+            RacingSimulationScreen racingSimulationScreen)
         {
+            this.appManager = appManager;
+            this.notificationService = notificationService;
+            this.appService = appService;
+
             buttons = new List<Button>();
 
             this.racingSimulationScreen = racingSimulationScreen;
 
             PopulateButtons();
 
-            RegisterMouseClickCallback(new MouseClickCallbackEventArgs(Mouse.Button.Left), OnMousePress);
+            eventService.RegisterMouseClickCallback(this.Id, new MouseClickCallbackEventArgs(Mouse.Button.Left), OnMousePress);
         }
 
         public override void InitializeScreen()
@@ -66,7 +79,7 @@ namespace SelfDriving.Screens.HumanAssistedTraining
 
             samplesCaptured = new Button(
                 "0",
-                new Vector2f(Application.Configuration.Width - 20, 20),
+                new Vector2f(appManager.GetScreenConfiguration().Width - 20, 20),
                 () => { },
                 HorizontalAlignment.Right);
 
@@ -75,7 +88,7 @@ namespace SelfDriving.Screens.HumanAssistedTraining
             buttons.Add(new Button("Reset", new Vector2f(20, 75), () =>
             {
                 humanCar.ResetCapture();
-                Application.NotificaitonService.ShowToast(
+                notificationService.ShowToast(
                     ToastType.Info,
                     "Capture Data Cleared");
             }, HorizontalAlignment.Left));
@@ -87,18 +100,18 @@ namespace SelfDriving.Screens.HumanAssistedTraining
 
             buttons.Add(new Button("Test", new Vector2f(20, 175), () =>
             {
-                Application.NotificaitonService.ShowToast(
+                notificationService.ShowToast(
                     ToastType.Info,
                     "Starting Test...");
 
                 StartTesting();
             }, HorizontalAlignment.Left));
 
-            buttons.Add(new Button("Export", new Vector2f(20, Application.Configuration.Height - 65), () =>
+            buttons.Add(new Button("Export", new Vector2f(20, appManager.GetScreenConfiguration().Height - 65), () =>
             {
                 SaveNetwork();
 
-                Application.NotificaitonService.ShowToast(
+                notificationService.ShowToast(
                     ToastType.Info,
                     "Saved");
             }, HorizontalAlignment.Left));
@@ -126,15 +139,13 @@ namespace SelfDriving.Screens.HumanAssistedTraining
 
             if(selfDrivingTestScreen == null)
             {
-                selfDrivingTestScreen = new SelfDrivingTestScreen(
-                    Application,
-                    ParentApplication);
+                selfDrivingTestScreen = appService.Kernel.Get<SelfDrivingTestScreen>();
 
-                ParentApplication.AddChildScreen(selfDrivingTestScreen, this);
+                appManager.AddChildScreen(selfDrivingTestScreen);
             }
             else
             {
-                ParentApplication.SetActiveScreen(selfDrivingTestScreen);
+                appManager.SetActiveScreen(selfDrivingTestScreen);
             }
 
             selfDrivingTestScreen.Initialize(racingSimulationScreen.CurrentTrack, network);
@@ -144,7 +155,7 @@ namespace SelfDriving.Screens.HumanAssistedTraining
         {
             if (network == null)
             {
-                Application.NotificaitonService.ShowToast(
+                notificationService.ShowToast(
                     ToastType.Error,
                     "You must train a network first!");
 
@@ -171,14 +182,14 @@ namespace SelfDriving.Screens.HumanAssistedTraining
                 }
             }
 
-            Application.NotificaitonService.ShowToast(
+            notificationService.ShowToast(
                 ToastType.Info,
                 "Training Started...");
 
             // Right now the training happens so fast, not sure if we need to be reporting progress
             network = NeuralNetworkHelper.GetTrainedNetwork(inputData, expectedOutputData, (c, t) => { });
 
-            Application.NotificaitonService.ShowToast(
+            notificationService.ShowToast(
                 ToastType.Info,
                 "Training Complete.");
         }
@@ -199,7 +210,7 @@ namespace SelfDriving.Screens.HumanAssistedTraining
 
         public override void OnRender(RenderTarget target)
         {
-            target.SetView(ParentApplication.DefaultView);
+            target.SetView(appManager.GetDefaultView());
 
             buttons.ForEach(button => button.OnRender(target));
         }

@@ -1,16 +1,22 @@
 ﻿using SFML.Graphics;
+using SFML.System;
 using SFML.Window;
+using Shared.Core;
 using Shared.Core.Hierarchy;
 using Shared.Interfaces;
+using Shared.Interfaces.Services;
+using Shared.ScreenConfig;
 
 namespace Dashboard.Core
 {
     public class ApplicationManager : IApplicationManager
     {
-        public ApplicationManager(Application application)
+        public ApplicationManager(
+            Application application,
+            INotificationService notificationService)
         {
             this.application = application;
-
+            this.notificationService = notificationService;
             this.application.Window.KeyPressed += OnKeyPressed;
         }
 
@@ -22,20 +28,22 @@ namespace Dashboard.Core
 
         private readonly Application application;
 
+        private INotificationService notificationService;
+
         private RenderWindow Window => (RenderWindow)application.Window;
 
         public void OnUpdate(float deltaT)
         {
             ActiveApplication.OnUpdate(deltaT);
 
-            application.NotificaitonService.OnUpdate(deltaT);
+            notificationService.OnUpdate(deltaT);
         }
 
         public void OnRender(RenderTarget target)
         {
             ActiveApplication.OnRender(target);
 
-            application.NotificaitonService.OnRender(target);
+            notificationService.OnRender(target);
         }
 
         public void SetActiveApplication(IApplicationInstance application)
@@ -79,6 +87,38 @@ namespace Dashboard.Core
         public void GoHome()
         {
             ActiveApplication = HomeApplication;
+        }
+
+        public Vector2u GetWindowSize()
+        {
+            return Window.Size;
+        }
+
+        public View GetDefaultView()
+        {
+            return application.GetDefaultView();
+        }
+
+        public void SetHomeApplication(IApplicationInstance homeApplication)
+        {
+            this.HomeApplication = homeApplication;
+
+            SetActiveApplication(homeApplication);
+        }
+
+        public ScreenConfiguration GetScreenConfiguration()
+        {
+            return application.Configuration;
+        }
+
+        public void AddChildScreen(Screen screen)
+        {
+            ActiveApplication.AddChildScreen(screen);
+        }
+
+        public void SetActiveScreen(Screen screen)
+        {
+            ActiveApplication.SetActiveScreen(screen);
         }
     }
 }

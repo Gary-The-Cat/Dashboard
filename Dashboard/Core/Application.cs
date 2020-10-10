@@ -18,44 +18,31 @@ namespace Dashboard.Core
     {
         public Window Window => window;
 
-        private RenderWindow window;
+        public IApplicationInstance ActiveApplication => applicationManager.ActiveApplication;
 
-        public ScreenConfiguration Configuration { get; set; }
-
-        public IApplicationManager ApplicationManager => AppManager;
-
-        private ApplicationManager AppManager { get; set; }
-
-        public IApplicationInstance ActiveApplication => AppManager.ActiveApplication;
-
-        private IApplicationInstance HomeApplication => AppManager.HomeApplication;
-
-        public IEventService EventService { get; set; }
-
-        public INotificationService NotificaitonService { get; set; }
+        private IApplicationInstance HomeApplication => applicationManager.HomeApplication;
 
         private StandardKernel kernel;
+
+        private RenderWindow window;
+
+        public ScreenConfiguration Configuration;
+
+        private IApplicationManager applicationManager;
 
         public Application(RenderWindow window, ScreenConfiguration configuration)
         {
             this.window = window;
 
-            Configuration = configuration;
+            this.Configuration = configuration;
 
             ConfigureKernel();
 
-            NotificaitonService = kernel.Get<INotificationService>();
+            applicationManager = kernel.Get<IApplicationManager>();
 
-            EventService = kernel.Get<IEventService>();
+            var homeApplication = kernel.Get<HomeApplicationInstance>();
 
-            AppManager = new ApplicationManager(this);
-
-            AppManager.HomeApplication = new HomeApplicationInstance(this);
-
-            AppManager.HomeApplication.EventService = EventService;
-
-            AppManager.SetActiveApplication(HomeApplication);
-
+            applicationManager.SetHomeApplication(homeApplication);
         }
 
         private void ConfigureKernel()
@@ -76,6 +63,14 @@ namespace Dashboard.Core
                 .InSingletonScope()
                 .WithConstructorArgument("getDefaultView", getDefaultView)
                 .WithConstructorArgument("getWindowSize", getWindowSize);
+
+            kernel.Bind<IApplicationService>().To<ApplicationService>()
+                .InSingletonScope()
+                .WithConstructorArgument("kernel", kernel);
+
+            kernel.Bind<IApplicationManager>().To<ApplicationManager>()
+                .InSingletonScope()
+                .WithConstructorArgument("application", this);
 
         }
 
@@ -107,10 +102,10 @@ namespace Dashboard.Core
                     window.Clear(new Color(0xe9, 0xe9, 0xe9));
 
                     // Update, not sure extent of logic to do in this class
-                    AppManager.OnUpdate(0.016f);
+                    applicationManager.OnUpdate(0.016f);
 
                     // Draw, not sure extent of logic to do in this class
-                    AppManager.OnRender(window);
+                    applicationManager.OnRender(window);
 
                     // Display updated frame
                     window.Display();
@@ -124,11 +119,11 @@ namespace Dashboard.Core
                 // Cleanup the application & perform recovery where possible
                 if (ActiveApplication.OnException())
                 {
-                    AppManager.SetActiveApplication(ActiveApplication);
+                    applicationManager.SetActiveApplication(ActiveApplication);
                 }
                 else
                 {
-                    AppManager.SetActiveApplication(ActiveApplication);
+                    applicationManager.SetActiveApplication(ActiveApplication);
                 }
 
                 Run();

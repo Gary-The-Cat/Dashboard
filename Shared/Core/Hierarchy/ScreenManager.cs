@@ -15,7 +15,7 @@ namespace Shared.Core.Hierarchy
 
         public int CurrentLayer { get; private set; }
 
-        public Screen ActiveScreen => layers[CurrentLayer].ActiveScreen;
+        public Screen ActiveScreen => layers.Count() > CurrentLayer ? layers[CurrentLayer].ActiveScreen : null;
 
         public ScreenManager()
         {
@@ -26,7 +26,7 @@ namespace Shared.Core.Hierarchy
             screenToLayerLookup = new Dictionary<Screen, int>();
         }
 
-        internal void GoBack()
+        public void GoBack()
         {
             CurrentLayer--;
         }
@@ -75,16 +75,6 @@ namespace Shared.Core.Hierarchy
             CurrentLayer = layerId;
 
             layers[CurrentLayer].SetActiveScreen(screen);
-        }
-
-        public void RemoveScreen(Screen screen)
-        {
-            layers[screenToLayerLookup[screen]].RemoveScreen(screen);
-
-            // :TODO: If there are no screens left on this layer, do we:
-            // - remove all lower layers? 
-            // - shift them up one layer?
-            throw new NotImplementedException();
         }
 
         public void OnResize(float width, float height)

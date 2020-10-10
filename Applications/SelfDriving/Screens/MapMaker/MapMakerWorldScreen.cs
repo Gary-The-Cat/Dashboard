@@ -12,6 +12,7 @@ using Shared.Events.EventArgs;
 using Shared.ExtensionMethods;
 using Shared.Helpers;
 using Shared.Interfaces;
+using Shared.Interfaces.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,8 +31,6 @@ namespace SelfDriving.Screens.MapMaker
         private MapMakerDataContainer sharedContainer;
 
         private CommandManager commandManager;
-
-        private IApplication application;
 
         private Vector2f size;
 
@@ -62,12 +61,10 @@ namespace SelfDriving.Screens.MapMaker
         private const double SnapThreshold = 20;
 
         public MapMakerWorldScreen(
-            IApplication application,
-            IApplicationInstance applicationInstance,
-            MapMakerDataContainer sharedContainer) 
-            : base(application, applicationInstance)
+            IApplicationManager appManager,
+            IEventService eventService,
+            MapMakerDataContainer sharedContainer)
         {
-            this.application = application;
             this.sharedContainer = sharedContainer;
 
             commandManager = new CommandManager();
@@ -75,7 +72,7 @@ namespace SelfDriving.Screens.MapMaker
             this.isDrawing = false;
             this.isMoving = false;
 
-            RegisterCallbacks();
+            RegisterCallbacks(eventService);
 
             var carConfig = new CarConfiguration();
 
@@ -124,17 +121,17 @@ namespace SelfDriving.Screens.MapMaker
                 return sharedContainer.GetSegment(segmentId);
             };
 
-            var windowSize = application.Window.Size;
-            this.size = new Vector2f(windowSize.X, windowSize.Y);
+            var config = appManager.GetScreenConfiguration();
+            this.size = new Vector2f(config.Width, config.Height);
             carForScale.Position = size / 2;
         }
 
-        private void RegisterCallbacks()
+        private void RegisterCallbacks(IEventService eventService)
         {
-            RegisterMouseMoveCallback(OnMouseMove);
-            RegisterMouseClickCallback(new MouseClickCallbackEventArgs(Button.Left), OnMouseClick);
-            RegisterKeyboardCallback(new KeyPressCallbackEventArgs(Keyboard.Key.Z, isCtrlRequired: true), OnUndo);
-            RegisterKeyboardCallback(new KeyPressCallbackEventArgs(Keyboard.Key.Y, isCtrlRequired: true), OnRedo);
+            eventService.RegisterMouseMoveCallback(this.Id, OnMouseMove);
+            eventService.RegisterMouseClickCallback(this.Id, new MouseClickCallbackEventArgs(Button.Left), OnMouseClick);
+            eventService.RegisterKeyboardCallback(this.Id, new KeyPressCallbackEventArgs(Keyboard.Key.Z, isCtrlRequired: true), OnUndo);
+            eventService.RegisterKeyboardCallback(this.Id, new KeyPressCallbackEventArgs(Keyboard.Key.Y, isCtrlRequired: true), OnRedo);
         }
 
         public void Initialize(Track track)

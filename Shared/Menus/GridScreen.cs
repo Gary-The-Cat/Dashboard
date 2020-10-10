@@ -17,24 +17,23 @@ namespace Shared.Menus
 
         private Vector2f position;
 
-        private IApplicationInstance applicationInstance;
+        private IApplicationManager appManager;
 
         // Do we want to let the user set a fixed size?
         public bool AutoScale { get; }
 
         public GridScreen(
-            ScreenConfiguration configuration,
-            IApplicationInstance applicationInstance)
+            IApplicationManager appManager)
         {
-            this.screenSize = new Vector2f(configuration.Width, configuration.Height);
+            this.appManager = appManager;
+
+            this.screenSize = new Vector2f(appManager.GetWindowSize().X, appManager.GetWindowSize().Y);
 
             this.position = new Vector2f(0, 0);
 
             this.AutoScale = true;
 
             this.grid = new IMenuItem[1,1];
-
-            this.applicationInstance = applicationInstance;
         }
 
         public void OnMousePress(MouseClickEventArgs args)
@@ -140,7 +139,7 @@ namespace Shared.Menus
 
         public void OnRender(RenderTarget target)
         {
-            target.SetView(applicationInstance.DefaultView);
+            target.SetView(appManager.GetDefaultView());
 
             var size = GetFixedMaxSize();
 

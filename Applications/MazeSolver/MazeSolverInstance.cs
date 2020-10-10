@@ -1,20 +1,26 @@
 ﻿using MazeSolver.Screens;
+using Ninject;
 using SFML.Graphics;
+using SFML.System;
 using Shared.Core;
 using Shared.Interfaces;
-using System;
+using Shared.Interfaces.Services;
 
 namespace MazeSolver
 {
     public class MazeSolverInstance : ApplicationInstanceBase, IApplicationInstance
     {
-        public MazeSolverInstance(IApplication application) : base(application)
+        private IApplicationService appService;
+
+        public MazeSolverInstance(IApplicationService appService)
         {
+            this.appService = appService;
+
             var texture = new Texture(new Image("Resources\\MazeSolver.png"));
             texture.GenerateMipmap();
             texture.Smooth = true;
 
-            Thumbnail = new RectangleShape(new SFML.System.Vector2f(300, 300))
+            Thumbnail = new RectangleShape(new Vector2f(300, 300))
             {
                 Texture = texture
             };
@@ -24,7 +30,8 @@ namespace MazeSolver
 
         public new void Initialize()
         {
-            AddChildScreen(new MazeSolverScreen(Application, this), null);
+            var mazeSolverScreen = appService.Kernel.Get<MazeSolverScreen>();
+            AddChildScreen(mazeSolverScreen);
 
             base.Initialize();
         }

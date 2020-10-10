@@ -1,6 +1,8 @@
-﻿using SelfDriving.Shared;
+﻿using Ninject;
+using Ninject.Parameters;
+using SelfDriving.Shared;
 using Shared.Core.Hierarchy;
-using Shared.Interfaces;
+using Shared.Interfaces.Services;
 
 namespace SelfDriving.Screens.MapMaker
 {
@@ -9,15 +11,15 @@ namespace SelfDriving.Screens.MapMaker
         private MapMakerHudScreen mapEditorHudScreen;
         private MapMakerWorldScreen mapEditorWorldScreen;
 
-        public MapMakerScreen(
-            IApplication application,
-            IApplicationInstance applicationInstance)
-            : base(application, applicationInstance)
+        public MapMakerScreen(IApplicationService appService)
         {
             var sharedContainer = new MapMakerDataContainer();
 
-            mapEditorWorldScreen = new MapMakerWorldScreen(Application, ParentApplication, sharedContainer);
-            mapEditorHudScreen = new MapMakerHudScreen(Application, ParentApplication, sharedContainer);
+            mapEditorWorldScreen = appService.Kernel.Get<MapMakerWorldScreen>(
+                new ConstructorArgument("sharedContainer", sharedContainer));
+
+            mapEditorHudScreen = appService.Kernel.Get<MapMakerHudScreen>(
+                new ConstructorArgument("sharedContainer", sharedContainer));
 
             AddScreen(mapEditorWorldScreen);
             AddScreen(mapEditorHudScreen);

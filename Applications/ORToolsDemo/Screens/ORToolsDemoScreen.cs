@@ -15,11 +15,9 @@ namespace ORToolsDemo.Screens
         private CartesianGraph graph;
 
         public ORToolsDemoScreen(
-            IApplication application,
-            IApplicationInstance applicationInstance) 
-            : base(application, applicationInstance)
+            IApplicationManager appManager)
         {
-            graph = new CartesianGraph(application.Window.Size, new Vector2u(20, 10) * 2);
+            graph = new CartesianGraph(appManager.GetWindowSize(), new Vector2u(20, 10) * 2);
             graph.SetAxisCentred(true);
 
             var (p1, p2, p3) = this.GetVertices();

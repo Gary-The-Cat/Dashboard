@@ -1,5 +1,4 @@
 ﻿using SFML.Graphics;
-using Shared.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,8 +10,7 @@ namespace Shared.Core.Hierarchy
 
         public IEnumerable<Screen> ReversedScreens => screens.AsEnumerable().Reverse();
 
-        public StackedScreen(IApplication application, IApplicationInstance applicationInstance) 
-            : base(application, applicationInstance)
+        public StackedScreen()
         {
             screens = new List<Screen>();
         }

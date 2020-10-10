@@ -38,12 +38,10 @@ namespace MazeSolver.Screens
         private List<Vector2f> solutionPath;
         private int solutionPathCount;
 
-        public MazeSolverScreen(
-            IApplication application,
-            IApplicationInstance applicationInstance) 
-            :  base(application, applicationInstance)
+        public MazeSolverScreen(IApplicationManager appManager) 
         {
-            var size = new Vector2f(application.Window.Size.X, application.Window.Size.Y);
+            var windowSize = appManager.GetWindowSize();
+            var size = new Vector2f(windowSize.X, windowSize.Y);
             isSolvingMaze = false;
 
             MazeWidth = (int)(size.X / MazeSquareSize);

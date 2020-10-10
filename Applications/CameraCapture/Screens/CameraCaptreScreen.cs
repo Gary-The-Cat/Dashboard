@@ -15,12 +15,10 @@ namespace CameraCapture.Screens
 
         VideoCapture capture;
 
-        public CameraCaptreScreen(
-            IApplication application,
-            IApplicationInstance applicationInstance) 
-            : base(application, applicationInstance)
+        public CameraCaptreScreen(IApplicationManager appManager)
         {
-            var size = new Vector2f(application.Window.Size.X, application.Window.Size.Y);
+            var windowSize = appManager.GetWindowSize();
+            var size = new Vector2f(windowSize.X, windowSize.Y);
 
             capture = new VideoCapture(0);
 

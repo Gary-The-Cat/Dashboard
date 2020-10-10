@@ -1,9 +1,11 @@
-﻿using SelfDriving.Agents;
+﻿using Ninject;
+using Ninject.Parameters;
+using SelfDriving.Agents;
 using SelfDriving.Interfaces;
 using SelfDriving.Shared;
 using SelfDriving.Shared.RaceSimulation;
 using Shared.Core.Hierarchy;
-using Shared.Interfaces;
+using Shared.Interfaces.Services;
 using System.Collections.Generic;
 
 namespace SelfDriving.Screens.HumanAssistedTraining
@@ -17,21 +19,16 @@ namespace SelfDriving.Screens.HumanAssistedTraining
         private CarHuman humanCar;
 
         public HumanAssistedRacingSimulationScreen(
-            IApplication application,
-            IApplicationInstance applicationInstance) : base(application, applicationInstance)
+            IApplicationService appService)
         {
             // Create our human driven car
             humanCar = new CarHuman(true, 100);
 
-            RacingSimulationScreen = new RacingSimulationScreen(
-                Application, 
-                ParentApplication,
-                new List<ICarController> { humanCar });
+            RacingSimulationScreen = appService.Kernel.Get<RacingSimulationScreen>(
+                new ConstructorArgument("carControllers", new List<ICarController> { humanCar }));
 
-            HumanAssistedHud = new HumanAssistedTrainingHudScreen(
-                Application, 
-                ParentApplication,
-                RacingSimulationScreen);
+            HumanAssistedHud = appService.Kernel.Get<HumanAssistedTrainingHudScreen>(
+                new ConstructorArgument("racingSimulationScreen", RacingSimulationScreen));
 
             AddScreen(RacingSimulationScreen);
 

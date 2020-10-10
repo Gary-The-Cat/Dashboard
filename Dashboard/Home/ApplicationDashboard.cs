@@ -1,8 +1,6 @@
 ﻿using SFML.Graphics;
 using SFML.System;
-using SFML.Window;
 using Shared.Core;
-using Shared.Events.CallbackArgs;
 using Shared.Events.EventArgs;
 using Shared.Interfaces;
 using System;
@@ -32,24 +30,18 @@ namespace Dashboard.Home
 
         public ApplicationDashboard(
             List<ApplicationInstanceVisual> applications,
-            IApplication application,
-            Screen parent)
+            IApplicationManager applicationManager)
         {
             defaultFont = new Font("Resources\\font.ttf");
             selectedIconSize = new Vector2u(300, 300);
             nonSelectedIconSize = new Vector2u(220, 220);
             this.applications = applications;
-            this.applicationManager = application.ApplicationManager;
-            this.size = application.Window.Size;
+            this.applicationManager = applicationManager;
+            this.size = applicationManager.GetWindowSize();
             this.UpdateSizingAndSpacing();
 
             Texture blueprint = new Texture(CreateBlueprint(size.X, size.Y));
             background = new Sprite(blueprint);
-
-            parent.RegisterKeyboardCallback(new KeyPressCallbackEventArgs(Keyboard.Key.Left), LeftKeyPressed);
-            parent.RegisterKeyboardCallback(new KeyPressCallbackEventArgs(Keyboard.Key.Right), RightKeyPressed);
-            parent.RegisterMouseClickCallback(new MouseClickCallbackEventArgs(Mouse.Button.Left), OnMouseClick);
-            parent.RegisterMouseWheelScrollCallback(OnMouseWheelMove);
 
             IsActive = true;
 
@@ -58,7 +50,7 @@ namespace Dashboard.Home
             rightVisual = new RectangleShape(new Vector2f(nonSelectedIconSize.X, nonSelectedIconSize.Y));
         }
 
-        private void OnMouseWheelMove(MouseWheelScrolledEventArgs eventArgs)
+        public void OnMouseWheelMove(MouseWheelScrolledEventArgs eventArgs)
         {
             if (eventArgs.Args.Delta > 0)
             {
@@ -78,7 +70,7 @@ namespace Dashboard.Home
             }
         }
 
-        private void LeftKeyPressed(KeyboardEventArgs _)
+        public void LeftKeyPressed(KeyboardEventArgs _)
         {
             selectedApplicationIndex -= 1;
             if (selectedApplicationIndex < 0)
@@ -87,7 +79,7 @@ namespace Dashboard.Home
             }
         }
 
-        private void RightKeyPressed(KeyboardEventArgs _)
+        public void RightKeyPressed(KeyboardEventArgs _)
         {
             selectedApplicationIndex += 1;
             if (selectedApplicationIndex >= applications.Count)
@@ -96,7 +88,7 @@ namespace Dashboard.Home
             }
         }
 
-        private void OnMouseClick(MouseClickEventArgs eventArgs)
+        public void OnMouseClick(MouseClickEventArgs eventArgs)
         {
             if (selectedVisual.GetGlobalBounds().Contains(eventArgs.Args.X, eventArgs.Args.Y))
             {

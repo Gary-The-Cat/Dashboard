@@ -1,15 +1,21 @@
-﻿using SelfDriving.Screens;
+﻿using Ninject;
+using SelfDriving.Screens;
 using SFML.Graphics;
 using SFML.System;
 using Shared.Core;
 using Shared.Interfaces;
+using Shared.Interfaces.Services;
 
 namespace SelfDriving
 {
     public class SelfDrivingInstance : ApplicationInstanceBase, IApplicationInstance
     {
-        public SelfDrivingInstance(IApplication application) : base(application)
+        private IApplicationService appService;
+
+        public SelfDrivingInstance(IApplicationService appService)
         {
+            this.appService = appService;
+
             Texture texture = new Texture(new Image("Resources\\SelfDriving.png"));
             texture.GenerateMipmap();
             texture.Smooth = true;
@@ -24,11 +30,11 @@ namespace SelfDriving
 
         public new void Initialize()
         {
-            var MainScreen = new SelfDrivingHomeScreen(Application, this);
+            var homeScreen = appService.Kernel.Get<SelfDrivingHomeScreen>();
 
-            AddChildScreen(MainScreen, null);
+            AddChildScreen(homeScreen);
 
-            MainScreen.InitializeScreen();
+            homeScreen.InitializeScreen();
 
             base.Initialize();
         }

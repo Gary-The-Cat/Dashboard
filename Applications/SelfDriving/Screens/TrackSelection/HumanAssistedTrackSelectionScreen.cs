@@ -1,9 +1,12 @@
-﻿using SelfDriving.Screens.HumanAssistedTraining;
+﻿using Ninject;
+using Ninject.Parameters;
+using SelfDriving.Screens.HumanAssistedTraining;
 using SelfDriving.Shared;
 using SFML.Graphics;
 using Shared.Core;
 using Shared.Events.CallbackArgs;
 using Shared.Interfaces;
+using Shared.Interfaces.Services;
 
 namespace SelfDriving.Screens.TrackSelection
 {
@@ -13,17 +16,22 @@ namespace SelfDriving.Screens.TrackSelection
 
         private HumanAssistedRacingSimulationScreen raceSimulationScreen;
 
-        public HumanAssistedTrackSelectionScreen(
-            IApplication application,
-            IApplicationInstance applicationInstance)
-            : base(application, applicationInstance)
-        {
-            trackSelectionVisual = new TrackSelectionVisual(
-                application.Configuration, 
-                ParentApplication, 
-                "Resources\\Tracks");
+        private IApplicationManager appManager;
 
-            RegisterMouseClickCallback(new MouseClickCallbackEventArgs(SFML.Window.Mouse.Button.Left), trackSelectionVisual.OnMousePress);
+        private IApplicationService appService;
+
+        public HumanAssistedTrackSelectionScreen(
+            IApplicationService appService,
+            IApplicationManager appManager,
+            IEventService eventService)
+        {
+            this.appService = appService;
+            this.appManager = appManager;
+
+            trackSelectionVisual = appService.Kernel.Get<TrackSelectionVisual>(
+                new ConstructorArgument("trackDirectory", "Resources\\Tracks"));
+
+            eventService.RegisterMouseClickCallback(this.Id, new MouseClickCallbackEventArgs(SFML.Window.Mouse.Button.Left), trackSelectionVisual.OnMousePress);
 
             trackSelectionVisual.OnTrackSelected = OnTrackSelected;
         }
@@ -37,13 +45,13 @@ namespace SelfDriving.Screens.TrackSelection
         {
             if (raceSimulationScreen == null)
             {
-                raceSimulationScreen = new HumanAssistedRacingSimulationScreen(Application, ParentApplication);
+                raceSimulationScreen = appService.Kernel.Get<HumanAssistedRacingSimulationScreen>();
 
-                ParentApplication.AddChildScreen(raceSimulationScreen, this);
+                appManager.AddChildScreen(raceSimulationScreen);
             }
             else
             {
-                ParentApplication.SetActiveScreen(raceSimulationScreen);
+                appManager.SetActiveScreen(raceSimulationScreen);
             }
 
             raceSimulationScreen.OnTrackSelected(track);

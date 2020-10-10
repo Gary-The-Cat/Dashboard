@@ -1,10 +1,12 @@
-﻿using SelfDriving.Screens.TrackSelection;
+﻿using Ninject;
+using Ninject.Parameters;
+using SelfDriving.Screens.TrackSelection;
 using SelfDriving.Shared;
 using SFML.Graphics;
 using Shared.Core;
-using Shared.Core.Hierarchy;
 using Shared.Events.CallbackArgs;
 using Shared.Interfaces;
+using Shared.Interfaces.Services;
 
 namespace SelfDriving.Screens.MapMaker
 {
@@ -14,17 +16,25 @@ namespace SelfDriving.Screens.MapMaker
 
         private TrackSelectionVisual trackSelectionVisual;
 
-        public MapMakerTrackSelectionScreen(
-            IApplication application,
-            IApplicationInstance applicationInstance) 
-            : base(application, applicationInstance)
-        {
-            trackSelectionVisual = new TrackSelectionVisual(
-                application.Configuration,
-                applicationInstance,
-                "Resources/Tracks");
+        private IApplicationService appService;
 
-            RegisterMouseClickCallback(new MouseClickCallbackEventArgs(SFML.Window.Mouse.Button.Left), trackSelectionVisual.OnMousePress);
+        private IApplicationManager appManager;
+
+        public MapMakerTrackSelectionScreen(
+            IApplicationService appService,
+            IApplicationManager appManager,
+            IEventService eventService)
+        {
+            this.appService = appService;
+            this.appManager = appManager;
+
+            trackSelectionVisual = appService.Kernel.Get<TrackSelectionVisual>(
+                new ConstructorArgument("trackDirectory", "Resources\\Tracks"));
+
+            eventService.RegisterMouseClickCallback(
+                this.Id, 
+                new MouseClickCallbackEventArgs(SFML.Window.Mouse.Button.Left), 
+                trackSelectionVisual.OnMousePress);
 
             trackSelectionVisual.OnTrackSelected = OnTrackSelected;
 
@@ -40,12 +50,12 @@ namespace SelfDriving.Screens.MapMaker
         {
             if(mapMakerScreen == null)
             {
-                mapMakerScreen = new MapMakerScreen(Application, ParentApplication);
-                ParentApplication.AddChildScreen(mapMakerScreen, this);
+                mapMakerScreen = appService.Kernel.Get<MapMakerScreen>();
+                appManager.AddChildScreen(mapMakerScreen);
             }
             else
             {
-                ParentApplication.SetActiveScreen(mapMakerScreen);
+                appManager.SetActiveScreen(mapMakerScreen);
             }
 
             mapMakerScreen.Initialize(track);

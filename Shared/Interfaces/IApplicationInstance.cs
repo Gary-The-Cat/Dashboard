@@ -2,7 +2,6 @@
 using SFML.System;
 using Shared.Core;
 using Shared.Core.Hierarchy;
-using Shared.Interfaces.Services;
 using System;
 
 namespace Shared.Interfaces
@@ -18,12 +17,6 @@ namespace Shared.Interfaces
         public ScreenManager ScreenManager { get; set; }
 
         public RectangleShape Thumbnail { get; set; }
-
-        public IApplication Application { get; set; }
-
-        public IEventService EventService { get; set; }
-
-        public INotificationService NotificationService { get; set; }
 
         public bool IsInitialized { get; }
 
@@ -54,12 +47,8 @@ namespace Shared.Interfaces
 
         public void OnRender(RenderTarget target);
 
-        public void AddChildScreen(Screen screen, Screen parentScreen);
+        public void AddChildScreen(Screen screen);
 
         public void SetActiveScreen(Screen screen);
-
-        public void RemoveScreen(Screen screen);
-
-        public View DefaultView => Application.GetDefaultView();
     }
 }

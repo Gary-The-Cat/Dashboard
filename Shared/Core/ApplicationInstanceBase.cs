@@ -1,9 +1,7 @@
-﻿using Ninject;
-using SFML.Graphics;
+﻿using SFML.Graphics;
 using SFML.System;
 using Shared.Core.Hierarchy;
 using Shared.Interfaces;
-using Shared.Interfaces.Services;
 using System;
 using System.Diagnostics;
 
@@ -11,26 +9,10 @@ namespace Shared.Core
 {
     public class ApplicationInstanceBase
     {
-        public ApplicationInstanceBase(IApplication application)
+        public ApplicationInstanceBase()
         {
             Id = Guid.NewGuid();
             ScreenManager = new ScreenManager();
-            Application = application;
-
-            this.GoHome = () => application.ApplicationManager.GoHome();
-
-            GoBack = () =>
-            {
-                if(this.ScreenManager.CurrentLayer > 0)
-                {
-                    this.ScreenManager.GoBack();
-                }
-                else
-                {
-                    application.ApplicationManager.GoHome();
-                }
-            };
-
         }
 
         public virtual void Stop()
@@ -78,15 +60,11 @@ namespace Shared.Core
 
         public Action GoHome { get; set; }
 
-        public void AddChildScreen(Screen screen, Screen parentScreen) => ScreenManager.AddChildScreen(screen, parentScreen);
+        public void AddChildScreen(Screen screen) => ScreenManager.AddChildScreen(screen, ScreenManager.ActiveScreen);
 
         public void SetActiveScreen(Screen screen) => ScreenManager.SetActiveScreen(screen);
 
-        public void RemoveScreen(Screen screen) => ScreenManager.RemoveScreen(screen);
-
         public Guid Id { get; set; }
-
-        public IApplication Application { get; set; }
 
         public RectangleShape Thumbnail { get; set; }
 
@@ -97,9 +75,5 @@ namespace Shared.Core
         public bool IsActive { get; internal set; }
 
         public ScreenManager ScreenManager { get; set; }
-
-        public IEventService EventService { get; set; }
-
-        public INotificationService NotificationService { get; set; }
     }
 }

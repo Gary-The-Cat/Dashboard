@@ -1,4 +1,5 @@
-﻿using SelfDriving.Agents;
+﻿using Ninject;
+using SelfDriving.Agents;
 using SelfDriving.DataStructures;
 using SelfDriving.Helpers;
 using SelfDriving.Interfaces;
@@ -7,8 +8,7 @@ using SelfDriving.Shared.RaceSimulation;
 using SFML.Graphics;
 using Shared.Core;
 using Shared.GeneticAlgorithms;
-using Shared.Interfaces;
-using Shared.NeuralNetworks;
+using Shared.Interfaces.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,8 +18,6 @@ namespace SelfDriving.Screens
 {
     public class SelfTrainingScreen : Screen
     {
-        private IApplication application;
-
         private TrainState trainingState;
 
         private RacingSimulationLogic simulation;
@@ -41,12 +39,9 @@ namespace SelfDriving.Screens
         private bool TrackEvaluationFinished => simulation.GetCars().All(c => !c.IsRunning);
 
         public SelfTrainingScreen(
-            IApplication application, 
-            IApplicationInstance applicationInstance,
-            bool enableVisualization = true) 
-            : base(application, applicationInstance)
+            IApplicationService appService,
+            bool enableVisualization = true)
         {
-            this.application = application;
             random = new Random();
 
 
@@ -68,7 +63,7 @@ namespace SelfDriving.Screens
             genericAlgorithm.SpawnPopulation();
 
             // Load the simulation
-            simulation = new RacingSimulationLogic(application);
+            simulation = appService.Kernel.Get<RacingSimulationLogic>();
             simulation.SetTrack(currentTrack);
 
             // Initialize the simulation
@@ -81,7 +76,7 @@ namespace SelfDriving.Screens
             // If the visualization is turned on, create it, set the track and add the cars.
             if (enableVisualization)
             {
-                simulationVisualization = new RacingSimulationVisualization(simulation);
+                simulationVisualization = appService.Kernel.Get<RacingSimulationVisualization>();
                 simulationVisualization.SetTrack(currentTrack);
                 simulationVisualization.InitializeCars(simulation.GetCars());
             }

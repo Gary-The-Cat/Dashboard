@@ -1,15 +1,20 @@
-﻿using ORToolsDemo.Screens;
+﻿using Ninject;
+using ORToolsDemo.Screens;
 using SFML.Graphics;
 using Shared.Core;
 using Shared.Interfaces;
-using System;
+using Shared.Interfaces.Services;
 
 namespace ORToolsDemo
 {
     public class ORToolsDemoInstance : ApplicationInstanceBase, IApplicationInstance
     {
-        public ORToolsDemoInstance(IApplication application) : base(application)
+        private IApplicationService appService;
+
+        public ORToolsDemoInstance(IApplicationService appService)
         {
+            this.appService = appService;
+
             Texture texture = new Texture(new Image("Resources\\ORTools.png"));
             texture.GenerateMipmap();
             texture.Smooth = true;
@@ -24,7 +29,8 @@ namespace ORToolsDemo
 
         public new void Initialize()
         {
-            AddChildScreen(new ORToolsDemoScreen(Application, this), null);
+            var orToolsDemoScreen = appService.Kernel.Get<ORToolsDemoScreen>();
+            AddChildScreen(orToolsDemoScreen);
 
             base.Initialize();
         }

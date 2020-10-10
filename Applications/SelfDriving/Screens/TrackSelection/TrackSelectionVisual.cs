@@ -1,10 +1,11 @@
-﻿using SelfDriving.Helpers;
+﻿using Ninject;
+using SelfDriving.Helpers;
 using SelfDriving.Shared;
 using SFML.Graphics;
 using Shared.Events.EventArgs;
 using Shared.Interfaces;
+using Shared.Interfaces.Services;
 using Shared.Menus;
-using Shared.ScreenConfig;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,11 +22,11 @@ namespace SelfDriving.Screens.TrackSelection
         public Action<Track> OnTrackSelected { get; set; }
 
         public TrackSelectionVisual(
-            ScreenConfiguration configuration,
-            IApplicationInstance application,
+            IApplicationService appService,
+            IApplicationManager appManager,
             string trackDirectory)
         {
-            grid = new GridScreen(configuration, application);
+            grid = appService.Kernel.Get<GridScreen>();
 
             tracks = TrackHelper.LoadTrackFiles(trackDirectory);
 

@@ -1,10 +1,11 @@
-﻿using SelfDriving.Agents;
+﻿using Ninject;
+using SelfDriving.Agents;
 using SelfDriving.Interfaces;
 using SFML.Graphics;
 using SFML.Window;
 using Shared.Core;
 using Shared.Events.CallbackArgs;
-using Shared.Interfaces;
+using Shared.Interfaces.Services;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -21,17 +22,17 @@ namespace SelfDriving.Shared.RaceSimulation
         public Track CurrentTrack { get; private set; }
 
         public RacingSimulationScreen(
-            IApplication application,
-            IApplicationInstance applicationInstance,
+            IApplicationService appService,
+            IEventService eventService,
             IEnumerable<ICarController> carControllers)
-            : base(application, applicationInstance)
         {
-            racingSimulationLogic = new RacingSimulationLogic(application);
-            racingSimulationVisualization = new RacingSimulationVisualization(racingSimulationLogic);
-            this.carControllers = carControllers.ToList();
+            racingSimulationLogic = appService.Kernel.Get<RacingSimulationLogic>();
+            racingSimulationVisualization = appService.Kernel.Get < RacingSimulationVisualization>();
 
-            RegisterKeyboardCallback(new KeyPressCallbackEventArgs(Keyboard.Key.R), OnResetRequested);
-            RegisterJoystickCallback(new JoystickCallbackEventArgs(7), OnResetRequested);
+            eventService.RegisterKeyboardCallback(this.Id, new KeyPressCallbackEventArgs(Keyboard.Key.R), OnResetRequested);
+            eventService.RegisterJoystickButtonCallback(this.Id, new JoystickCallbackEventArgs(7), OnResetRequested);
+
+            this.carControllers = carControllers.ToList();
         }
 
         private void OnResetRequested(object _)

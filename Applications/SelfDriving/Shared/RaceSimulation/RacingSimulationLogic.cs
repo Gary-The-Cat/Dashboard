@@ -1,22 +1,17 @@
 ﻿using SelfDriving.Agents;
 using SelfDriving.Interfaces;
-using Shared.Interfaces;
 using System.Collections.Generic;
 
 namespace SelfDriving.Shared.RaceSimulation
 {
     public class RacingSimulationLogic
     {
-        internal IApplication application;
-
         private List<Car> cars;
 
         private Track track;
 
-        public RacingSimulationLogic(IApplication application)
+        public RacingSimulationLogic()
         {
-            this.application = application;
-
             cars = new List<Car>();
         }
 

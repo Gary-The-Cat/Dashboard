@@ -7,6 +7,7 @@ using Shared.Core;
 using Shared.Events.CallbackArgs;
 using Shared.Events.EventArgs;
 using Shared.Interfaces;
+using Shared.Interfaces.Services;
 using Shared.Menus;
 using Shared.Notifications;
 using System;
@@ -17,32 +18,35 @@ namespace SelfDriving.Screens.MapMaker
 {
     public class MapMakerHudScreen : Screen
     {
-        private IApplication application;
-
         private List<Button> buttons;
 
         private MapMakerDataContainer sharedContainer;
 
-        public MapMakerHudScreen(
-            IApplication application, 
-            IApplicationInstance applicationInstance,
-            MapMakerDataContainer sharedContainer) 
-            : base(application, applicationInstance)
-        {
-            this.application = application;
+        private IApplicationManager appManager;
 
+        private INotificationService notificationService;
+
+        public MapMakerHudScreen(
+            IApplicationManager appManager,
+            IEventService eventService,
+            INotificationService notificationService,
+            MapMakerDataContainer sharedContainer) 
+        {
+            this.appManager = appManager;
+            this.notificationService = notificationService;
             this.sharedContainer = sharedContainer;
 
             this.buttons = new List<Button>();
 
-            RegisterMouseClickCallback(
+            eventService.RegisterMouseClickCallback(
+                this.Id,
                 new MouseClickCallbackEventArgs(Mouse.Button.Left),
                 OnMousePress);
 
             buttons.Add(new Button("Draw", new Vector2f(20, 20), () =>
             {
                 SetState(MapEditState.DrawingLines);
-                application.NotificaitonService.ShowToast(
+                notificationService.ShowToast(
                     ToastType.Info,
                     "Drawing Lines Enabled");
             }, HorizontalAlignment.Left));
@@ -50,7 +54,7 @@ namespace SelfDriving.Screens.MapMaker
             buttons.Add(new Button("Move", new Vector2f(20, 70), () => 
             {
                 SetState(MapEditState.MovingPoints);
-                application.NotificaitonService.ShowToast(
+                notificationService.ShowToast(
                     ToastType.Info,
                     "Moving Points Enabled");
             }, HorizontalAlignment.Left));
@@ -58,7 +62,7 @@ namespace SelfDriving.Screens.MapMaker
             buttons.Add(new Button("Delete", new Vector2f(20, 120), () => 
             {
                 SetState(MapEditState.Deletion);
-                application.NotificaitonService.ShowToast(
+                notificationService.ShowToast(
                     ToastType.Warning,
                     "Deletion Enabled");
             }, HorizontalAlignment.Left));
@@ -66,7 +70,7 @@ namespace SelfDriving.Screens.MapMaker
             buttons.Add(new Button("Checkpoints", new Vector2f(20, 170), () =>
             {
                 SetState(MapEditState.Checkpoint);
-                application.NotificaitonService.ShowToast(
+                notificationService.ShowToast(
                     ToastType.Info,
                     "Checkpoint Mode Enabled");
             }, HorizontalAlignment.Left));
@@ -74,12 +78,12 @@ namespace SelfDriving.Screens.MapMaker
             buttons.Add(new Button("Start", new Vector2f(20, 225), () =>
             {
                 SetState(MapEditState.StartPosition);
-                application.NotificaitonService.ShowToast(
+                notificationService.ShowToast(
                     ToastType.Info,
                     "Set Start Position");
             }, HorizontalAlignment.Left));
 
-            var exportTextPosition = new Vector2f(20, application.Window.Size.Y - 60);
+            var exportTextPosition = new Vector2f(20, appManager.GetWindowSize().Y - 60);
             buttons.Add(new Button("Export", exportTextPosition, () => ExportTrack(), HorizontalAlignment.Left));
         }
 
@@ -101,7 +105,7 @@ namespace SelfDriving.Screens.MapMaker
 
             ThumbnailHelper.GenerateTrackThumbnail(track, trackThumbnailName);
 
-            application.NotificaitonService.ShowToast(
+            notificationService.ShowToast(
                 ToastType.Successful,
                 "Track exported successfully");
         }
@@ -113,7 +117,7 @@ namespace SelfDriving.Screens.MapMaker
 
         public override void OnRender(RenderTarget target)
         {
-            target.SetView(application.GetDefaultView());
+            target.SetView(appManager.GetDefaultView());
 
             buttons.ForEach(b => b.OnRender(target));
         }

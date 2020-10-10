@@ -1,6 +1,7 @@
 ﻿using SelfDriving.Agents;
 using SFML.Graphics;
 using Shared.CameraTools;
+using Shared.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -19,9 +20,9 @@ namespace SelfDriving.Shared.RaceSimulation
         private CarVisual TrackedCar => carVisuals.Where(c => c.IsRunning).OrderByDescending(c => c.TotalDistance).FirstOrDefault();
 
         public RacingSimulationVisualization(
-            RacingSimulationLogic simulation)
+            IApplicationManager appManager)
         {
-            this.camera = new Camera(simulation.application.Configuration);
+            this.camera = new Camera(appManager.GetScreenConfiguration());
 
             this.carVisuals = new List<CarVisual>();
         }

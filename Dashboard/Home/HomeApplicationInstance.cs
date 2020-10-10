@@ -1,8 +1,11 @@
 ﻿using Dashboard.ProgramLoad;
 using Dashboard.Screens;
+using Ninject;
+using Ninject.Parameters;
 using SFML.Graphics;
 using Shared.Core;
 using Shared.Interfaces;
+using Shared.Interfaces.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,11 +16,17 @@ namespace Dashboard.Core
     {
         private List<ApplicationInstanceVisual> applications;
 
-        public HomeApplicationInstance(IApplication application) : base(application)
+        private IApplicationService appService;
+
+        public HomeApplicationInstance(IApplicationService appService, IApplicationManager appManager)
         {
+            IApplication application = null;
+
+            this.appService = appService;
+
             this.applications = new List<ApplicationInstanceVisual>();
 
-            this.GoHome = () => application.ApplicationManager.GoHome();
+            this.GoHome = () => appManager.GoHome();
 
             var applicationTypes = ApplicationLoader.GetApplicationsInstances();
 
@@ -25,14 +34,13 @@ namespace Dashboard.Core
             for ( int i = 0; i < applicationTypes.Count; i++)
             {
                 var type = applicationTypes[i];
-
                 // Try to create an instance of our ApplicationInstance who has a constructor containing requiging our main applicaiton.
                 IApplicationInstance applicationInstance;
                 try
                 {
-                    applicationInstance = (IApplicationInstance)Activator.CreateInstance(type, application);
-                    applicationInstance.EventService = application.EventService;
-                    applicationInstance.NotificationService = application.NotificaitonService;
+                    applicationInstance = (IApplicationInstance)appService.Kernel.Get(type);
+
+                    ConfigureBackBehaviour(applicationInstance, appManager);
                 }
                 catch (Exception e)
                 {
@@ -61,15 +69,33 @@ namespace Dashboard.Core
             }
         }
 
+        private void ConfigureBackBehaviour(
+            IApplicationInstance applicationInstance, 
+            IApplicationManager appManager)
+        {
+            applicationInstance.GoHome = () => appManager.GoHome();
+
+            applicationInstance.GoBack = () =>
+            {
+                if (applicationInstance.ScreenManager.CurrentLayer > 0)
+                {
+                    applicationInstance.ScreenManager.GoBack();
+                }
+                else
+                {
+                    appManager.GoHome();
+                }
+            };
+        }
+
         public string DisplayName => "Home";
 
         public new void Initialize()
         {
-            var homeScreen = new HomeScreen(Application, this, applications);
+            var homeScreen = appService.Kernel.Get<HomeScreen>(
+                new ConstructorArgument("applicationInstances", applications));
 
-            AddChildScreen(homeScreen, null);
-
-            SetActiveScreen(homeScreen);
+            AddChildScreen(homeScreen);
 
             base.Initialize();
         }

@@ -1,10 +1,12 @@
 ﻿using Dashboard.Home;
+using Ninject;
+using Ninject.Parameters;
 using SFML.Graphics;
 using SFML.Window;
 using Shared.Core;
 using Shared.Events.CallbackArgs;
 using Shared.Interfaces;
-using System;
+using Shared.Interfaces.Services;
 using System.Collections.Generic;
 
 namespace Dashboard.Screens
@@ -15,32 +17,31 @@ namespace Dashboard.Screens
     /// </summary>
     public class HomeScreen : Screen
     {
-        private IApplication application;
-
         private List<ApplicationInstanceVisual> applications;
 
         private ApplicationDashboard applicationDashboard;
 
-        private IApplicationInstance applicationInstance;
-
         private IApplicationInstance selectedApplication => applicationDashboard.SelectedApplication.ApplicationInstance;
 
         public HomeScreen(
-            IApplication application,
-            IApplicationInstance applicationInstance,
-            List<ApplicationInstanceVisual> applicationInstances) : base(application, applicationInstance)
+            IApplicationManager applicationManager,
+            IEventService eventService,
+            IApplicationService appService,
+            List<ApplicationInstanceVisual> applicationInstances) : base()
         {
-            this.application = application;
-            this.applicationInstance = applicationInstance;
             this.applications = applicationInstances;
-            this.applicationDashboard = new ApplicationDashboard(
-                applicationInstances, 
-                application,
-                this);
+            this.applicationDashboard = appService.Kernel.Get<ApplicationDashboard>(
+                new ConstructorArgument("applications", applicationInstances));
 
-            this.RegisterKeyboardCallback(
+            eventService.RegisterKeyboardCallback(Id, new KeyPressCallbackEventArgs(Keyboard.Key.Left), applicationDashboard.LeftKeyPressed);
+            eventService.RegisterKeyboardCallback(Id, new KeyPressCallbackEventArgs(Keyboard.Key.Right), applicationDashboard.RightKeyPressed);
+            eventService.RegisterMouseClickCallback(Id, new MouseClickCallbackEventArgs(Mouse.Button.Left), applicationDashboard.OnMouseClick);
+            eventService.RegisterMouseWheelScrollCallback(Id, applicationDashboard.OnMouseWheelMove);
+
+            eventService.RegisterKeyboardCallback(
+                Id,
                 new KeyPressCallbackEventArgs(Keyboard.Key.Enter),
-                (_) => application.ApplicationManager.SetActiveApplication(selectedApplication));
+                (_) => applicationManager.SetActiveApplication(selectedApplication));
         }
 
         public override void OnUpdate(float dt)

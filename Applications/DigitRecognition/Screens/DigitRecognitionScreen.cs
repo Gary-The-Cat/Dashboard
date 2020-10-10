@@ -6,6 +6,7 @@ using Shared.Core;
 using Shared.Events.CallbackArgs;
 using Shared.Events.EventArgs;
 using Shared.Interfaces;
+using Shared.Interfaces.Services;
 using Shared.NeuralNetworks;
 using System.IO;
 using System.IO.Compression;
@@ -28,11 +29,13 @@ namespace DigitRecognition.Screens
         private RectangleShape[,] imageCanvas;
         private Text feedbackText;
 
+        private IApplicationManager appManager;
+
         public DigitRecognitionScreen(
-            IApplication application,
-            IApplicationInstance applicationInstance)
-            : base(application, applicationInstance)
+            IApplicationManager appManager,
+            IEventService eventService)
         {
+            this.appManager = appManager;
 
             var currentDirectory = Directory.GetCurrentDirectory();
             var imagePath = Path.Combine(currentDirectory, "Resources", "train-images.idx3-ubyte");
@@ -55,7 +58,7 @@ namespace DigitRecognition.Screens
             imageCanvas = GetImageCanvas();
 
             feedbackText = new Text("Training Network...", new Font("Resources\\font.ttf"));
-            feedbackText.Position = new Vector2f(application.Window.Size.X * 0.55f, application.Window.Size.Y / 2);
+            feedbackText.Position = new Vector2f(appManager.GetWindowSize().X * 0.55f, appManager.GetWindowSize().Y / 2);
             feedbackText.FillColor = Color.Black;
 
             Task.Run(() =>
@@ -64,11 +67,13 @@ namespace DigitRecognition.Screens
                 feedbackText.DisplayedString = "Ready to go";
             });
 
-            RegisterKeyboardCallback(
+            eventService.RegisterKeyboardCallback(
+                Id,
                 new KeyPressCallbackEventArgs(Keyboard.Key.Right),
                 NextImage);
 
-            RegisterKeyboardCallback(
+            eventService.RegisterKeyboardCallback(
+                Id,
                 new KeyPressCallbackEventArgs(Keyboard.Key.Left),
                 PreviousImage);
         }
@@ -100,7 +105,7 @@ namespace DigitRecognition.Screens
             var canvas = new RectangleShape[ImageWidth, ImageHeight];
 
             var canvasSize = PixelSize * ImageHeight;
-            var remainingSpace = Application.Window.Size.Y - canvasSize;
+            var remainingSpace = appManager.GetWindowSize().Y - canvasSize;
             var offset = new Vector2f(remainingSpace / 2, remainingSpace / 2);
             var pixelSize = new Vector2f(PixelSize, PixelSize);
 
